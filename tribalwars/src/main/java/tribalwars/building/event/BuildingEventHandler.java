@@ -2,6 +2,8 @@ package tribalwars.building.event;
 
 import java.util.ArrayList;
 
+import org.jsoup.nodes.Document;
+
 public class BuildingEventHandler {
 
 	private ArrayList<BuildingEventListener> listener = new ArrayList<BuildingEventListener>();
@@ -10,10 +12,10 @@ public class BuildingEventHandler {
 		this.listener.add(listener);
 	}
 
-	public void fireLevelChangeEvent() {
+	public void fireLevelChangeEvent(Document htmlDocument) {
 		BuildingEventListener[] listener = this.listener.toArray(new BuildingEventListener[this.listener.size()]);
 		for (BuildingEventListener buildingEventListener : listener) {
-			buildingEventListener.levelChangeEvent();
+			buildingEventListener.levelChangeEvent(htmlDocument);
 		}
 		listener = null;
 	}

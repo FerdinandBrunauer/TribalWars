@@ -1,5 +1,7 @@
 package tribalwars.building;
 
+import org.jsoup.nodes.Document;
+
 import tribalwars.Village;
 import tribalwars.building.event.BuildingEventListener;
 
@@ -14,7 +16,7 @@ public class VillageHeadquarters extends Building implements BuildingEventListen
 		// TODO updateLevel
 	}
 
-	public void levelChangeEvent() {
+	public void levelChangeEvent(Document htmlDocument) {
 		// TODO Auto-generated method stub
 		
 	}
