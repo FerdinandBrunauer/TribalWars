@@ -1,4 +1,4 @@
-package tribe.building.event;
+package tribalwars.building.event;
 
 public interface BuildingEventListener {
 

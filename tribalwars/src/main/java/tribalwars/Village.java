@@ -1,7 +1,7 @@
 package tribalwars;
 
-import tribe.building.VillageHeadquarters;
-import tribe.building.event.BuildingEventHandler;
+import tribalwars.building.VillageHeadquarters;
+import tribalwars.building.event.BuildingEventHandler;
 
 public class Village extends BuildingEventHandler {
 
