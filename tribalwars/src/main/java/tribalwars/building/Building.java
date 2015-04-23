@@ -33,10 +33,15 @@ public abstract class Building implements BuildingEventListener {
 	public synchronized int getLevel() {
 		if ((System.currentTimeMillis() - lastLevelUpdate) > LEVEL_UPDATE_TIMEOUT) {
 			updateLevel();
-			lastLevelUpdate = System.currentTimeMillis();
 		}
 
 		return this.level;
+	}
+
+	protected void setLevel(int level) {
+		this.level = level;
+		lastLevelUpdate = System.currentTimeMillis();
+
 	}
 
 	/**

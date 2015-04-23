@@ -3,9 +3,8 @@ package tribalwars.building;
 import org.jsoup.nodes.Document;
 
 import tribalwars.Village;
-import tribalwars.building.event.BuildingEventListener;
 
-public class VillageHeadquarters extends Building implements BuildingEventListener {
+public class VillageHeadquarters extends Building {
 
 	public VillageHeadquarters(Village owner) {
 		super(owner);
@@ -18,7 +17,6 @@ public class VillageHeadquarters extends Building implements BuildingEventListen
 
 	public void levelChangeEvent(Document htmlDocument) {
 		// TODO Auto-generated method stub
-		
 	}
 
 }
