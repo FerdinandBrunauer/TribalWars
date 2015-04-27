@@ -17,6 +17,10 @@ public class Account {
 		return new ArrayList<World>(); // TODO get playable worlds
 	}
 
+	public boolean login(String worldName) {
+		return true; // TODO
+	}
+	
 	public String getPassword() {
 		return password;
 	}

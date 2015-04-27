@@ -18,6 +18,7 @@ public abstract class Building implements BuildingEventListener {
 
 	public Building(Village owner) {
 		this.owner = owner;
+		this.owner.addListener(this);
 	}
 
 	public Village getOwner() {
