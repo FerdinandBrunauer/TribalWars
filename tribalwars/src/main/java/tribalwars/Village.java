@@ -20,9 +20,9 @@ public class Village {
 	private int schwereKavallerie = 0;
 	private int rammboecke = 0;
 	private int katapult = 0;
-	
+
 	public Village() {
-		
+
 	}
 
 	public String getId() {

@@ -17,17 +17,17 @@ public class WebService implements Runnable {
 
 	public WebService(Account account, int port) {
 		this.account = account;
-		
+
 		this.server = new Server();
-		
+
 		SelectChannelConnector connector = new SelectChannelConnector();
 		connector.setPort(port);
 		server.addConnector(connector);
-		
+
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath("/");
 		context.addServlet(new ServletHolder(new AjaxService(this.account)), "/ajax/*");
-		
+
 		ResourceHandler resource_handler = new ResourceHandler();
 		resource_handler.setDirectoriesListed(true);
 		resource_handler.setWelcomeFiles(new String[] { "index.html" });
@@ -35,7 +35,7 @@ public class WebService implements Runnable {
 
 		HandlerList handlers = new HandlerList();
 		handlers.setHandlers(new Handler[] { resource_handler, context });
-		server.setHandler(handlers); 
+		server.setHandler(handlers);
 
 		new Thread(this, "WebService").start();
 	}
@@ -45,7 +45,8 @@ public class WebService implements Runnable {
 			server.start();
 			server.join();
 		} catch (Exception e) {
-			System.err.println("Konnte Server nicht starten"); // TODO log error message
+			System.err.println("Konnte Server nicht starten"); // TODO log error
+																// message
 			System.exit(1);
 		}
 	}

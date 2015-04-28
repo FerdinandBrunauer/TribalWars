@@ -63,7 +63,7 @@ public class WebBrowser {
 			response.append(inputLine);
 		}
 		in.close();
-		
+
 		return Jsoup.parse(response.toString());
 	}
 

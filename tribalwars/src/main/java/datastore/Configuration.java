@@ -8,17 +8,17 @@ import java.util.Properties;
 public class Configuration {
 
 	private static Properties defaultProperties = new Properties();
-	
+
 	static {
 		try {
 			FileInputStream in = new FileInputStream("configuration.prop");
 			defaultProperties.load(in);
 			in.close();
-		} catch(Exception e) {
+		} catch (Exception e) {
 			// TODO log message
 		}
 	}
-	
+
 	public static void setProperty(String key, String value) {
 		defaultProperties.setProperty(key, value);
 		try {
@@ -29,14 +29,14 @@ public class Configuration {
 			// TODO log message
 		}
 	}
-	
+
 	public static String getProperty(String key, String defaultValue) {
 		String prop = defaultProperties.getProperty(key);
-		if(prop == null) {
+		if (prop == null) {
 			return defaultValue;
 		} else {
 			return prop;
 		}
 	}
-	
+
 }
