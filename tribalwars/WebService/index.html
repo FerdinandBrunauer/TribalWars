@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="author" content="Ferdinand Brunauer">
+		<title>Die St&auml;mme Bot</title>
+		<!-- Favicon -->
+		<link rel="shortcut icon" href="favicon2.ico" type="image/x-icon" />
+		<!-- Bootstrap Core CSS -->
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<!-- Custom CSS -->
+		<link href="css/simple-sidebar.css" rel="stylesheet">
+		<!-- jQuery -->
+		<script src="js/jquery.js"></script>
+		<!-- Bootstrap Core JavaScript -->
+		<script src="js/bootstrap.min.js"></script>		
+	</head>
+	<body>
+		<div id="wrapper">
+			<!-- Sidebar -->
+			<div id="sidebar-wrapper">
+				<ul class="sidebar-nav">
+					<li class="sidebar-brand" style="color: #FFFFFF;">
+						Die St&auml;mme Bot
+					</li>
+					<li>
+						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=dashboard');">Dashboard</a> <!-- Meine Dörfer Übersicht + einstellbar welche Bau Vorlage -->
+					</li>
+					<li>
+						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=building_pattern');">Bauvorlagen</a>
+					</li>
+					<li>
+						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=#');">Ausbau - Log</a>
+					</li>
+					<li>
+						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=#');">Angriff - Log</a>
+					</li>
+					<li>
+						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=#');">Einstellungen</a>
+					</li>
+				</ul>
+			</div>
+			<!-- /#sidebar-wrapper -->
+			
+			<!-- Page Content -->
+			<div id="page-content-wrapper">
+				
+			</div>
+			<!-- /#page-content-wrapper -->
+		</div>
+		<!-- /#wrapper -->
+		
+		<script>
+			$("#page-content-wrapper").load("ajax/ajax?method=dashboard");
+			
+			function tryLogin(name, password) {
+				$.get("ajax/ajax?method=login&name=" + name + "&password=" + password, function(data) {
+				alert(data);
+				});
+			}
+		</script>
+	</body>
+</html>

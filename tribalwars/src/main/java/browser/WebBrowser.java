@@ -1,4 +1,4 @@
-package web;
+package browser;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
