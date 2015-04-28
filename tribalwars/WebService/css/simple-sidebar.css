@@ -124,6 +124,11 @@
     }
 }
 
+.container
+{
+	width: 90%;
+}
+
 .form-signin
 {
     max-width: 330px;

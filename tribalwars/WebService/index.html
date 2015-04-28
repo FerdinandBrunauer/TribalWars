@@ -46,18 +46,63 @@
 			
 			<!-- Page Content -->
 			<div id="page-content-wrapper">
-				
+				<div class="container">
+					<h1>Dashboard</h1>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>Nr.</th>
+								<th>Name</th>
+								<th>Koodinaten</th>
+								<th>Holz</th>
+								<th>Lehm</th>
+								<th>Eisen</th>
+								<th>Speicher</th>
+								<th>Speertr.</th>
+								<th>Schwertk.</th>
+								<th>Axtk.</th>
+								<th>Bogensch.</th>
+								<th>Sp&auml;her</th>
+								<th>L.Kav.</th>
+								<th>B.Bogensch.</th>
+								<th>S.Kav.</th>
+								<th>Rammb&ouml;cke</th>
+								<th>Katapult</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>1</td>
+								<td>Hauptdorf</td>
+								<td>212|563</td>
+								<td>2.333</td>
+								<td>12.786</td>
+								<td>5.413</td>
+								<td>75.000</td>
+								<td>5</td>
+								<td>10</td>
+								<td>7</td>
+								<td>9</td>
+								<td>32</td>
+								<td>5</td>
+								<td>564</td>
+								<td>4</td>
+								<td>20</td>
+								<td>23</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			</div>
 			<!-- /#page-content-wrapper -->
 		</div>
 		<!-- /#wrapper -->
 		
 		<script>
-			$("#page-content-wrapper").load("ajax/ajax?method=dashboard");
+			//$("#page-content-wrapper").load("ajax/ajax?method=dashboard");
 			
 			function tryLogin(name, password) {
 				$.get("ajax/ajax?method=login&name=" + name + "&password=" + password, function(data) {
-				alert(data);
 				});
 			}
 		</script>

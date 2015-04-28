@@ -10,8 +10,8 @@ public class Account {
 		
 	}
 	
-	public ArrayList<Village> getMyVillages() {
-		return myVillages;
+	public Village[] getMyVillages() {
+		return myVillages.toArray(new Village[myVillages.size()]);
 	}
 
 }
