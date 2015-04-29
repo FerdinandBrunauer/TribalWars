@@ -3,7 +3,6 @@
  * Code licensed under the Apache License v2.0.
  * For details, see http://www.apache.org/licenses/LICENSE-2.0.
  */
-
 /* Toggle Styles */
 
 #wrapper {
@@ -13,11 +12,9 @@
     -o-transition: all 0.5s ease;
     transition: all 0.5s ease;
 }
-
 #wrapper.toggled {
     padding-left: 250px;
 }
-
 #sidebar-wrapper {
     z-index: 1000;
     position: fixed;
@@ -32,24 +29,20 @@
     -o-transition: all 0.5s ease;
     transition: all 0.5s ease;
 }
-
 #wrapper.toggled #sidebar-wrapper {
     width: 250px;
 }
-
 #page-content-wrapper {
     width: 100%;
     position: absolute;
     padding: 15px;
 }
-
 #wrapper.toggled #page-content-wrapper {
     position: absolute;
     margin-right: -250px;
 }
 
 /* Sidebar Styles */
-
 .sidebar-nav {
     position: absolute;
     top: 0;
@@ -58,130 +51,104 @@
     padding: 0;
     list-style: none;
 }
-
 .sidebar-nav li {
     text-indent: 20px;
     line-height: 40px;
 }
-
 .sidebar-nav li a {
     display: block;
     text-decoration: none;
     color: #999999;
 }
-
 .sidebar-nav li a:hover {
     text-decoration: none;
     color: #fff;
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
 }
-
 .sidebar-nav li a:active,
 .sidebar-nav li a:focus {
     text-decoration: none;
 }
-
 .sidebar-nav > .sidebar-brand {
     height: 65px;
     font-size: 18px;
     line-height: 60px;
 }
-
 .sidebar-nav > .sidebar-brand a {
     color: #999999;
 }
-
 .sidebar-nav > .sidebar-brand a:hover {
     color: #fff;
     background: none;
 }
-
 @media(min-width:768px) {
     #wrapper {
         padding-left: 250px;
     }
-
     #wrapper.toggled {
         padding-left: 0;
     }
-
     #sidebar-wrapper {
         width: 250px;
     }
-
     #wrapper.toggled #sidebar-wrapper {
         width: 0;
     }
-
     #page-content-wrapper {
         padding: 20px;
         position: relative;
     }
-
     #wrapper.toggled #page-content-wrapper {
         position: relative;
         margin-right: 0;
     }
 }
-
-.container
-{
-	width: 90%;
+.container {
+    width: 90%;
 }
-
-.form-signin
-{
+.form-signin {
     max-width: 330px;
     padding: 15px;
     margin: 0 auto;
 }
-.form-signin .checkbox
-{
+.form-signin .checkbox {
     font-weight: normal;
 }
-.form-signin .form-control
-{
+.form-signin .form-control {
     position: relative;
     font-size: 16px;
     height: auto;
-    padding: 10px;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
-.form-signin .form-control:focus
-{
+.form-signin .form-control:focus {
     z-index: 2;
 }
-.form-signin input[type="text"]
-{
+.form-signin input[type="text"] {
     margin-bottom: -1px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
-.form-signin input[type="password"]
-{
+.form-signin input[type="password"] {
     margin-bottom: 10px;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
-.account-wall
-{
+.account-wall {
     padding: 20px 0px 20px 0px;
     background-color: #f7f7f7;
     -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
     -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
     box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
 }
-.login-title
-{
+.login-title {
     color: #555;
     font-size: 18px;
     font-weight: 400;
     display: block;
 }
-.profile-img
-{
+.profile-img {
     width: 96px;
     height: 96px;
     margin: 0 auto 10px;
@@ -189,4 +156,66 @@
     -moz-border-radius: 50%;
     -webkit-border-radius: 50%;
     border-radius: 50%;
+}
+.connected,
+.sortable,
+.exclude,
+.handles {
+    margin: auto;
+    padding: 0;
+    width: 310px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.sortable.grid {
+    overflow: hidden;
+}
+.connected li,
+.sortable li,
+.exclude li,
+.handles li {
+    list-style: none;
+    border: 1px solid #CCC;
+    background: #F6F6F6;
+    font-family: "Tahoma";
+	font-size: 1em;
+    color: #1C94C4;
+	padding: 10px;
+	margin: 8px;
+}
+.handles span {
+    cursor: move;
+}
+li.disabled {
+    opacity: 0.5;
+}
+.sortable.grid li {
+    line-height: 80px;
+    float: left;
+    width: 80px;
+    height: 80px;
+    text-align: center;
+}
+li.highlight {
+    background: #FEE25F;
+}
+#connected {
+    width: 440px;
+    overflow: hidden;
+    margin: auto;
+}
+.connected {
+    float: left;
+    width: 200px;
+}
+.connected.no2 {
+    float: right;
+}
+li.sortable-placeholder {
+    border: 1px dashed #CCC;
+    background: none;
 }

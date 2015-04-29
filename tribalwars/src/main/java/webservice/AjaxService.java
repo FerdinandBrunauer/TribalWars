@@ -1,6 +1,8 @@
 package webservice;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,6 +12,8 @@ import javax.servlet.http.HttpSession;
 
 import tribalwars.Account;
 import tribalwars.Village;
+import datastore.Database;
+import datastore.memoryObjects.BuildingPattern;
 
 public class AjaxService extends HttpServlet {
 	private static final long serialVersionUID = -527089361769286098L;
@@ -33,10 +37,14 @@ public class AjaxService extends HttpServlet {
 					break;
 				}
 				case "building_pattern": {
-					response.getWriter().println(generateBuildingPattern());
+					response.getWriter().println(generateBuildingPatternOverview());
 					break;
 				}
-				// TODO
+				case "building_pattern_list": {
+					response.getWriter().println(generateBuildingPatternList(request));
+					break;
+				}
+				// TODO add more request methods
 				default: {
 					response.getWriter().println(generateErrorMessage("Ung&uuml;ltige Anfrage!"));
 					break;
@@ -73,7 +81,7 @@ public class AjaxService extends HttpServlet {
 	}
 
 	private String generateDashboard() {
-		String dashboard = "<div class=\"container\"><h1>Dashboard</h1><table class=\"table table-striped\"><thead><tr><th>Nr.</th><th>Name</th><th>Koodinaten</th><th>Holz</th><th>Lehm</th><th>Eisen</th><th>Speicher</th><th>Speertr.</th><th>Schwertk.</th><th>Axtk.</th><th>Bogensch.</th><th>Sp&auml;her</th><th>L.Kav.</th><th>B.Bogensch.</th><th>S.Kav.</th><th>Rammb&ouml;cke</th><th>Katapult</th></tr></thead><tbody>";
+		String dashboard = "<div class=\"container\"><h1>Dashboard</h1><table class=\"table table-striped table-bordered\"><thead><tr><th>Nr.</th><th>Name</th><th>Koodinaten</th><th>Holz</th><th>Lehm</th><th>Eisen</th><th>Speicher</th><th>Speertr.</th><th>Schwertk.</th><th>Axtk.</th><th>Bogensch.</th><th>Sp&auml;her</th><th>L.Kav.</th><th>B.Bogensch.</th><th>S.Kav.</th><th>Rammb&ouml;cke</th><th>Katapult</th></tr></thead><tbody>";
 
 		Village[] villages = this.account.getMyVillages();
 		int counter = 1;
@@ -104,8 +112,53 @@ public class AjaxService extends HttpServlet {
 		return dashboard;
 	}
 
-	private String generateBuildingPattern() {
-		return "Hier k&ouml;nnten ihre Bauvorlagen stehen";
+	private String generateBuildingPatternOverview() {
+		String buildingPatternOverview = "<div class=\"container\"><h1>Bauvorlagen</h1><table class=\"table table-striped table-bordered\"><thead><tr><th>Name</th><th><img src=\"images/haupthaus.png\"></th><th><img src=\"images/att1.png\"></th><th><img src=\"images/stall.png\"></th><th><img src=\"images/werkstaette.png\"></th><th><img src=\"images/adelshof.png\"></th><th><img src=\"images/schmiede.png\"></th><th><img src=\"images/platz.png\"></th><th><img src=\"images/marktplatz.png\"></th><th><img src=\"images/holzmine.png\"></th><th><img src=\"images/lehmmine.png\"></th><th><img src=\"images/eisenmine.png\"></th><th><img src=\"images/farm.png\"></th><th><img src=\"images/speicher.png\"></th><th><img src=\"images/verstecke.png\"></th><th><img src=\"images/wall.png\"></th></tr></thead><tbody>";
+
+		List<BuildingPattern> buildingPattern = Database.getBuildingPattern();
+		for (BuildingPattern actualBuildingPattern : buildingPattern) {
+			HashMap<String, Integer> buildings = Database.getMaximalBuildinglevelFromVorlage(actualBuildingPattern.getID());
+
+			buildingPatternOverview += "<tr>";
+			buildingPatternOverview += "<td><a href=\"#\" onclick=\"loadBuildingPatternList(" + actualBuildingPattern.getID() + ");\">" + actualBuildingPattern.getName() + "</a></td>";
+			buildingPatternOverview += "<td>" + buildings.get("main") + "</td>";
+			buildingPatternOverview += "<td>" + buildings.get("barracks") + "</td>";
+			buildingPatternOverview += "<td>" + buildings.get("stable") + "</td>";
+			buildingPatternOverview += "<td>" + buildings.get("garage") + "</td>";
+			buildingPatternOverview += "<td>" + buildings.get("snob") + "</td>";
+			buildingPatternOverview += "<td>" + buildings.get("smith") + "</td>";
+			buildingPatternOverview += "<td>" + buildings.get("place") + "</td>";
+			buildingPatternOverview += "<td>" + buildings.get("market") + "</td>";
+			buildingPatternOverview += "<td>" + buildings.get("wood") + "</td>";
+			buildingPatternOverview += "<td>" + buildings.get("stone") + "</td>";
+			buildingPatternOverview += "<td>" + buildings.get("iron") + "</td>";
+			buildingPatternOverview += "<td>" + buildings.get("farm") + "</td>";
+			buildingPatternOverview += "<td>" + buildings.get("storage") + "</td>";
+			buildingPatternOverview += "<td>" + buildings.get("hide") + "</td>";
+			buildingPatternOverview += "<td>" + buildings.get("wall") + "</td>";
+			buildingPatternOverview += "</tr>";
+		}
+
+		buildingPatternOverview += "</tbody></table><div id=\"building_pattern_list\"></div></div>";
+		return buildingPatternOverview;
+	}
+
+	private String generateBuildingPatternList(HttpServletRequest request) {
+		long id;
+		try {
+			id = Long.parseLong(request.getParameter("id"));
+		} catch (Exception e) {
+			return generateErrorMessage("Ung&uuml;tige ID!");
+		}
+		String buildingPatternList = "<ul class=\"sortable list\">";
+
+		List<String> buildingPattern = Database.getBuildingPatternContent(id);
+		for (String buildingStep : buildingPattern) {
+			buildingPatternList += "<li>" + buildingStep + "</li>";
+		}
+
+		buildingPatternList += "</ul>";
+		return buildingPatternList;
 	}
 
 }

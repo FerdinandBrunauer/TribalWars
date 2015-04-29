@@ -15,7 +15,9 @@
 		<!-- jQuery -->
 		<script src="js/jquery.js"></script>
 		<!-- Bootstrap Core JavaScript -->
-		<script src="js/bootstrap.min.js"></script>		
+		<script src="js/bootstrap.min.js"></script>
+		<!-- jQuery Sortable List -->
+		<!-- <script src="js/jquery.sortable.min.js"></script>	-->
 	</head>
 	<body>
 		<div id="wrapper">
@@ -46,60 +48,22 @@
 			
 			<!-- Page Content -->
 			<div id="page-content-wrapper">
-				<div class="container">
-					<table class="table table-striped table-bordered">
-						<thead>
-							<tr>
-								<th>Name</th>
-								<th><img src="images/haupthaus.png"></th>
-								<th><img src="images/att1.png"></th>
-								<th><img src="images/stall.png"></th>
-								<th><img src="images/werkstaette.png"></th>
-								<th><img src="images/adelshof.png"></th>
-								<th><img src="images/schmiede.png"></th>
-								<th><img src="images/platz.png"></th>
-								<th><img src="images/marktplatz.png"></th>
-								<th><img src="images/holzmine.png"></th>
-								<th><img src="images/lehmmine.png"></th>
-								<th><img src="images/eisenmine.png"></th>
-								<th><img src="images/farm.png"></th>
-								<th><img src="images/speicher.png"></th>
-								<th><img src="images/verstecke.png"></th>
-								<th><img src="images/wall.png"></th>
-							</tr>
-						</thead>
-						<tbody>
-							
-						</tbody>
-					</table>
-				</div>
-			
-				<!-- <div class="container">
-					<h1>Dashboard</h1>
-					<table class="table table-striped">
-						<thead>
-							<tr>
-								
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								
-							</tr>
-						</tbody>
-					</table>
-				</div> 
-			</div> -->
+				
+			</div>
 			<!-- /#page-content-wrapper -->
+			
 		</div>
 		<!-- /#wrapper -->
 		
 		<script>
-			//$("#page-content-wrapper").load("ajax/ajax?method=dashboard");
+			$("#page-content-wrapper").load("ajax/ajax?method=dashboard");
 			
 			function tryLogin(name, password) {
-				$.get("ajax/ajax?method=login&name=" + name + "&password=" + password, function(data) {
-				});
+				$.get("ajax/ajax?method=login&name=" + name + "&password=" + password);
+			}
+			
+			function loadBuildingPatternList(id) {
+				$("#building_pattern_list").load("ajax/ajax?method=building_pattern_list&id=" + id);
 			}
 		</script>
 	</body>
