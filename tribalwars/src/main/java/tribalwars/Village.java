@@ -9,7 +9,6 @@ public class Village {
 	private int holz = 0;
 	private int lehm = 0;
 	private int eisen = 0;
-	private int speicher = 0;
 	private int speertraeger = 0;
 	private int schwertkaempfer = 0;
 	private int axtkaempfer = 0;
@@ -20,9 +19,42 @@ public class Village {
 	private int schwereKavallerie = 0;
 	private int rammboecke = 0;
 	private int katapult = 0;
+	private int hauptgebaeude = 0;
+	private int kaserne = 0;
+	private int stall = 0;
+	private int werkstatt = 0;
+	private int adelshof = 0;
+	private int schmiede = 0;
+	private int versammlungsplatz = 0;
+	private int marktplatz = 0;
+	private int holzfaeller = 0;
+	private int lehmgrube = 0;
+	private int eisenmine = 0;
+	private int bauernhof = 0;
+	private int speicher = 0;
+	private int versteck = 0;
+	private int wall = 0;
 
 	public Village() {
 
+	}
+
+	public Village(int hauptgebaeude, int kaserne, int stall, int werkstatt, int adelshof, int schmiede, int versammlungsplatz, int marktplatz, int holzfaeller, int lehmgrube, int eisenmine, int bauernhof, int speicher, int versteck, int wall) {
+		this.hauptgebaeude = hauptgebaeude;
+		this.kaserne = kaserne;
+		this.stall = stall;
+		this.werkstatt = werkstatt;
+		this.adelshof = adelshof;
+		this.schmiede = schmiede;
+		this.versammlungsplatz = versammlungsplatz;
+		this.marktplatz = marktplatz;
+		this.holzfaeller = holzfaeller;
+		this.lehmgrube = lehmgrube;
+		this.eisenmine = eisenmine;
+		this.bauernhof = bauernhof;
+		this.speicher = speicher;
+		this.versteck = versteck;
+		this.wall = wall;
 	}
 
 	public String getId() {
@@ -95,6 +127,62 @@ public class Village {
 
 	public int getKatapult() {
 		return katapult;
+	}
+
+	public int getHauptgebaeude() {
+		return hauptgebaeude;
+	}
+
+	public int getKaserne() {
+		return kaserne;
+	}
+
+	public int getStall() {
+		return stall;
+	}
+
+	public int getWerkstatt() {
+		return werkstatt;
+	}
+
+	public int getAdelshof() {
+		return adelshof;
+	}
+
+	public int getSchmiede() {
+		return schmiede;
+	}
+
+	public int getVersammlungsplatz() {
+		return versammlungsplatz;
+	}
+
+	public int getMarktplatz() {
+		return marktplatz;
+	}
+
+	public int getHolzfaeller() {
+		return holzfaeller;
+	}
+
+	public int getLehmgrube() {
+		return lehmgrube;
+	}
+
+	public int getEisenmine() {
+		return eisenmine;
+	}
+
+	public int getBauernhof() {
+		return bauernhof;
+	}
+
+	public int getVersteck() {
+		return versteck;
+	}
+
+	public int getWall() {
+		return wall;
 	}
 
 }

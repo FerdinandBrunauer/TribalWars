@@ -178,7 +178,7 @@ public class AjaxService extends HttpServlet {
 		}
 		String buildingPatternList = "<ul class=\"sortable list\">";
 
-		List<String> buildingPattern = Database.getBuildingPatternContent(id);
+		List<String> buildingPattern = Database.getBuildingPatternContentFormatted(id);
 		for (String buildingStep : buildingPattern) {
 			buildingPatternList += "<li>" + buildingStep + "</li>";
 		}

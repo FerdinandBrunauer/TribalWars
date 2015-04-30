@@ -15,6 +15,7 @@ import com.almworks.sqlite4java.SQLiteQueue;
 import com.almworks.sqlite4java.SQLiteStatement;
 
 import datastore.memoryObjects.BuildingPattern;
+import datastore.memoryObjects.VorlageItem;
 
 public class Database extends SQLiteQueue {
 
@@ -106,7 +107,7 @@ public class Database extends SQLiteQueue {
 		}).complete();
 	}
 
-	public static List<String> getBuildingPatternContent(final long id) {
+	public static List<String> getBuildingPatternContentFormatted(final long id) {
 		return getInstance().execute(new SQLiteJob<List<String>>() {
 			@Override
 			protected List<String> job(SQLiteConnection connection) throws Throwable {
@@ -123,11 +124,29 @@ public class Database extends SQLiteQueue {
 		}).complete();
 	}
 
+	public static List<VorlageItem> getBuildingPatternContent(final long id) {
+		return getInstance().execute(new SQLiteJob<List<VorlageItem>>() {
+			@Override
+			protected List<VorlageItem> job(SQLiteConnection connection) throws Throwable {
+				List<VorlageItem> items = new ArrayList<VorlageItem>();
+
+				SQLiteStatement statement = connection.prepare("SELECT `Building`.`name`, `VorlageItem`.`level` FROM `VorlageItem` JOIN `Building` ON `VorlageItem`.`idBuilding`=`Building`.`idBuilding` WHERE `VorlageItem`.`idVorlage`=? ORDER BY `VorlageItem`.`position` ASC;");
+				statement.bind(1, id);
+				while (statement.step()) {
+					items.add(new VorlageItem(statement.columnString(0), statement.columnInt(1)));
+				}
+
+				return items;
+			}
+		}).complete();
+	}
+
 	public static void logBuilding(final String dorfname, final int x, final int y, String building, int toLevel) {
 		Date date = new Date();
 		SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
 		String formattedTime = format.format(date);
-		final String logMessage = "<table style=\"width: 100%;\"><tr>" + "<td style=\"width: 20%\">" + formattedTime + "</td>" + "<td style=\"width: 20%\">" + dorfname + "(" + x + "|" + y + ")" + "</td>" + "<td style=\"width: 60%\">Ausbau von " + building + " auf Stufe " + toLevel + "</td>" + "</tr></table>";
+		final String logMessage = "<table style=\"width: 100%;\"><tr>" + "<td style=\"width: 20%\">" + formattedTime + "</td>" + "<td style=\"width: 20%\">" + dorfname + "(" + x + "|" + y + ")" + "</td>" + "<td style=\"width: 60%\">Ausbau von " + building + " auf Stufe " + toLevel + "</td>"
+				+ "</tr></table>";
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
 			protected Void job(SQLiteConnection connection) throws Throwable {
@@ -138,16 +157,17 @@ public class Database extends SQLiteQueue {
 			}
 		}).complete();
 	}
-	
+
 	public static void logAttack(final String destinationDorfname, final int destinationX, final int destinationY, final String targetDorfname, final int targetX, final int targetY) {
 		Date date = new Date();
 		SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
 		String formattedTime = format.format(date);
-		final String logMessage =  "<table style=\"width: 100%;\"><tr>";//"<table style=\"width: 100%;\"><tr>" + "<td style=\"width: 20%\">" + formattedTime + "</td>" + "<td style=\"width: 20%\">" + dorfname + "(" + x + "|" + y + ")" + "</td>" + "<td style=\"width: 60%\">Ausbau von " + building + " auf Stufe " + toLevel + "</td>" + "</tr></table>";
+		final String logMessage = "<table style=\"width: 100%;\"><tr>" + "<td style=\"width: 20%\">" + formattedTime + "</td>" + "<td style=\"width: 20%\">" + destinationDorfname + "(" + destinationX + "|" + destinationY + ")</td>" + "<td style=\"width: 20%\">" + targetDorfname + "(" + targetX
+				+ "|" + targetY + ")</td>" + "<td style=\"width: 40%\"></td>" + "</tr></table>";
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
 			protected Void job(SQLiteConnection connection) throws Throwable {
-				SQLiteStatement statement = connection.prepare("INSERT INTO BuildLog (message) VALUES (?);");
+				SQLiteStatement statement = connection.prepare("INSERT INTO `AngriffLog` (message) VALUES (?);");
 				statement.bind(1, logMessage);
 				statement.stepThrough();
 				return null;
@@ -161,7 +181,7 @@ public class Database extends SQLiteQueue {
 			protected List<String> job(SQLiteConnection connection) throws Throwable {
 				List<String> messages = new ArrayList<String>();
 
-				SQLiteStatement statement = connection.prepare("SELECT `message` FROM `BuildLog` WHERE `idLogItem` >=? ORDER BY `idLogItem` ASC LIMIT ?;");
+				SQLiteStatement statement = connection.prepare("SELECT `message` FROM `BuildLog` WHERE `idLogItem` >=? ORDER BY `idLogItem` DESC LIMIT ?;");
 				statement.bind(1, startID);
 				statement.bind(2, count);
 
@@ -180,7 +200,7 @@ public class Database extends SQLiteQueue {
 			protected List<String> job(SQLiteConnection connection) throws Throwable {
 				List<String> messages = new ArrayList<String>();
 
-				SQLiteStatement statement = connection.prepare("SELECT `message` FROM `AngriffLog` WHERE `idLogItem` >=? ORDER BY `idLogItem` ASC LIMIT ?;");
+				SQLiteStatement statement = connection.prepare("SELECT `message` FROM `AngriffLog` WHERE `idLogItem` >=? ORDER BY `idLogItem` DESC LIMIT ?;");
 				statement.bind(1, startID);
 				statement.bind(2, count);
 

@@ -2,6 +2,7 @@ package browser;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -24,7 +25,7 @@ public class WebBrowser {
 		CookieHandler.setDefault(new CookieManager());
 	}
 
-	public Document sendPost(String url, String postParams) throws Exception {
+	public Document POST(String url, String postParams) throws IOException, CaptchaException, SessionException {
 		URL obj = new URL(url);
 		conn = (HttpsURLConnection) obj.openConnection();
 
@@ -64,11 +65,19 @@ public class WebBrowser {
 		}
 		in.close();
 
-		return Jsoup.parse(response.toString());
+		Document document = Jsoup.parse(response.toString());
+		try {
+			SafetyManager.checkSession(document);
+			SafetyManager.checkCaptcha(document);
+		} catch (SessionException e) {
+			throw e;
+		} catch (CaptchaException e) {
+			throw e;
+		}
+		return document;
 	}
 
-	public Document GetPageContent(String url) throws Exception {
-
+	public Document GET(String url) throws IOException, CaptchaException, SessionException {
 		URL obj = new URL(url);
 		conn = (HttpsURLConnection) obj.openConnection();
 
@@ -103,7 +112,6 @@ public class WebBrowser {
 		setCookies(conn.getHeaderFields().get("Set-Cookie"));
 
 		return Jsoup.parse(response.toString());
-
 	}
 
 	public List<String> getCookies() {
