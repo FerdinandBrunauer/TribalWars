@@ -2,6 +2,14 @@
 CREATE TABLE `Building` ( `idBuilding` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `displayName` TEXT NOT NULL);
 CREATE TABLE `Vorlage` ( `idVorlage` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `name` INTEGER NOT NULL);
 CREATE TABLE `VorlageItem` ( `idVorlage` INTEGER NOT NULL, `position` INTEGER NOT NULL, `idBuilding` INTEGER NOT NULL, `level` INTEGER NOT NULL);
+CREATE TABLE `BuildLog` ( `idLogItem` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `message` INTEGER);
+CREATE TABLE `AngriffLog` ( `idLogItem` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `message` INTEGER);
+CREATE TABLE `SystemLog` ( `idLogItem` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `message` INTEGER);
+
+-- TRIGGER
+CREATE TRIGGER buildLogTrimmer AFTER INSERT ON `BuildLog` BEGIN  DELETE FROM BuildLog WHERE idLogItem NOT IN (SELECT idLogItem FROM BuildLog ORDER BY idLogItem DESC LIMIT 160); END; 
+CREATE TRIGGER angriffLogTrimmer AFTER INSERT ON `AngriffLog` BEGIN  DELETE FROM AngriffLog WHERE idLogItem NOT IN (SELECT idLogItem FROM AngriffLog ORDER BY idLogItem DESC LIMIT 160); END; 
+CREATE TRIGGER systemLogTrimmer AFTER INSERT ON `SystemLog` BEGIN  DELETE FROM SystemLog WHERE idLogItem NOT IN (SELECT idLogItem FROM SystemLog ORDER BY idLogItem DESC LIMIT 160); END; 
 
 -- DEFAULT VALUES
 INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (1, 'main', '<img src="images/haupthaus.png">&nbsp;Hauptgeb&auml;de');
@@ -19,21 +27,7 @@ INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (12, 'farm',
 INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (13, 'storage', '<img src="images/speicher.png">&nbsp;Speicher');
 INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (14, 'hide', '<img src="images/verstecke.png">&nbsp;Versteck');
 INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (15, 'wall', '<img src="images/wall.png">&nbsp;Wall');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (1, 'main', 'Hauptgeb&auml;de');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (2, 'barracks', 'Kaserne');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (3, 'stable', 'Stall');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (4, 'garage', 'Werkstatt');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (5, 'snob', 'Adelshof');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (6, 'smith', 'Schmiede');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (7, 'place', 'Versammlungsplatz');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (8, 'market', 'Marktplatz');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (9, 'wood', 'Holzf&auml;ller');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (10, 'stone', 'Lehmgrube');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (11, 'iron', 'Eisenmine');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (12, 'farm', 'Bauernhof');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (13, 'storage', 'Speicher');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (14, 'hide', 'Versteck');
--- INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (15, 'wall', 'Wall');
+
 -- Deffensiv
 INSERT INTO `Vorlage` (`idVorlage`, `name`) VALUES (1, 'Deffensiv');
 INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (1, 1, 1, 1);

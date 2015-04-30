@@ -34,14 +34,17 @@
 						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=building_pattern');">Bauvorlagen</a>
 					</li>
 					<li>
-						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=#');">Ausbau - Log</a>
+						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=buildlog');">Ausbau - Log</a>
 					</li>
 					<li>
 						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=#');">Angriff - Log</a>
 					</li>
 					<li>
-						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=#');">Einstellungen</a>
+						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=#');">System - Log</a>
 					</li>
+					<!-- <li>
+						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=#');">Einstellungen</a>
+					</li> -->
 				</ul>
 			</div>
 			<!-- /#sidebar-wrapper -->
@@ -59,7 +62,8 @@
 			$("#page-content-wrapper").load("ajax/ajax?method=dashboard");
 			
 			function tryLogin(name, password) {
-				$.get("ajax/ajax?method=login&name=" + name + "&password=" + password);
+				$("#page-content-wrapper").load("ajax/ajax?method=login&name=" + name + "&password=" + password);
+				window.location.href = "";
 			}
 			
 			function loadBuildingPatternList(id) {

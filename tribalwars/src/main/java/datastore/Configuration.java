@@ -33,10 +33,15 @@ public class Configuration {
 	public static String getProperty(String key, String defaultValue) {
 		String prop = defaultProperties.getProperty(key);
 		if (prop == null) {
+			setProperty(key, defaultValue);
 			return defaultValue;
 		} else {
 			return prop;
 		}
+	}
+	
+	public static boolean isDebugmodeEnabled() {
+		return true;
 	}
 
 }
