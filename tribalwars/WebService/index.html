@@ -20,6 +20,9 @@
 		<!-- <script src="js/jquery.sortable.min.js"></script>	-->
 	</head>
 	<body>
+		<div class="page-header">
+			<div id="nachrichten"><img src="images/read_mail.png">&nbsp; Keine neuen Nachrichten</div>
+		</div>
 		<div id="wrapper">
 			<!-- Sidebar -->
 			<div id="sidebar-wrapper">
@@ -60,6 +63,11 @@
 		
 		<script>
 			$("#page-content-wrapper").load("ajax/ajax?method=dashboard");
+			
+			function refreshHeader() {
+				$("#page-header").load("ajax/ajax?method=header");
+			}
+			var refreshId = setInterval(refreshHeader, 3000);
 			
 			function tryLogin(name, password) {
 				$("#page-content-wrapper").load("ajax/ajax?method=login&name=" + name + "&password=" + password);

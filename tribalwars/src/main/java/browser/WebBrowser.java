@@ -7,27 +7,27 @@ import java.io.InputStreamReader;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import sun.net.www.protocol.http.HttpURLConnection;
+
 public class WebBrowser {
 
-	private List<String> cookies;
-	private HttpsURLConnection conn;
+	private List<String> cookies = new ArrayList<String>();
+	private HttpURLConnection conn;
 	private final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36";
 
 	static {
-		System.out.println("Set Coockiehandler ...");
 		CookieHandler.setDefault(new CookieManager());
 	}
 
 	public Document POST(String url, String postParams) throws IOException, CaptchaException, SessionException {
 		URL obj = new URL(url);
-		conn = (HttpsURLConnection) obj.openConnection();
+		conn = (HttpURLConnection) obj.openConnection();
 
 		// Acts like a browser
 		conn.setUseCaches(false);
@@ -35,8 +35,10 @@ public class WebBrowser {
 		conn.setRequestProperty("User-Agent", USER_AGENT);
 		conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
 		conn.setRequestProperty("Accept-Language", "de-DE,en;q=0.5");
-		for (String cookie : this.cookies) {
-			conn.addRequestProperty("Cookie", cookie.split(";", 1)[0]);
+		if (cookies != null) {
+			for (String cookie : cookies) {
+				conn.addRequestProperty("Cookie", cookie.split(";", 1)[0]);
+			}
 		}
 		conn.setRequestProperty("Connection", "keep-alive");
 		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -79,7 +81,7 @@ public class WebBrowser {
 
 	public Document GET(String url) throws IOException, CaptchaException, SessionException {
 		URL obj = new URL(url);
-		conn = (HttpsURLConnection) obj.openConnection();
+		conn = (HttpURLConnection) obj.openConnection();
 
 		// default is GET
 		conn.setRequestMethod("GET");

@@ -8,11 +8,10 @@ import datastore.memoryObjects.VorlageItem;
 public class Utils {
 
 	public static String calculateNextBuilding(long vorlageID, Village village) {
-		// TODO get vorlage for Village
 		List<VorlageItem> vorlage = Database.getBuildingPatternContent(vorlageID);
 
 		for (VorlageItem item : vorlage) {
-			if(getBuildingLevelByName(village, item.getBuildingName()) < item.getLevel()) {
+			if (getBuildingLevelByName(village, item.getBuildingName()) < item.getLevel()) {
 				return item.getBuildingName();
 			}
 		}
@@ -58,4 +57,5 @@ public class Utils {
 			return 0;
 		}
 	}
+
 }

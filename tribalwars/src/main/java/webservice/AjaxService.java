@@ -36,6 +36,10 @@ public class AjaxService extends HttpServlet {
 					response.getWriter().println(generateDashboard());
 					break;
 				}
+				case "header": {
+					response.getWriter().println(generateHeader());
+					break;
+				}
 				case "building_pattern": {
 					response.getWriter().println(generateBuildingPatternOverview());
 					break;
@@ -120,7 +124,7 @@ public class AjaxService extends HttpServlet {
 			dashboard += "<td>" + village.getHolz() + "</td>";
 			dashboard += "<td>" + village.getLehm() + "</td>";
 			dashboard += "<td>" + village.getEisen() + "</td>";
-			dashboard += "<td>" + village.getSpeicher() + "</td>";
+			dashboard += "<td>" + village.getSpeicherKapazitaet() + "</td>";
 			dashboard += "<td>" + village.getSpeertraeger() + "</td>";
 			dashboard += "<td>" + village.getSchwertkaempfer() + "</td>";
 			dashboard += "<td>" + village.getAxtkaempfer() + "</td>";
@@ -205,10 +209,10 @@ public class AjaxService extends HttpServlet {
 		buildLog += "</ul></div>";
 		return buildLog;
 	}
-	
+
 	private String generateAttackLog(HttpServletRequest request) {
 		String attackLog = "";
-		
+
 		long startID;
 		try {
 			startID = Long.parseLong(request.getParameter("startid"));
@@ -223,6 +227,14 @@ public class AjaxService extends HttpServlet {
 
 		attackLog += "</ul></div>";
 		return attackLog;
+	}
+
+	private String generateHeader() {
+		if (account.hasNewMessage()) {
+			return "<div id=\"nachrichten\"><img src=\"images/new_mail.png\">&nbsp; Eine ungelesene Nachricht</div>";
+		} else {
+			return "<div id=\"nachrichten\"><img src=\"images/read_mail.png\">&nbsp; Keine neuen Nachrichten</div>";
+		}
 	}
 
 }

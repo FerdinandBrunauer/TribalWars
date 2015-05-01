@@ -45,8 +45,8 @@ public class WebService implements Runnable {
 			server.start();
 			server.join();
 		} catch (Exception e) {
-			System.err.println("Konnte Server nicht starten"); // TODO log error
-																// message
+			System.err.println("Konnte Server nicht starten");
+			// TODO log error message
 			System.exit(1);
 		}
 	}

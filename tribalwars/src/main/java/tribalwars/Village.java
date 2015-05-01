@@ -1,14 +1,25 @@
 package tribalwars;
 
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.jsoup.nodes.Document;
+
+import browser.CaptchaException;
+import browser.SessionException;
+
 public class Village {
 
-	private String id = "undefined";
-	private String name = "undefined";
+	private Account account;
+	private String id = "";
+	private String name = "";
 	private int x = 0;
 	private int y = 0;
 	private int holz = 0;
 	private int lehm = 0;
 	private int eisen = 0;
+	private int speicherKapazitaet = 0;
 	private int speertraeger = 0;
 	private int schwertkaempfer = 0;
 	private int axtkaempfer = 0;
@@ -31,30 +42,62 @@ public class Village {
 	private int lehmgrube = 0;
 	private int eisenmine = 0;
 	private int bauernhof = 0;
-	private int speicher = 0;
+	private int speicher;
 	private int versteck = 0;
 	private int wall = 0;
 
-	public Village() {
-
+	public Village(Account account, String id, String name, int x, int y) {
+		this.account = account;
+		this.id = id;
+		this.name = name;
+		this.x = x;
+		this.y = y;
 	}
 
-	public Village(int hauptgebaeude, int kaserne, int stall, int werkstatt, int adelshof, int schmiede, int versammlungsplatz, int marktplatz, int holzfaeller, int lehmgrube, int eisenmine, int bauernhof, int speicher, int versteck, int wall) {
-		this.hauptgebaeude = hauptgebaeude;
-		this.kaserne = kaserne;
-		this.stall = stall;
-		this.werkstatt = werkstatt;
-		this.adelshof = adelshof;
-		this.schmiede = schmiede;
-		this.versammlungsplatz = versammlungsplatz;
-		this.marktplatz = marktplatz;
-		this.holzfaeller = holzfaeller;
-		this.lehmgrube = lehmgrube;
-		this.eisenmine = eisenmine;
-		this.bauernhof = bauernhof;
-		this.speicher = speicher;
-		this.versteck = versteck;
-		this.wall = wall;
+	public void refresh() throws IOException, CaptchaException, SessionException {
+		Document document = account.getBrowser().GET("http://de" + account.getWelt() + ".die-staemme.de/game.php?village=" + id + "&screen=overview");
+		holz = Integer.parseInt(document.getElementById("wood").html());
+		lehm = Integer.parseInt(document.getElementById("stone").html());
+		eisen = Integer.parseInt(document.getElementById("iron").html());
+		speicherKapazitaet = Integer.parseInt(document.getElementById("storage").html());
+		
+		String input = document.head().html();
+		
+		//		private int speertraeger = 0;
+		//		private int schwertkaempfer = 0;
+		//		private int axtkaempfer = 0;
+		//		private int bogenschuetzen = 0;
+		//		private int spaeher = 0;
+		//		private int leichteKavallerie = 0;
+		//		private int berittenerBogenschuetze = 0;
+		//		private int schwereKavallerie = 0;
+		//		private int rammboecke = 0;
+		//		private int katapult = 0;
+		hauptgebaeude = RegexJsonIntvalueFrom(input, "main");
+		//		private int kaserne = 0;
+		//		private int stall = 0;
+		//		private int werkstatt = 0;
+		//		private int adelshof = 0;
+		//		private int schmiede = 0;
+		//		private int versammlungsplatz = 0;
+		//		private int marktplatz = 0;
+		//		private int holzfaeller = 0;
+		//		private int lehmgrube = 0;
+		//		private int eisenmine = 0;
+		//		private int bauernhof = 0;
+		//		private int speicher = 0;
+		//		private int versteck = 0;
+		//		private int wall = 0;
+	}
+	
+	private int RegexJsonIntvalueFrom(String input, String jsonKey) {
+		Pattern pattern = Pattern.compile("\\\"" + jsonKey + "\\\"\\:\\\"(\\d{1,2})\\\"\\,");
+		Matcher matcher = pattern.matcher(input);
+		try {
+			return Integer.parseInt(matcher.group(0)); // TODO
+		} catch (Exception e) {
+			return 0;
+		}
 	}
 
 	public String getId() {
@@ -183,6 +226,10 @@ public class Village {
 
 	public int getWall() {
 		return wall;
+	}
+
+	public int getSpeicherKapazitaet() {
+		return speicherKapazitaet;
 	}
 
 }

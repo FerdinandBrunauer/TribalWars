@@ -39,7 +39,7 @@ public class Configuration {
 			return prop;
 		}
 	}
-	
+
 	public static boolean isDebugmodeEnabled() {
 		return true;
 	}

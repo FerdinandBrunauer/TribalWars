@@ -219,3 +219,16 @@ li.sortable-placeholder {
     border: 1px dashed #CCC;
     background: none;
 }
+
+.page-header {
+	padding-bottom: 0px;
+	margin: 0 0;
+	border-style: none;
+	color: #FFFFFF;
+	background-color: #000;
+	text-align: center;
+}
+
+#nachrichten {
+	padding: 5px;
+}
