@@ -26,6 +26,11 @@ public class WebBrowser {
 	}
 
 	public Document POST(String url, String postParams) throws IOException, CaptchaException, SessionException {
+		try {
+			Thread.sleep(generateRandomSleep());
+		} catch (InterruptedException ignore) {
+		}
+
 		URL obj = new URL(url);
 		conn = (HttpURLConnection) obj.openConnection();
 
@@ -80,6 +85,11 @@ public class WebBrowser {
 	}
 
 	public Document GET(String url) throws IOException, CaptchaException, SessionException {
+		try {
+			Thread.sleep(generateRandomSleep());
+		} catch (InterruptedException ignore) {
+		}
+
 		URL obj = new URL(url);
 		conn = (HttpURLConnection) obj.openConnection();
 
@@ -114,6 +124,10 @@ public class WebBrowser {
 		setCookies(conn.getHeaderFields().get("Set-Cookie"));
 
 		return Jsoup.parse(response.toString());
+	}
+
+	private static long generateRandomSleep() {
+		return (long)(Math.random() * 600 + 200);
 	}
 
 	public List<String> getCookies() {

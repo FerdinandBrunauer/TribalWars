@@ -45,7 +45,7 @@ public class Village {
 	private int speicher;
 	private int versteck = 0;
 	private int wall = 0;
-
+	
 	public Village(Account account, String id, String name, int x, int y) {
 		this.account = account;
 		this.id = id;
@@ -60,41 +60,53 @@ public class Village {
 		lehm = Integer.parseInt(document.getElementById("stone").html());
 		eisen = Integer.parseInt(document.getElementById("iron").html());
 		speicherKapazitaet = Integer.parseInt(document.getElementById("storage").html());
-		
+
 		String input = document.head().html();
-		
-		//		private int speertraeger = 0;
-		//		private int schwertkaempfer = 0;
-		//		private int axtkaempfer = 0;
-		//		private int bogenschuetzen = 0;
-		//		private int spaeher = 0;
-		//		private int leichteKavallerie = 0;
-		//		private int berittenerBogenschuetze = 0;
-		//		private int schwereKavallerie = 0;
-		//		private int rammboecke = 0;
-		//		private int katapult = 0;
-		hauptgebaeude = RegexJsonIntvalueFrom(input, "main");
-		//		private int kaserne = 0;
-		//		private int stall = 0;
-		//		private int werkstatt = 0;
-		//		private int adelshof = 0;
-		//		private int schmiede = 0;
-		//		private int versammlungsplatz = 0;
-		//		private int marktplatz = 0;
-		//		private int holzfaeller = 0;
-		//		private int lehmgrube = 0;
-		//		private int eisenmine = 0;
-		//		private int bauernhof = 0;
-		//		private int speicher = 0;
-		//		private int versteck = 0;
-		//		private int wall = 0;
+		hauptgebaeude = getBuildingFromString(input, "main");
+		kaserne = getBuildingFromString(input, "barracks");
+		stall = getBuildingFromString(input, "stable");
+		werkstatt = getBuildingFromString(input, "garage");
+		adelshof = getBuildingFromString(input, "snob");
+		schmiede = getBuildingFromString(input, "smith");
+		versammlungsplatz = getBuildingFromString(input, "place");
+		marktplatz = getBuildingFromString(input, "market");
+		holzfaeller = getBuildingFromString(input, "wood");
+		lehmgrube = getBuildingFromString(input, "stone");
+		eisenmine = getBuildingFromString(input, "iron");
+		bauernhof = getBuildingFromString(input, "farm");
+		speicher = getBuildingFromString(input, "storage");
+		versteck = getBuildingFromString(input, "hide");
+		wall = getBuildingFromString(input, "wall");
+		input = document.getElementById("content_value").html();
+		speertraeger = getUnitFromString(input, "Speer");
+		schwertkaempfer = getUnitFromString(input, "Schwert");
+		axtkaempfer = getUnitFromString(input, "Axt");
+		bogenschuetzen = getUnitFromString(input, "Bogensch\u00fctze");
+		spaeher = getUnitFromString(input, "Sp\u00e4h");
+		leichteKavallerie = getUnitFromString(input, "LKAV");
+		berittenerBogenschuetze = getUnitFromString(input, "BBOgen");
+		schwereKavallerie = getUnitFromString(input, "SKAV");
+		rammboecke = getUnitFromString(input, "Ramme");
+		katapult = getUnitFromString(input, "Kata");
 	}
-	
-	private int RegexJsonIntvalueFrom(String input, String jsonKey) {
-		Pattern pattern = Pattern.compile("\\\"" + jsonKey + "\\\"\\:\\\"(\\d{1,2})\\\"\\,");
+
+	private int getBuildingFromString(String input, String jsonKey) {
+		Pattern pattern = Pattern.compile("\\\"" + jsonKey + "\\\"\\:\\\"(\\d{1,2})\\\"");
 		Matcher matcher = pattern.matcher(input);
+		matcher.find();
 		try {
-			return Integer.parseInt(matcher.group(0)); // TODO
+			return Integer.parseInt(matcher.group(1));
+		} catch (Exception e) {
+			return 0;
+		}
+	}
+
+	private int getUnitFromString(String input, String jsonKey) {
+		Pattern pattern = Pattern.compile("\\\"shortname\\\":\\\"" + jsonKey + "\\\",\\\"count\\\":\\\"(\\d{1,5})\\\"");
+		Matcher matcher = pattern.matcher(input);
+		matcher.find();
+		try {
+			return Integer.parseInt(matcher.group(1));
 		} catch (Exception e) {
 			return 0;
 		}
