@@ -20,6 +20,8 @@ public class Account implements Runnable {
 	private WebBrowser browser;
 	private Document document;
 
+	private FarmVorlage[] vorlagen = { new FarmVorlage(Unit.Axt, 50), new FarmVorlage(Unit.LKAV, 5) };
+
 	public Account(String username, String password, String world) {
 		this.username = username;
 		this.password = password;
@@ -50,15 +52,23 @@ public class Account implements Runnable {
 			// TODO when there are more villages in one account, then check the page
 			// TODO check villages
 			myVillages.add(new Village(this, "17105", "CODE 100", 523, 370));
-			
-			while(true) {
-				for(Village actualVillage : myVillages) {
-					actualVillage.refresh();
-					throw new IOException(); // TODO do something with this information
+
+			while (true) {
+				if (myVillages.size() > 1) {
+					throw new IOException("Unsupported!");
+				} else if (myVillages.size() == 1) {
+					if (myVillages.get(0).farmPossible(vorlagen)) {
+						Document document = browser.GET("http://de" + welt + ".die-staemme.de/game.php?village=" + myVillages.get(0).getId() + "&screen=overview");
+						document = browser.GET("http://de" + welt + ".die-staemme.de/game.php?village=" + myVillages.get(0).getId() + "&screen=am_farm");
+						
+						// TODO
+					}
+				} else {
+					throw new IOException("Fehler! Keine D\u00F6rfer!");
 				}
 			}
 		} else {
-			throw new IOException("Changed LoginSystem or wrong credentials!");
+			throw new IOException("Ver\u00E4ndertes Loginsystem oder falsche Accountdaten!");
 		}
 	}
 
@@ -84,7 +94,7 @@ public class Account implements Runnable {
 	public WebBrowser getBrowser() {
 		return browser;
 	}
-	
+
 	public String getWelt() {
 		return welt;
 	}
