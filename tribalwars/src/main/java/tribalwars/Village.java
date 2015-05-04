@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 
 import browser.CaptchaException;
 import browser.SessionException;
+import datastore.Database;
 
 public class Village {
 
@@ -49,6 +50,7 @@ public class Village {
 	private int versteck = 0;
 	private int wall = 0;
 	private Date nextAttackReturn = new Date();
+	private Date nextBuildingOrder = new Date();
 
 	public Village(Account account, String id, String name, int x, int y) {
 		this.account = account;
@@ -58,7 +60,7 @@ public class Village {
 		this.y = y;
 	}
 
-	public void refresh() throws IOException, CaptchaException, SessionException {
+	public void completeRefresh() throws IOException, CaptchaException, SessionException {
 		Document document = account.getBrowser().GET("http://de" + account.getWelt() + ".die-staemme.de/game.php?village=" + id + "&screen=overview");
 		holz = Integer.parseInt(document.getElementById("wood").html());
 		lehm = Integer.parseInt(document.getElementById("stone").html());
@@ -99,8 +101,67 @@ public class Village {
 		for (int i = 1; i < attacks.size(); i++) {
 			attack = attacks.get(i);
 			if (attack.html().contains("data-command-type=\"return\"")) {
-				// Returning troops TODO
+				nextAttackReturn = new Date(getAttackReturnTime(attack.html()));
+				break;
 			}
+		}
+
+		// TODO Building is not working
+		/* String nextBuilding = Utils.calculateNextBuilding(2, this);
+		if (nextBuilding != null) {
+			document = account.getBrowser().GET("http://de" + account.getWelt() + ".die-staemme.de/game.php?village=" + id + "&screen=main");
+			Element buildRow = document.getElementById("main_buildrow_" + nextBuilding);
+			if (buildPossible(buildRow.html())) {
+				String hWert = getHValueForBuild(buildRow.html());
+				System.out.println(account.getBrowser().GET("http://de" + account.getWelt() + ".die-staemme.de/game.php?village=" + id + "&ajaxaction=upgrade_building&h=" + hWert + "&type=main&screen=main&&client_time=" + getTimestamp()));
+				System.out.println("H-Wert: \"" + hWert + "\"");
+				// http://de116.die-staemme.de/game.php?village=17105&ajaxaction=upgrade_building&h=a6b1f2a0&type=main&screen=main&&client_time=1430752527
+
+				Database.logBuilding(name, x, y, nextBuilding, getBuildToLevel(buildRow.html())); // TODO get nice buildingname from database
+			} else {
+				// TODO read time
+			}
+		} else {
+			nextBuildingOrder = new Date(2000000000); // no more buildings to buy
+		} */
+	}
+
+	private static int getBuildToLevel(String tableRow) {
+		Pattern pattern = Pattern.compile("");
+		Matcher matcher = pattern.matcher(tableRow);
+		matcher.find();
+		try {
+			return Integer.parseInt(matcher.group(1));
+		} catch (Exception e) {
+			return 0;
+		}
+	}
+
+	private static String getHValueForBuild(String tableRow) throws IOException {
+		Pattern pattern = Pattern.compile(";h=([a-zA-Z0-9]{7,9})&amp;");
+		Matcher matcher = pattern.matcher(tableRow);
+		matcher.find();
+		try {
+			return matcher.group(1);
+		} catch (Exception e) {
+			throw new IOException("Konnte H - Wert für den Bau eines Gebäudes nicht finden!");
+		}
+	}
+
+	private static boolean buildPossible(String tableRow) {
+		Pattern pattern = Pattern.compile("class=\\\"(cost_wood|cost_stone|cost_iron) warn\\\"");
+		Matcher matcher = pattern.matcher(tableRow);
+		return !matcher.find();
+	}
+
+	private static long getAttackReturnTime(String input) {
+		Pattern pattern = Pattern.compile("data-endtime=\\\"(\\d{10})\\\"");
+		Matcher matcher = pattern.matcher(input);
+		matcher.find();
+		try {
+			return Long.parseLong(matcher.group(1));
+		} catch (Exception e) {
+			return 0L;
 		}
 	}
 
@@ -124,23 +185,6 @@ public class Village {
 		} catch (Exception e) {
 			return 0;
 		}
-	}
-
-	public boolean farmPossible(FarmVorlage[] vorlagen) throws IOException, CaptchaException, SessionException {
-		Date now = new Date();
-		if (now.after(nextAttackReturn)) {
-			refresh();
-		} else {
-			return false; // Keine Truppen eingetroffen
-		}
-
-		for (FarmVorlage vorlage : vorlagen) {
-			if (getUnitCount(vorlage.getUnit()) >= vorlage.getCount()) {
-				return true; // Genuegend Truppen vorhanden
-			}
-		}
-
-		return false;
 	}
 
 	public int getUnitCount(Unit unit) {
@@ -168,6 +212,10 @@ public class Village {
 		}
 		// TODO log message
 		return 0;
+	}
+
+	private static String getTimestamp() {
+		return (System.currentTimeMillis() + "").substring(0, (System.currentTimeMillis() + "").length() - 3);
 	}
 
 	public String getId() {
