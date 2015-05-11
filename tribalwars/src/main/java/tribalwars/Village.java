@@ -11,7 +11,6 @@ import org.jsoup.select.Elements;
 
 import browser.CaptchaException;
 import browser.SessionException;
-import datastore.Database;
 
 public class Village {
 
@@ -60,8 +59,26 @@ public class Village {
 		this.y = y;
 	}
 
+	public Village(int hauptgebaeude, int kaserne, int stall, int werkstatt, int adelshof, int schmiede, int versammlungsplatz, int marktplatz, int holzfaeller, int lehmgrube, int eisenmine, int bauernhof, int speicher, int versteck, int wall) {
+		this.hauptgebaeude = hauptgebaeude;
+		this.kaserne = kaserne;
+		this.stall = stall;
+		this.werkstatt = werkstatt;
+		this.adelshof = adelshof;
+		this.schmiede = schmiede;
+		this.versammlungsplatz = versammlungsplatz;
+		this.marktplatz = marktplatz;
+		this.holzfaeller = holzfaeller;
+		this.lehmgrube = lehmgrube;
+		this.eisenmine = eisenmine;
+		this.bauernhof = bauernhof;
+		this.speicher = speicher;
+		this.versteck = versteck;
+		this.wall = wall;
+	}
+
 	public void completeRefresh() throws IOException, CaptchaException, SessionException {
-		Document document = account.getBrowser().GET("http://de" + account.getWelt() + ".die-staemme.de/game.php?village=" + id + "&screen=overview");
+		Document document = account.getBrowser().GET("http://" + account.getWelt() + account.getWeltNummer() + ".die-staemme.de/game.php?village=" + id + "&screen=overview");
 		holz = Integer.parseInt(document.getElementById("wood").html());
 		lehm = Integer.parseInt(document.getElementById("stone").html());
 		eisen = Integer.parseInt(document.getElementById("iron").html());
@@ -126,18 +143,7 @@ public class Village {
 		} */
 	}
 
-	private static int getBuildToLevel(String tableRow) {
-		Pattern pattern = Pattern.compile("");
-		Matcher matcher = pattern.matcher(tableRow);
-		matcher.find();
-		try {
-			return Integer.parseInt(matcher.group(1));
-		} catch (Exception e) {
-			return 0;
-		}
-	}
-
-	private static String getHValueForBuild(String tableRow) throws IOException {
+	public static String getHValue(String tableRow) throws IOException {
 		Pattern pattern = Pattern.compile(";h=([a-zA-Z0-9]{7,9})&amp;");
 		Matcher matcher = pattern.matcher(tableRow);
 		matcher.find();
@@ -148,24 +154,24 @@ public class Village {
 		}
 	}
 
-	private static boolean buildPossible(String tableRow) {
+	public static boolean buildPossible(String tableRow) {
 		Pattern pattern = Pattern.compile("class=\\\"(cost_wood|cost_stone|cost_iron) warn\\\"");
 		Matcher matcher = pattern.matcher(tableRow);
 		return !matcher.find();
 	}
 
-	private static long getAttackReturnTime(String input) {
+	public static long getAttackReturnTime(String input) {
 		Pattern pattern = Pattern.compile("data-endtime=\\\"(\\d{10})\\\"");
 		Matcher matcher = pattern.matcher(input);
 		matcher.find();
 		try {
-			return Long.parseLong(matcher.group(1));
+			return Long.parseLong(matcher.group(1) + "000");
 		} catch (Exception e) {
 			return 0L;
 		}
 	}
 
-	private int getBuildingFromString(String input, String jsonKey) {
+	public static int getBuildingFromString(String input, String jsonKey) {
 		Pattern pattern = Pattern.compile("\\\"" + jsonKey + "\\\"\\:\\\"(\\d{1,2})\\\"");
 		Matcher matcher = pattern.matcher(input);
 		matcher.find();
@@ -176,7 +182,7 @@ public class Village {
 		}
 	}
 
-	private int getUnitFromString(String input, String jsonKey) {
+	public static int getUnitFromString(String input, String jsonKey) {
 		Pattern pattern = Pattern.compile("\\\"shortname\\\":\\\"" + jsonKey + "\\\",\\\"count\\\":\\\"(\\d{1,5})\\\"");
 		Matcher matcher = pattern.matcher(input);
 		matcher.find();
@@ -185,6 +191,20 @@ public class Village {
 		} catch (Exception e) {
 			return 0;
 		}
+	}
+
+	public boolean farmPossible(FarmVorlage[] vorlagen) throws IOException, CaptchaException, SessionException {
+		Date now = new Date();
+		if (now.after(nextAttackReturn)) {
+			completeRefresh();
+		}
+
+		for (FarmVorlage vorlage : vorlagen) {
+			if (getUnitCount(vorlage.getUnit()) >= vorlage.getCount()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public int getUnitCount(Unit unit) {
@@ -214,7 +234,7 @@ public class Village {
 		return 0;
 	}
 
-	private static String getTimestamp() {
+	public static String getTimestamp() {
 		return (System.currentTimeMillis() + "").substring(0, (System.currentTimeMillis() + "").length() - 3);
 	}
 
@@ -349,5 +369,4 @@ public class Village {
 	public int getSpeicherKapazitaet() {
 		return speicherKapazitaet;
 	}
-
 }
