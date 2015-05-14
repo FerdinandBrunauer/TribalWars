@@ -1,5 +1,6 @@
 package tribalwars;
 
+import java.awt.Point;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -53,9 +54,8 @@ public class Account implements Runnable {
 		browser = new WebBrowser();
 		if (login()) {
 			// TODO when there are more villages in one account, then check the page
-			// TODO check villages
-			myVillages.add(new Village(this, "56872", "/* Konkurrenzlos am Klicken */", 586, 722));
-
+			// TODO check Bot-Security 
+			refreshVillages();
 			for (Village village : myVillages) {
 				village.completeRefresh();
 				browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?screen=overview_villages");
@@ -93,6 +93,30 @@ public class Account implements Runnable {
 		document = browser.POST("http://www.die-staemme.de/index.php?action=login&server_" + welt + weltNummer, "user=" + username + "&password=" + passwordHash);
 		document = browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?screen=overview&intro");
 		return document.getElementById("menu_counter_profile") != null;
+	}
+	
+	private void refreshVillages() throws IOException, CaptchaException, SessionException {
+		//check Villages (not guaranted that it works)
+		document = browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?screen=overview_villages");
+			Elements villages = document.getElementsByAttributeValue("class", "nowrap tooltip-delayed");
+			Elements tempCoords = document.getElementsByTag("b");
+			ArrayList<Point> coords = new ArrayList<Point>(); // TODO Queue verwenden
+			//ArrayList<Point> coords = new ArrayList<Point>();
+			for(Element possibleCoordElement : tempCoords) {
+				if(possibleCoordElement.attr("class").compareTo("nowrap") == 0) {
+					String value = possibleCoordElement.textNodes().get(0).getWholeText().split(" ")[0]; 
+					String test = value.substring(1, value.length()-1);
+					String[] tempCoord = test.split("\\|");
+					coords.add(new Point(Integer.valueOf(tempCoord[0]), Integer.valueOf(tempCoord[1])));
+				}
+			}
+			for(Element village:villages) {
+				String villageName = village.textNodes().get(0).getWholeText();
+				String villageId= village.attr("href").replace("/game.php?village=", "").replace("&screen=overview", "");
+				Point coord = coords.get(0);
+				myVillages.add(new Village(this, villageId, villageName, coord.x, coord.y));
+				coords.remove(0);
+			}
 	}
 
 	public Village[] getMyVillages() {
