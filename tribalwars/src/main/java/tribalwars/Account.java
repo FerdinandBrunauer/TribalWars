@@ -96,6 +96,7 @@ public class Account implements Runnable {
 	}
 	
 	private void refreshVillages() throws IOException, CaptchaException, SessionException {
+		myVillages = new ArrayList<Village>();
 		//check Villages (not guaranted that it works)
 		document = browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?screen=overview_villages");
 			Elements villages = document.getElementsByAttributeValue("class", "nowrap tooltip-delayed");
