@@ -3,11 +3,13 @@ package tribalwars;
 import java.awt.Point;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import datastore.Database;
 import browser.CaptchaException;
 import browser.SessionException;
 import browser.WebBrowser;

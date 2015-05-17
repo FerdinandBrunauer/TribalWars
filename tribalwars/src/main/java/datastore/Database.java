@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import tribalwars.Farm;
+
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteJob;
 import com.almworks.sqlite4java.SQLiteQueue;
@@ -211,5 +213,83 @@ public class Database extends SQLiteQueue {
 				return messages;
 			}
 		}).complete();
+	}
+	
+	public static List<Farm> getFarms(final String villageID, final boolean onlyFarmable, final boolean resetIfEmpty) {
+		return getInstance().execute(new SQLiteJob<List<Farm>>() {
+			@Override
+			protected List<Farm> job(SQLiteConnection connection) throws Throwable {
+				List<Farm> farms = new ArrayList<Farm>();
+				String query = "Select Farm.xCoord, Farm.yCoord, Farm.FarmID, Farm.farm from Farm left join FarmAssignation on Farm.FarmID = FarmAssignation.FarmID and FarmAssignation.VillageID=?";
+				if(onlyFarmable) {
+					query += " where Farm.farm = 1 and FarmAssignation.farmed = 0;";
+				} else {
+					query += ";";
+				}
+				SQLiteStatement statement = connection.prepare(query);
+				statement.bind(1, villageID);
+
+				while (statement.step()) {
+					farms.add(new Farm(statement.columnInt(3), statement.columnInt(0) ,statement.columnInt(1), statement.columnInt(3)));
+				}
+				if(farms.size() == 0 && resetIfEmpty) {
+					resetFarms(villageID);
+					if(onlyFarmable) {
+						query += " where Farm.farm = 1 and FarmAssignation.farmed = 0;";
+					} else {
+						query += ";";
+					}
+					statement = connection.prepare(query);
+					statement.bind(1, villageID);
+
+					while (statement.step()) {
+						farms.add(new Farm(statement.columnInt(3), statement.columnInt(0) ,statement.columnInt(1), statement.columnInt(3)));	
+					}
+				}
+				return farms;
+			}
+		}).complete();
+	}
+	
+	public static void resetFarms(final String villageID) {
+		getInstance().execute(new SQLiteJob<Boolean>() {
+			@Override
+			protected Boolean job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("Update FarmAssignation Set FarmAssignation.farmed=0 where FarmAssignation.VillageID=?;");
+				statement.bind(1, villageID);
+				return true;
+			}
+		}).complete();
+	}
+	
+	public static void setFarmed(Farm farm) {
+		ArrayList<Farm> farms = new ArrayList<Farm>();
+		farms.add(farm);
+		setFarmed(farms);
+	}
+	
+	public static void setFarmed(final List<Farm> farms) {
+		getInstance().execute(new SQLiteJob<Boolean>() {
+			@Override
+			protected Boolean job(SQLiteConnection connection) throws Throwable {
+				String query = "Update FarmAssignation Set FarmAssignation.farmed = 1 where ";
+				for(int i = 0; i < farms.size()-1; i++) {
+					query += "FarmAssignation.FarmAssignationID=? or ";
+				}
+				query += "FarmAssignation.FarmAssignationID=?;";
+				SQLiteStatement statement = connection.prepare(query);
+				for(int i = 0; i < farms.size()-1; i++) {
+					statement.bind(i+1, farms.get(i).farmID);
+				}	
+				return true;
+			}
+		}).complete();
+	}
+	
+	public static void main(String[] args) {
+		List<Farm> farmen = getFarms("47824", true, false);
+		for(Farm farm:farmen) {
+			System.out.println("(" + farm.x + "|" +  farm.y + ")");
+		}
 	}
 }
