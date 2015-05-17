@@ -221,7 +221,7 @@ public class Database extends SQLiteQueue {
 			@Override
 			protected List<Farm> job(SQLiteConnection connection) throws Throwable {
 				List<Farm> farms = new ArrayList<Farm>();
-				String query = "Select Farm.xCoord, Farm.yCoord, Farm.FarmID, Farm.farm from Farm left join FarmAssignation on Farm.FarmID = FarmAssignation.FarmID and FarmAssignation.VillageID=?";
+				String query = "Select Farm.xCoord, Farm.yCoord, FarmAssignation.FarmAssignationID, Farm.farm from Farm left join FarmAssignation on Farm.FarmID = FarmAssignation.FarmID and FarmAssignation.VillageID=?";
 				if(onlyFarmable) {
 					query += " where Farm.farm = 1 and FarmAssignation.farmed = 0;";
 				} else {
@@ -231,7 +231,7 @@ public class Database extends SQLiteQueue {
 				statement.bind(1, villageID);
 
 				while (statement.step()) {
-					farms.add(new Farm(statement.columnInt(3), statement.columnInt(0) ,statement.columnInt(1), statement.columnInt(3)));
+					farms.add(new Farm(statement.columnInt(2), statement.columnInt(0) ,statement.columnInt(1), statement.columnInt(3)));
 				}
 				return farms;
 			}
@@ -262,19 +262,20 @@ public class Database extends SQLiteQueue {
 	}
 	
 	public static void setFarmed(final List<Farm> farms) {
-		getInstance().execute(new SQLiteJob<Boolean>() {
+		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
-			protected Boolean job(SQLiteConnection connection) throws Throwable {
-				String query = "Update FarmAssignation Set FarmAssignation.farmed = 1 where ";
+			protected Void job(SQLiteConnection connection) throws Throwable {
+				String query = "Update FarmAssignation Set farmed = 1 where ";
 				for(int i = 0; i < farms.size()-1; i++) {
-					query += "FarmAssignation.FarmAssignationID=? or ";
+					query += "FarmAssignationID=? or ";
 				}
-				query += "FarmAssignation.FarmAssignationID=?;";
+				query += "FarmAssignationID=?;";
 				SQLiteStatement statement = connection.prepare(query);
-				for(int i = 0; i < farms.size()-1; i++) {
+				for(int i = 0; i < farms.size(); i++) {
 					statement.bind(i+1, farms.get(i).farmID);
 				}	
-				return true;
+				statement.step();
+				return null;
 			}
 		}).complete();
 	}

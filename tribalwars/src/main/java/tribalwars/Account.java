@@ -32,7 +32,8 @@ public class Account implements Runnable {
 	//private FarmVorlage[] vorlagen = { new FarmVorlage(Unit.Axt, 50), new FarmVorlage(Unit.LKAV, 7), new FarmVorlage(Unit.Speer, 20)};
 	private FarmVorlage[] vorlagen = { new FarmVorlage(0, 0, 50, 0, 0, 0, 0, 0, 0, 0),
 			new FarmVorlage(0, 0, 0, 0, 0, 7, 0, 0, 0, 0),
-			new FarmVorlage(20, 0, 0, 0, 0, 0, 0, 0, 0, 0)};
+			new FarmVorlage(10, 10, 0, 0, 0, 0, 0, 0, 0, 0),
+			new FarmVorlage(10, 0, 10, 0, 0, 0, 0, 0, 0, 0)};
 	
 	public Account(String username, String password, String world, String worldNumber) {
 		this.username = username;
@@ -64,33 +65,50 @@ public class Account implements Runnable {
 		if (login()) {
 			// TODO when there are more villages in one account, then check the page
 			// TODO check Bot-Security
-			// TODO check if the current village has to farm 
 			refreshVillages();
 			for (Village village : myVillages) {
 				village.completeRefresh();
 				browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?screen=overview_villages");
 			}
-			List<Farm> farmen = Database.getFarms(myVillages.get(0).getId(), true, true);
 			while (true) {
 				for(Village currentVillage : myVillages) {
+					// TODO check if the current village has to farm 
 					document = browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?screen=overview_villages");
-					currentVillage.completeRefresh(document);
-					while(currentVillage.farmPossible(vorlagen) || true) {
-						browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + currentVillage.getId() + "&screen=place");
-						Element input = document.getElementById("units_form").getElementsByTag("input").get(0);
-						String hashName = input.attr("name");
-						String hashValue = input.attr("value");
-						for(FarmVorlage vorlage : vorlagen) {
-							if(currentVillage.canFarm(vorlage)) {							
-								browser.POST("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + currentVillage.getId() + "&try=confirm&screen=place", hashName + "=" + hashValue + "&template_id=&spear=" + vorlage.getSpeertraeger() + "&sword=" + vorlage.getSchwertkaempfer() + "&axe=" + vorlage.getAxtkaempfer() + "&archer=" + vorlage.getBogenschuetzen() + "&spy=" + vorlage.getSpaeher() + "&light=" + vorlage.getLeichteKavallerie() + "&marcher=" + vorlage.getBerittenerBogenschuetze() + "&heavy=" + vorlage.getSchwereKavallerie() + "&ram=" + vorlage.getRammboecke() + "&catapult=" + vorlage.getKatapult() + "&snob=&x=" +  + "&y=440&target_type=coord&input=705%7C440&attack=Angreifen");
-								File text = new File("Test.html");
-								PrintWriter writer = new PrintWriter(text);
-								writer.write(document.toString());
-								writer.flush();
-								writer.close();
-								break;
+					currentVillage.completeRefresh();
+					List<Farm> farmen = Database.getFarms(currentVillage.getId(), true, true);
+					List<Farm> farmed = new ArrayList<Farm>();
+					if(currentVillage.farmPossible(vorlagen) && farmen.size() > 0)  {
+						document = browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + currentVillage.getId() + "&screen=place");
+						while(currentVillage.farmPossible(vorlagen) && farmen.size() > 0) {
+							Element input = document.getElementById("units_form").getElementsByTag("input").get(0);
+							String hashName = input.attr("name");
+							String hashValue = input.attr("value");
+							for(FarmVorlage vorlage : vorlagen) {
+								if(currentVillage.canFarm(vorlage)) {							
+									document = browser.POST("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + currentVillage.getId() + "&try=confirm&screen=place", hashName + "=" + 
+											hashValue + "&template_id=&spear=" + vorlage.getSpeertraeger() + "&sword=" + vorlage.getSchwertkaempfer() + "&axe=" + vorlage.getAxtkaempfer() + 
+											"&archer=" + vorlage.getBogenschuetzen() + "&spy=" + vorlage.getSpaeher() + "&light=" + vorlage.getLeichteKavallerie() + "&marcher=" + 
+											vorlage.getBerittenerBogenschuetze() + "&heavy=" + vorlage.getSchwereKavallerie() + "&ram=" + vorlage.getRammboecke() + "&catapult=" + 
+											vorlage.getKatapult() + "&snob=&x=" + farmen.get(0).x + "&y=" + farmen.get(0).y + "&target_type=coord&input=" +  farmen.get(0).x  + "%7C" +  
+											farmen.get(0).y  + "&attack=Angreifen");
+									Element actionForm = document.getElementById("command-confirm-form");
+									String hWert = actionForm.attr("action").replace("/game.php?village=" + currentVillage.getId() + "&action=command&h=", "").replace("&screen=place", "");
+									String chWert = actionForm.getElementsByAttributeValue("name", "ch").get(0).attr("value");
+									String action_ID = actionForm.getElementsByAttributeValue("name", "action_id").get(0).attr("value");
+									document = browser.POST("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + currentVillage.getId() + 
+											"&action=command&h=" + hWert + "&screen=place", "attack=true&ch=" + chWert + "&x=" + farmen.get(0).x + "&y=" + farmen.get(0).y +
+											"&action_id=" + action_ID + "&spear=" + vorlage.getSpeertraeger() + "&sword=" + vorlage.getSchwertkaempfer() + 
+											"&axe=" + vorlage.getAxtkaempfer() + "&archer=" + vorlage.getBogenschuetzen() + "&spy=" + vorlage.getSpaeher() + "&light=" + 
+											vorlage.getLeichteKavallerie() + "&marcher=" + vorlage.getBerittenerBogenschuetze() + "&heavy=" + vorlage.getSchwereKavallerie() + 
+											"&ram=" + vorlage.getRammboecke() + "&catapult=" + vorlage.getKatapult() + "&snob=0");
+									currentVillage.removeUnit(vorlage);
+									farmed.add(farmen.get(0));
+									farmen.remove(0);
+									break;
+								}
 							}
 						}
+						Database.setFarmed(farmed);
 					}
 				}
 				/*deprecated

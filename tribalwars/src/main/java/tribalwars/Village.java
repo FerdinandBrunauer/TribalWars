@@ -236,7 +236,7 @@ public class Village {
 		}
 	}
 	
-	public void removeUnit(FarmVorlage vorlage) throws Exception {
+	public void removeUnit(FarmVorlage vorlage) {
 		speertraeger -= vorlage.getSpeertraeger();
 		schwertkaempfer -= vorlage.getSchwertkaempfer();
 		axtkaempfer -= vorlage.getAxtkaempfer();
