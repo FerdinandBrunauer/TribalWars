@@ -1,7 +1,11 @@
 package tribalwars;
 
 import java.awt.Point;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +29,11 @@ public class Account implements Runnable {
 	private WebBrowser browser;
 	private Document document;
 
-	private FarmVorlage[] vorlagen = { new FarmVorlage(Unit.Axt, 50), new FarmVorlage(Unit.LKAV, 7) };
-
+	//private FarmVorlage[] vorlagen = { new FarmVorlage(Unit.Axt, 50), new FarmVorlage(Unit.LKAV, 7), new FarmVorlage(Unit.Speer, 20)};
+	private FarmVorlage[] vorlagen = { new FarmVorlage(0, 0, 50, 0, 0, 0, 0, 0, 0, 0),
+			new FarmVorlage(0, 0, 0, 0, 0, 7, 0, 0, 0, 0),
+			new FarmVorlage(20, 0, 0, 0, 0, 0, 0, 0, 0, 0)};
+	
 	public Account(String username, String password, String world, String worldNumber) {
 		this.username = username;
 		this.password = password;
@@ -56,14 +63,37 @@ public class Account implements Runnable {
 		browser = new WebBrowser();
 		if (login()) {
 			// TODO when there are more villages in one account, then check the page
-			// TODO check Bot-Security 
+			// TODO check Bot-Security
+			// TODO check if the current village has to farm 
 			refreshVillages();
 			for (Village village : myVillages) {
 				village.completeRefresh();
 				browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?screen=overview_villages");
 			}
-
+			List<Farm> farmen = Database.getFarms(myVillages.get(0).getId(), true, true);
 			while (true) {
+				for(Village currentVillage : myVillages) {
+					document = browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?screen=overview_villages");
+					currentVillage.completeRefresh(document);
+					while(currentVillage.farmPossible(vorlagen) || true) {
+						browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + currentVillage.getId() + "&screen=place");
+						Element input = document.getElementById("units_form").getElementsByTag("input").get(0);
+						String hashName = input.attr("name");
+						String hashValue = input.attr("value");
+						for(FarmVorlage vorlage : vorlagen) {
+							if(currentVillage.canFarm(vorlage)) {							
+								browser.POST("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + currentVillage.getId() + "&try=confirm&screen=place", hashName + "=" + hashValue + "&template_id=&spear=" + vorlage.getSpeertraeger() + "&sword=" + vorlage.getSchwertkaempfer() + "&axe=" + vorlage.getAxtkaempfer() + "&archer=" + vorlage.getBogenschuetzen() + "&spy=" + vorlage.getSpaeher() + "&light=" + vorlage.getLeichteKavallerie() + "&marcher=" + vorlage.getBerittenerBogenschuetze() + "&heavy=" + vorlage.getSchwereKavallerie() + "&ram=" + vorlage.getRammboecke() + "&catapult=" + vorlage.getKatapult() + "&snob=&x=" +  + "&y=440&target_type=coord&input=705%7C440&attack=Angreifen");
+								File text = new File("Test.html");
+								PrintWriter writer = new PrintWriter(text);
+								writer.write(document.toString());
+								writer.flush();
+								writer.close();
+								break;
+							}
+						}
+					}
+				}
+				/*deprecated
 				if (myVillages.size() > 1) {
 					throw new IOException("Unsupported!");
 				} else if (myVillages.size() == 1) {
@@ -79,7 +109,7 @@ public class Account implements Runnable {
 					}
 				} else {
 					throw new IOException("Fehler! Keine D\u00F6rfer!");
-				}
+				}*/
 			}
 		} else {
 			throw new IOException("Ver\u00E4ndertes Loginsystem oder falsche Accountdaten!");
@@ -98,6 +128,7 @@ public class Account implements Runnable {
 	}
 	
 	private void refreshVillages() throws IOException, CaptchaException, SessionException {
+		//TODO Check if you have lost a village thats save in the db
 		myVillages = new ArrayList<Village>();
 		//check Villages (not guaranted that it works)
 		document = browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?screen=overview_villages");
@@ -117,7 +148,9 @@ public class Account implements Runnable {
 				String villageName = village.textNodes().get(0).getWholeText();
 				String villageId= village.attr("href").replace("/game.php?village=", "").replace("&screen=overview", "");
 				Point coord = coords.get(0);
-				myVillages.add(new Village(this, villageId, villageName, coord.x, coord.y));
+				Village temp = new Village(this, villageId, villageName, coord.x, coord.y);
+				myVillages.add(temp);
+				Database.addVillageToDatabase(temp);
 				coords.remove(0);
 			}
 	}

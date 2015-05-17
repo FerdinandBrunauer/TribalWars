@@ -79,6 +79,9 @@ public class Village {
 
 	public void completeRefresh() throws IOException, CaptchaException, SessionException {
 		Document document = account.getBrowser().GET("http://" + account.getWelt() + account.getWeltNummer() + ".die-staemme.de/game.php?village=" + id + "&screen=overview");
+		completeRefresh(document);
+	}
+	public void completeRefresh(Document document) throws IOException, CaptchaException, SessionException {
 		holz = Integer.parseInt(document.getElementById("wood").html());
 		lehm = Integer.parseInt(document.getElementById("stone").html());
 		eisen = Integer.parseInt(document.getElementById("iron").html());
@@ -200,13 +203,52 @@ public class Village {
 		}
 
 		for (FarmVorlage vorlage : vorlagen) {
-			if (getUnitCount(vorlage.getUnit()) >= vorlage.getCount()) {
+			if(vorlage.getSpeertraeger() <= speertraeger &&
+			vorlage.getSchwertkaempfer() <= schwertkaempfer &&
+			vorlage.getAxtkaempfer() <= axtkaempfer &&
+			vorlage.getBogenschuetzen() <= bogenschuetzen &&
+			vorlage.getSpaeher() <= spaeher &&
+			vorlage.getLeichteKavallerie() <= leichteKavallerie &&
+			vorlage.getBerittenerBogenschuetze() <= berittenerBogenschuetze &&
+			vorlage.getSchwereKavallerie() <= schwereKavallerie &&
+			vorlage.getRammboecke() <= rammboecke &&
+			vorlage.getKatapult() <= katapult) {
 				return true;
 			}
 		}
 		return false;
 	}
-
+	
+	public boolean canFarm(FarmVorlage vorlage) {
+		if(vorlage.getSpeertraeger() <= speertraeger &&
+		vorlage.getSchwertkaempfer() <= schwertkaempfer &&
+		vorlage.getAxtkaempfer() <= axtkaempfer &&
+		vorlage.getBogenschuetzen() <= bogenschuetzen &&
+		vorlage.getSpaeher() <= spaeher &&
+		vorlage.getLeichteKavallerie() <= leichteKavallerie &&
+		vorlage.getBerittenerBogenschuetze() <= berittenerBogenschuetze &&
+		vorlage.getSchwereKavallerie() <= schwereKavallerie &&
+		vorlage.getRammboecke() <= rammboecke &&
+		vorlage.getKatapult() <= katapult) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public void removeUnit(FarmVorlage vorlage) throws Exception {
+		speertraeger -= vorlage.getSpeertraeger();
+		schwertkaempfer -= vorlage.getSchwertkaempfer();
+		axtkaempfer -= vorlage.getAxtkaempfer();
+		bogenschuetzen -= vorlage.getBogenschuetzen(); 
+		spaeher -= vorlage.getSpaeher();
+		leichteKavallerie -= vorlage.getLeichteKavallerie();
+		berittenerBogenschuetze -= vorlage.getBerittenerBogenschuetze();
+		schwereKavallerie -= vorlage.getSchwereKavallerie();
+		rammboecke -= vorlage.getRammboecke();
+		katapult -= vorlage.getKatapult();
+	}
+	
 	public int getUnitCount(Unit unit) {
 		switch (unit) {
 		case Speer:

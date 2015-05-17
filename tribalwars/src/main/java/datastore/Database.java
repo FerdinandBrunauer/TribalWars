@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import tribalwars.Farm;
+import tribalwars.Village;
 
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteJob;
@@ -216,7 +217,7 @@ public class Database extends SQLiteQueue {
 	}
 	
 	public static List<Farm> getFarms(final String villageID, final boolean onlyFarmable, final boolean resetIfEmpty) {
-		return getInstance().execute(new SQLiteJob<List<Farm>>() {
+		List<Farm> out = getInstance().execute(new SQLiteJob<List<Farm>>() {
 			@Override
 			protected List<Farm> job(SQLiteConnection connection) throws Throwable {
 				List<Farm> farms = new ArrayList<Farm>();
@@ -232,32 +233,24 @@ public class Database extends SQLiteQueue {
 				while (statement.step()) {
 					farms.add(new Farm(statement.columnInt(3), statement.columnInt(0) ,statement.columnInt(1), statement.columnInt(3)));
 				}
-				if(farms.size() == 0 && resetIfEmpty) {
-					resetFarms(villageID);
-					if(onlyFarmable) {
-						query += " where Farm.farm = 1 and FarmAssignation.farmed = 0;";
-					} else {
-						query += ";";
-					}
-					statement = connection.prepare(query);
-					statement.bind(1, villageID);
-
-					while (statement.step()) {
-						farms.add(new Farm(statement.columnInt(3), statement.columnInt(0) ,statement.columnInt(1), statement.columnInt(3)));	
-					}
-				}
 				return farms;
 			}
 		}).complete();
+		if(out.size() == 0 && resetIfEmpty) {
+			resetFarms(villageID);
+			out = getFarms(villageID, onlyFarmable, false);
+		}
+		return out;
 	}
 	
 	public static void resetFarms(final String villageID) {
-		getInstance().execute(new SQLiteJob<Boolean>() {
+		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
-			protected Boolean job(SQLiteConnection connection) throws Throwable {
-				SQLiteStatement statement = connection.prepare("Update FarmAssignation Set FarmAssignation.farmed=0 where FarmAssignation.VillageID=?;");
+			protected Void job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("Update FarmAssignation Set farmed=0 where FarmAssignation.VillageID=?;");
 				statement.bind(1, villageID);
-				return true;
+				statement.step();
+				return null;
 			}
 		}).complete();
 	}
@@ -286,10 +279,49 @@ public class Database extends SQLiteQueue {
 		}).complete();
 	}
 	
-	public static void main(String[] args) {
-		List<Farm> farmen = getFarms("47824", true, false);
-		for(Farm farm:farmen) {
-			System.out.println("(" + farm.x + "|" +  farm.y + ")");
+	public static void addVillageToDatabase(final Village village) {
+		//check if the village is already in the db
+		boolean isInDB = getInstance().execute(new SQLiteJob<Boolean>() {
+			@Override
+			protected Boolean job(SQLiteConnection connection) throws Throwable {
+				String query = "Select Villages.VillageID from Villages Where VillageID=?;";
+				SQLiteStatement statement = connection.prepare(query);
+				statement.bind(1, village.getId());
+				if(statement.step()) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}).complete();
+		
+		if(!isInDB) {
+			getInstance().execute(new SQLiteJob<Void>() {
+				@Override
+				protected Void job(SQLiteConnection connection) throws Throwable {
+					String query = "Insert Into Villages (VillageID,xCoord,yCoord,name,farm) Values (?,?,?,?,?);";
+					SQLiteStatement statement = connection.prepare(query);
+					statement.bind(1, village.getId());
+					statement.bind(2, village.getX());
+					statement.bind(3, village.getY());
+					statement.bind(4, village.getName());
+					statement.bind(5, 0);
+					statement.step();
+					return null;
+				}
+			}).complete();
+		} else {
+			getInstance().execute(new SQLiteJob<Void>() {
+				@Override
+				protected Void job(SQLiteConnection connection) throws Throwable {
+					String query = "Update Villages Set name=? Where VillageID=?;";
+					SQLiteStatement statement = connection.prepare(query);
+					statement.bind(1, village.getName());
+					statement.bind(2, village.getId());
+					statement.step();
+					return null;
+				}
+			}).complete();
 		}
 	}
 }
