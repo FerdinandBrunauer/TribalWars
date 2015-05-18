@@ -31,7 +31,7 @@ public class Account implements Runnable {
 
 	//private FarmVorlage[] vorlagen = { new FarmVorlage(Unit.Axt, 50), new FarmVorlage(Unit.LKAV, 7), new FarmVorlage(Unit.Speer, 20)};
 	private FarmVorlage[] vorlagen = { new FarmVorlage(0, 0, 50, 0, 0, 0, 0, 0, 0, 0),
-			new FarmVorlage(0, 0, 0, 0, 0, 7, 0, 0, 0, 0),
+			new FarmVorlage(0, 0, 0, 0, 0, 5, 0, 0, 0, 0),
 			new FarmVorlage(10, 10, 0, 0, 0, 0, 0, 0, 0, 0),
 			new FarmVorlage(10, 0, 10, 0, 0, 0, 0, 0, 0, 0)};
 	

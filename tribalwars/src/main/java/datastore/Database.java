@@ -325,4 +325,84 @@ public class Database extends SQLiteQueue {
 			}).complete();
 		}
 	}
+	
+	public static boolean addFarmToDatabase(final String villageID, final int x, final int y, final boolean hasOwner, final boolean farm) {
+		int farmID = getInstance().execute(new SQLiteJob<Integer>() { //check if the Farm is in the Database
+			@Override
+			protected Integer job(SQLiteConnection connection) throws Throwable {
+				String query = "Select Farm.FarmID From Farm Where xCoord=? and yCoord=?;";
+				SQLiteStatement statement = connection.prepare(query);
+				statement.bind(1, x);
+				statement.bind(2, y);
+				if(statement.step()) {
+					return statement.columnInt(0);
+				} else {
+					return 0;
+				}
+			}
+		}).complete();
+		
+		if(farmID == 0) {
+			getInstance().execute(new SQLiteJob<Void>() {
+				@Override
+				protected Void job(SQLiteConnection connection) throws Throwable {
+					String query = "Insert Into Farm(xCoord, yCoord, hasOwner, farm) VALUES (?, ?, ?, ?);";
+					SQLiteStatement statement = connection.prepare(query);
+					statement.bind(1, x);
+					statement.bind(2, y);
+					statement.bind(3, hasOwner ? 1 : 0);
+					statement.bind(4, farm ? 1 : 0);
+					statement.step();
+					return null;
+				}
+			}).complete();
+			farmID = getInstance().execute(new SQLiteJob<Integer>() {
+				@Override
+				protected Integer job(SQLiteConnection connection) throws Throwable {
+					String query = "Select Farm.FarmID From Farm Where xCoord=? and yCoord=?;";
+					SQLiteStatement statement = connection.prepare(query);
+					statement.bind(1, x);
+					statement.bind(2, y);
+					statement.step();
+					return statement.columnInt(0);
+				}
+			}).complete();		
+		} else {
+			final int tempFarmID = farmID;
+			//check if the Assignation is already in the db
+			boolean isAFarmAssignation = getInstance().execute(new SQLiteJob<Boolean>() {
+				@Override
+				protected Boolean job(SQLiteConnection connection) throws Throwable {
+					String query = "Select FarmAssignation.FarmAssignationID from FarmAssignation Where FarmID=? and VillageID=?;";
+					SQLiteStatement statement = connection.prepare(query);
+					statement.bind(1, tempFarmID);
+					statement.bind(2, villageID);
+					if(statement.step()) {
+						return true;
+					}  else {
+						return false;
+					}
+				}
+			}).complete();
+			if(isAFarmAssignation) {
+				//Farm is already in FarmAssignation
+				return false; //--> not added
+			}
+		}
+		final int tempFarmID = farmID;
+		getInstance().execute(new SQLiteJob<Void>() {
+			@Override
+			protected Void job(SQLiteConnection connection) throws Throwable {
+				String query = "Insert Into FarmAssignation(FarmID, VillageID, farmed) VALUES (?, ?, ?);";
+				SQLiteStatement statement = connection.prepare(query);
+				statement.bind(1, tempFarmID);
+				statement.bind(2, villageID);
+				statement.bind(3, 0);
+				statement.step();
+				return null;
+			}
+		}).complete();
+		return true;
+	}
+
 }

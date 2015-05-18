@@ -197,10 +197,10 @@ public class Village {
 	}
 
 	public boolean farmPossible(FarmVorlage[] vorlagen) throws IOException, CaptchaException, SessionException {
-		Date now = new Date();
+		/*Date now = new Date();
 		if (now.after(nextAttackReturn)) {
 			completeRefresh();
-		}
+		}* This isn't working*/
 
 		for (FarmVorlage vorlage : vorlagen) {
 			if(vorlage.getSpeertraeger() <= speertraeger &&
