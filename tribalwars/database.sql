@@ -44,6 +44,8 @@ CREATE TABLE `AngriffLog` ( `idLogItem` INTEGER NOT NULL PRIMARY KEY AUTOINCREME
 CREATE TRIGGER buildLogTrimmer AFTER INSERT ON `BuildLog` BEGIN  DELETE FROM BuildLog WHERE idLogItem NOT IN (SELECT idLogItem FROM BuildLog ORDER BY idLogItem DESC LIMIT 160); END; 
 CREATE TRIGGER angriffLogTrimmer AFTER INSERT ON `AngriffLog` BEGIN  DELETE FROM AngriffLog WHERE idLogItem NOT IN (SELECT idLogItem FROM AngriffLog ORDER BY idLogItem DESC LIMIT 160); END; 
 CREATE TRIGGER systemLogTrimmer AFTER INSERT ON `SystemLog` BEGIN  DELETE FROM SystemLog WHERE idLogItem NOT IN (SELECT idLogItem FROM SystemLog ORDER BY idLogItem DESC LIMIT 160); END; 
+CREATE TRIGGER `farmAssignationTrimmer2` AFTER DELETE ON `Villages` BEGIN  DELETE FROM `FarmAssignation` WHERE `VillageID`=OLD.`VillageID`; END;
+CREATE TRIGGER `farmAssignationTrimmer1` AFTER DELETE ON `Farm` BEGIN  DELETE FROM `FarmAssignation` WHERE `FarmID`=OLD.`FarmID`; END;
 
 -- DEFAULT VALUES
 INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (1, 'main', '<img src="images/haupthaus.png">&nbsp;Hauptgeb&auml;de');

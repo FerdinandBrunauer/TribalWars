@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -64,9 +65,29 @@ public class Account implements Runnable {
 	private void gameLogic() throws CaptchaException, SessionException, IOException, InterruptedException {
 		browser = new WebBrowser();
 		if (login()) {
-			// TODO when there are more villages in one account, then check the page
-			// TODO check Bot-Security
+			// TODO check Bot-Security (done but not tested)
 			refreshVillages();
+			//Abgleich zwischen DB und myVillages
+			Map<String, Village> dbVillages = Database.getVillages();
+			List<Village> overviewVillages = (List<Village>) myVillages.clone(); 
+			int i = 0;
+			while (i < overviewVillages.size()) {
+				if(dbVillages.get(overviewVillages.get(i).getId()) != null) {
+					if(dbVillages.get(overviewVillages.get(i).getId()).getName().compareTo(overviewVillages.get(i).getName()) != 0) {
+						Database.addVillageToDatabase(overviewVillages.get(i));
+					}
+					dbVillages.remove(overviewVillages.get(i).getId());
+					overviewVillages.remove(i);
+				} else {
+					i++;
+				}
+			}
+			for(Village temp : overviewVillages) {
+				Database.addVillageToDatabase(temp);
+			}
+			for(String temp : dbVillages.keySet()) {
+				Database.deleteVillage(dbVillages.get(temp).getId());
+			}
 			Thread.sleep(1638);			
 			for (Village village : myVillages) {
 				village.completeRefresh();
@@ -180,7 +201,6 @@ public class Account implements Runnable {
 				Point coord = coords.get(0);
 				Village temp = new Village(this, villageId, villageName, coord.x, coord.y);
 				myVillages.add(temp);
-				Database.addVillageToDatabase(temp);
 				coords.remove(0);
 			}
 	}

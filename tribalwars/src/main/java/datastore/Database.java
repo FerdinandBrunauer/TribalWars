@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import tribalwars.Farm;
 import tribalwars.Village;
@@ -420,6 +421,52 @@ public class Database extends SQLiteQueue {
 		}
 		
 		return out;
+	}
+	
+	public static Map<String, Village> getVillages() {
+		return getInstance().execute(new SQLiteJob<Map<String, Village>>() {
+			@Override
+			protected Map<String, Village> job(SQLiteConnection connection) throws Throwable {
+				Map<String, Village> out = new HashMap<String, Village>();
+				String query = "Select * from Villages;";
+				SQLiteStatement statement = connection.prepare(query);
+				while(statement.step()) {
+					int villageId= statement.columnInt(0);
+					int x = statement.columnInt(1);
+					int y = statement.columnInt(2);
+					String name = statement.columnString(3);
+					out.put("" + villageId , new Village(null, "" + villageId, name, x, y));
+				}
+				return out;
+			}
+		}).complete();
+	}
+	
+	public static void deleteVillage(final String villageID) {
+		getInstance().execute(new SQLiteJob<Void>() {
+			@Override
+			protected Void job(SQLiteConnection connection) throws Throwable {
+				String query = "Delete from Villages where VillageID=?;";
+				SQLiteStatement statement = connection.prepare(query);
+				statement.bind(1, villageID);
+				statement.step();
+				return null;
+			}
+		}).complete();
+	}
+	
+	public static void deleteFarm(final int x, final int y) {
+		getInstance().execute(new SQLiteJob<Void>() {
+			@Override
+			protected Void job(SQLiteConnection connection) throws Throwable {
+				String query = "Delete from Farm where xCoord=? and yCoord=?;";
+				SQLiteStatement statement = connection.prepare(query);
+				statement.bind(1, x);
+				statement.bind(2, y);
+				statement.step();
+				return null;
+			}
+		}).complete();
 	}
 	
 	public static void main(String[] args) throws IOException {

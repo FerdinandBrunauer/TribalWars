@@ -56,7 +56,10 @@ public class SafetyManager {
 	}
 
 	public static void checkSession(Document document) throws SessionException {
-		// TODO check session
+		if(document.getElementsByTag("body").get(0).getAllElements().size() <= 1) { 
+			System.out.println("Session expired - Reloggin");
+			throw new SessionException();
+		}
 	}
 
 }
