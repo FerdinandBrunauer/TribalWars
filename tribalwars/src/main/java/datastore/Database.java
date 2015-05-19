@@ -2,7 +2,9 @@ package datastore;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -405,4 +407,22 @@ public class Database extends SQLiteQueue {
 		return true;
 	}
 
+	public static List<Farm> testFuction() throws IOException {
+		List<Farm> out = new ArrayList<Farm>();
+		String content = "";
+		BufferedReader reader = new BufferedReader(new FileReader(new File("test.txt")));
+		String line = "";
+		while(((line = reader.readLine()) != null)) {
+			int pos = line.indexOf("(") + 1;
+			String coordsRaw = line.substring(pos, pos + 7);
+			String[] coords = coordsRaw.split("\\|"); 
+			out.add(new Farm(0, Integer.valueOf(coords[0]), Integer.valueOf(coords[1]), 0));
+		}
+		
+		return out;
+	}
+	
+	public static void main(String[] args) throws IOException {
+		testFuction();
+	}
 }
