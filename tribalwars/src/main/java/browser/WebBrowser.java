@@ -75,7 +75,7 @@ public class WebBrowser {
 		Document document = Jsoup.parse(response.toString());
 		try {
 			SafetyManager.checkSession(document);
-			SafetyManager.checkCaptcha(document);
+			document = SafetyManager.checkCaptcha(this, document, url);
 		} catch (SessionException e) {
 			throw e;
 		} catch (CaptchaException e) {
@@ -123,7 +123,16 @@ public class WebBrowser {
 		// Get the response cookies
 		setCookies(conn.getHeaderFields().get("Set-Cookie"));
 
-		return Jsoup.parse(response.toString());
+		Document document = Jsoup.parse(response.toString());
+		try {
+			SafetyManager.checkSession(document);
+			document = SafetyManager.checkCaptcha(this, document, url);
+		} catch (SessionException e) {
+			throw e;
+		} catch (CaptchaException e) {
+			throw e;
+		}
+		return document;
 	}
 
 	private static long generateRandomSleep() {
