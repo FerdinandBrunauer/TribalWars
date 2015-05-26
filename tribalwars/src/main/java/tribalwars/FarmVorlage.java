@@ -2,6 +2,7 @@ package tribalwars;
 
 public class FarmVorlage {
 	
+	private int farmSubmissionID;
 	private int speertraeger = 0;
 	private int schwertkaempfer = 0;
 	private int axtkaempfer = 0;
@@ -15,7 +16,8 @@ public class FarmVorlage {
 	//private int paladin = 0;
 
 	
-	public FarmVorlage(int speertraeger, int schwertkaempfer, int axtkaempfer, int bogenschuetze, int spaeher, int lk, int bbs, int sk, int ramm, int kata) {
+	public FarmVorlage(int farmSubmissionID, int speertraeger, int schwertkaempfer, int axtkaempfer, int bogenschuetze, int spaeher, int lk, int bbs, int sk, int ramm, int kata) {
+		this.farmSubmissionID = farmSubmissionID;
 		this.speertraeger = speertraeger;
 		this.schwertkaempfer = schwertkaempfer;
 		this.axtkaempfer = axtkaempfer;

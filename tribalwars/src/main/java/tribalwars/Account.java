@@ -9,6 +9,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -31,9 +33,9 @@ public class Account implements Runnable {
 	private Document document;
 
 	//private FarmVorlage[] vorlagen = { new FarmVorlage(Unit.Axt, 50), new FarmVorlage(Unit.LKAV, 7), new FarmVorlage(Unit.Speer, 20)};
-	private FarmVorlage[] vorlagen = { new FarmVorlage(0, 0, 50, 0, 0, 0, 0, 0, 0, 0),
-			new FarmVorlage(0, 0, 0, 0, 0, 5, 0, 0, 0, 0),
-			new FarmVorlage(10, 0, 10, 0, 0, 0, 0, 0, 0, 0)};
+	private FarmVorlage[] vorlagen = { new FarmVorlage(0, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0),
+			new FarmVorlage(0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0),
+			new FarmVorlage(0, 10, 0, 10, 0, 0, 0, 0, 0, 0, 0)};
 	
 	public Account(String username, String password, String world, String worldNumber) {
 		this.username = username;
@@ -67,7 +69,7 @@ public class Account implements Runnable {
 		if (login()) {
 			// TODO check Bot-Security (done but not tested)
 			refreshVillages();
-			//Abgleich zwischen DB und myVillages
+			//<---Abgleich zwischen DB und myVillages--->
 			Map<String, Village> dbVillages = Database.getVillages();
 			List<Village> overviewVillages = (List<Village>) myVillages.clone(); 
 			int i = 0;
@@ -88,6 +90,17 @@ public class Account implements Runnable {
 			for(String temp : dbVillages.keySet()) {
 				Database.deleteVillage(dbVillages.get(temp).getId());
 			}
+			//<---Abgleich beendet--->
+			//<---Bei allen Dörfern prüfen, ob sie farmen sollen und Wert setzen--->
+			dbVillages = Database.getVillages();
+			for(Village tempVillage : myVillages) {
+				tempVillage.setFarm(dbVillages.get(tempVillage.getId()).isFarming());
+			}
+			List<Farm> addFarms = Database.addFarmsFromFile();
+			for(Farm temp : addFarms) {
+				Database.addFarmToDatabase(myVillages.get(0).getId(), temp.x, temp.y, false, true);
+			}
+			
 			Thread.sleep(1638);			
 			for (Village village : myVillages) {
 				village.completeRefresh();
@@ -100,43 +113,62 @@ public class Account implements Runnable {
 					document = browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?screen=overview_villages");
 					Thread.sleep(1996);
 					currentVillage.completeRefresh();
-					List<Farm> farmen = Database.getFarms(currentVillage.getId(), true, true);
-					List<Farm> farmed = new ArrayList<Farm>();
-					if(currentVillage.farmPossible(vorlagen) && farmen.size() > 0)  {
-						document = browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + currentVillage.getId() + "&screen=place");
-						Thread.sleep(1796);
-						while(currentVillage.farmPossible(vorlagen) && farmen.size() > 0) {
-							Element input = document.getElementById("units_form").getElementsByTag("input").get(0);
-							String hashName = input.attr("name");
-							String hashValue = input.attr("value");
-							for(FarmVorlage vorlage : vorlagen) {
-								if(currentVillage.canFarm(vorlage)) {
-									document = browser.POST("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + currentVillage.getId() + "&try=confirm&screen=place", hashName + "=" + 
+					if(currentVillage.isFarming()) {
+						List<Farm> farmen = Database.getFarms(currentVillage.getId(), true, true);
+						List<Farm> farmed = new ArrayList<Farm>();
+						if(currentVillage.farmPossible(vorlagen) && farmen.size() > 0)  {
+							document = browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + currentVillage.getId() + "&screen=place");
+							Thread.sleep(1796);
+							while(currentVillage.farmPossible(vorlagen) && farmen.size() > 0) {
+								Element input = document.getElementById("units_form").getElementsByTag("input").get(0);
+								String hashName = input.attr("name");
+								String hashValue = input.attr("value");
+								for(FarmVorlage vorlage : vorlagen) {
+									if(currentVillage.canFarm(vorlage)) {
+										document = browser.POST("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + currentVillage.getId() + "&try=confirm&screen=place", hashName + "=" + 
 											hashValue + "&template_id=&spear=" + vorlage.getSpeertraeger() + "&sword=" + vorlage.getSchwertkaempfer() + "&axe=" + vorlage.getAxtkaempfer() + 
 											"&archer=" + vorlage.getBogenschuetzen() + "&spy=" + vorlage.getSpaeher() + "&light=" + vorlage.getLeichteKavallerie() + "&marcher=" + 
 											vorlage.getBerittenerBogenschuetze() + "&heavy=" + vorlage.getSchwereKavallerie() + "&ram=" + vorlage.getRammboecke() + "&catapult=" + 
 											vorlage.getKatapult() + "&snob=&x=" + farmen.get(0).x + "&y=" + farmen.get(0).y + "&target_type=coord&input=" +  farmen.get(0).x  + "%7C" +  
 											farmen.get(0).y  + "&attack=Angreifen");
-									Thread.sleep(2596);
-									Element actionForm = document.getElementById("command-confirm-form");
-									String hWert = actionForm.attr("action").replace("/game.php?village=" + currentVillage.getId() + "&action=command&h=", "").replace("&screen=place", "");
-									String chWert = actionForm.getElementsByAttributeValue("name", "ch").get(0).attr("value");
-									String action_ID = actionForm.getElementsByAttributeValue("name", "action_id").get(0).attr("value");
-									document = browser.POST("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + currentVillage.getId() + 
+										//<---Prüfung ob Farm == Barbarendorf bzw. wenn Farm != Barbarendorf ob Farm angegriffen werden darf--->
+										if(!farmen.get(0).owned) {
+											Pattern pattern = Pattern.compile("<a href=\"\\/game\\.php\\?village=.+?&amp;id=.+?&amp;screen=info_player\">(.+?)<\\/a>");
+											Matcher matcher = pattern.matcher(document.toString());
+											if(matcher.find()) {
+												Database.markFarm("" + farmen.get(0).farmID);
+												farmen.remove(0);
+												break;
+											}
+										}
+										Thread.sleep(2296);
+										Element actionForm = document.getElementById("command-confirm-form");
+										Pattern pattern = Pattern.compile("h=(.+?)\\&");
+										Matcher matcher = pattern.matcher(actionForm.attr("action"));
+										String hWert = "";
+										if(matcher.find()) {
+											hWert = matcher.group(1);
+										} else {
+											throw new IOException("could not fin h-Value in link!");
+										}
+										String chWert = actionForm.getElementsByAttributeValue("name", "ch").get(0).attr("value");
+										String action_ID = actionForm.getElementsByAttributeValue("name", "action_id").get(0).attr("value");
+										document = browser.POST("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + currentVillage.getId() + 
 											"&action=command&h=" + hWert + "&screen=place", "attack=true&ch=" + chWert + "&x=" + farmen.get(0).x + "&y=" + farmen.get(0).y +
 											"&action_id=" + action_ID + "&spear=" + vorlage.getSpeertraeger() + "&sword=" + vorlage.getSchwertkaempfer() + 
 											"&axe=" + vorlage.getAxtkaempfer() + "&archer=" + vorlage.getBogenschuetzen() + "&spy=" + vorlage.getSpaeher() + "&light=" + 
 											vorlage.getLeichteKavallerie() + "&marcher=" + vorlage.getBerittenerBogenschuetze() + "&heavy=" + vorlage.getSchwereKavallerie() + 
 											"&ram=" + vorlage.getRammboecke() + "&catapult=" + vorlage.getKatapult() + "&snob=0");
-									Thread.sleep(1596);
-									currentVillage.removeUnit(vorlage);
-									farmed.add(farmen.get(0));
-									farmen.remove(0);
-									break;
+										Thread.sleep(1596);
+										currentVillage.removeUnit(vorlage);
+										farmed.add(farmen.get(0));
+										farmen.remove(0);
+										break;
+									}
 								}
 							}
+							Database.setFarmed(farmed);
 						}
-						Database.setFarmed(farmed);
 					}
 				}
 				if(myVillages.size() <= 3) {
@@ -144,23 +176,6 @@ public class Account implements Runnable {
 				} else {
 					Thread.sleep(2378);
 				}
-				/*deprecated
-				if (myVillages.size() > 1) {
-					throw new IOException("Unsupported!");
-				} else if (myVillages.size() == 1) {
-					if (myVillages.get(0).farmPossible(vorlagen)) {
-						//document = browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + myVillages.get(0).getId() + "&screen=overview");
-						document = browser.GET("http://" + welt + weltNummer + ".die-staemme.de/game.php?village=" + myVillages.get(0).getId() + "&screen=am_farm");
-
-						String hWert = Village.getHValue(document.head().html());
-						Elements farms = document.getElementById("plunder_list").getElementsByTag("tr");
-						for (int i = 1; i < farms.size(); i++) {
-							// TODO read out vorlage id
-						}
-					}
-				} else {
-					throw new IOException("Fehler! Keine D\u00F6rfer!");
-				}*/
 			}
 		} else {
 			throw new IOException("Ver\u00E4ndertes Loginsystem oder falsche Accountdaten!");

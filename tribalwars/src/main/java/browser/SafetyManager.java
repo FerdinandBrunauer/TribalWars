@@ -2,8 +2,10 @@ package browser;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Matcher;
@@ -16,10 +18,27 @@ public class SafetyManager {
 	public static Document checkCaptcha(WebBrowser browser, Document document, String url) throws CaptchaException, MalformedURLException, IOException, SessionException {
 		// TODO check captcha
 		if(document.toString().contains("Botschutz")) {
+		File botSchutz = new File("test.html");
+		PrintWriter writer = new PrintWriter(botSchutz);
+		writer.append(document.toString());
+		writer.flush();writer.close();
 		Pattern pattern = Pattern.compile("document\\.getElementById\\('bot_check_image'\\).src = '(.+)';");
 		Matcher matcher = pattern.matcher(document.toString());
-		matcher.find();
-			String link = matcher.group(1);
+		String link = "";
+		if(matcher.find()) {
+			link = matcher.group(1);
+		} else {
+			writer = new PrintWriter(new File("output.txt"));
+			writer.append("Found Botschutz\n");
+			writer.flush();
+			writer.close();
+			pattern = Pattern.compile("\\$\\('#bot_check_image'\\)\\.attr\\('src', '(.+?)'\\)");
+			matcher = pattern.matcher(document.toString());
+			if(!matcher.find()) {
+				throw new IOException("Unexpected Error");
+			}
+			link = matcher.group(1);
+		}
 			pattern = Pattern.compile("http:\\/\\/(.+?)\\.");
 			matcher = pattern.matcher(url);
 			matcher.find();

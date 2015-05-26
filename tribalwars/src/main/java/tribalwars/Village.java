@@ -50,6 +50,8 @@ public class Village {
 	private int wall = 0;
 	private Date nextAttackReturn = new Date();
 	private Date nextBuildingOrder = new Date();
+	private boolean farm = false;
+	private boolean ramm = false;
 
 	public Village(Account account, String id, String name, int x, int y) {
 		this.account = account;
@@ -411,4 +413,22 @@ public class Village {
 	public int getSpeicherKapazitaet() {
 		return speicherKapazitaet;
 	}
+	
+	public void setFarm(boolean farm) {
+		this.farm = farm;
+	}
+	
+	public boolean isFarming() {
+		return this.farm;
+	}
+
+	public boolean isRamm() {
+		return ramm;
+	}
+
+	public void setRamm(boolean ramm) {
+		this.ramm = ramm;
+	}
+	
+	
 }

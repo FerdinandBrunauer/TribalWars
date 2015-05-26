@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import tribalwars.Farm;
+import tribalwars.FarmVorlage;
 import tribalwars.Village;
 
 import com.almworks.sqlite4java.SQLiteConnection;
@@ -57,7 +58,8 @@ public class Database extends SQLiteQueue {
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
 			protected Void job(SQLiteConnection connection) throws Throwable {
-				try (BufferedReader br = new BufferedReader(new FileReader("database.sql"))) {
+				try (BufferedReader br = new BufferedReader(new FileReader(
+						"database.sql"))) {
 					for (String line; (line = br.readLine()) != null;) {
 						if (line.startsWith("--") || line.equals("")) {
 							continue;
@@ -67,7 +69,9 @@ public class Database extends SQLiteQueue {
 						}
 					}
 				} catch (Exception e) {
-					System.err.println("Konnte Datenbank nicht erstellen! Error: \"" + e.getMessage() + "\"");
+					System.err
+							.println("Konnte Datenbank nicht erstellen! Error: \""
+									+ e.getMessage() + "\"");
 					System.exit(1);
 				}
 				return null;
@@ -75,21 +79,26 @@ public class Database extends SQLiteQueue {
 		}).complete();
 	}
 
-	public static HashMap<String, Integer> getMaximalBuildinglevelFromVorlage(final long vorlageID) {
+	public static HashMap<String, Integer> getMaximalBuildinglevelFromVorlage(
+			final long vorlageID) {
 		return getInstance().execute(new SQLiteJob<HashMap<String, Integer>>() {
 			@Override
-			protected HashMap<String, Integer> job(SQLiteConnection connection) throws Throwable {
+			protected HashMap<String, Integer> job(SQLiteConnection connection)
+					throws Throwable {
 				HashMap<String, Integer> buildings = new HashMap<String, Integer>();
-				SQLiteStatement statement = connection.prepare("SELECT `name` FROM `Building`;");
+				SQLiteStatement statement = connection
+						.prepare("SELECT `name` FROM `Building`;");
 				while (statement.step()) {
 					buildings.put(statement.columnString(0), 0);
 				}
 
-				statement = connection.prepare("SELECT Building.name AS 'building', MAX(VorlageItem.level) AS 'level' FROM VorlageItem JOIN Building ON VorlageItem.idBuilding=Building.idBuilding WHERE VorlageItem.idVorlage=? GROUP BY VorlageItem.idBuilding");
+				statement = connection
+						.prepare("SELECT Building.name AS 'building', MAX(VorlageItem.level) AS 'level' FROM VorlageItem JOIN Building ON VorlageItem.idBuilding=Building.idBuilding WHERE VorlageItem.idVorlage=? GROUP BY VorlageItem.idBuilding");
 				statement.bind(1, vorlageID);
 
 				while (statement.step()) {
-					buildings.put(statement.columnString(0), statement.columnInt(1));
+					buildings.put(statement.columnString(0),
+							statement.columnInt(1));
 				}
 
 				return buildings;
@@ -100,12 +109,15 @@ public class Database extends SQLiteQueue {
 	public static List<BuildingPattern> getBuildingPattern() {
 		return getInstance().execute(new SQLiteJob<List<BuildingPattern>>() {
 			@Override
-			protected List<BuildingPattern> job(SQLiteConnection connection) throws Throwable {
+			protected List<BuildingPattern> job(SQLiteConnection connection)
+					throws Throwable {
 				List<BuildingPattern> pattern = new ArrayList<BuildingPattern>();
 
-				SQLiteStatement statement = connection.prepare("SELECT `idVorlage`, `name` FROM `Vorlage`;");
+				SQLiteStatement statement = connection
+						.prepare("SELECT `idVorlage`, `name` FROM `Vorlage`;");
 				while (statement.step()) {
-					pattern.add(new BuildingPattern(statement.columnLong(0), statement.columnString(1)));
+					pattern.add(new BuildingPattern(statement.columnLong(0),
+							statement.columnString(1)));
 				}
 
 				return pattern;
@@ -116,13 +128,18 @@ public class Database extends SQLiteQueue {
 	public static List<String> getBuildingPatternContentFormatted(final long id) {
 		return getInstance().execute(new SQLiteJob<List<String>>() {
 			@Override
-			protected List<String> job(SQLiteConnection connection) throws Throwable {
+			protected List<String> job(SQLiteConnection connection)
+					throws Throwable {
 				List<String> content = new ArrayList<>();
 
-				SQLiteStatement statement = connection.prepare("SELECT `Building`.`displayName`, `VorlageItem`.`level` FROM `VorlageItem` JOIN `Building` ON `VorlageItem`.`idBuilding`=`Building`.`idBuilding` WHERE `VorlageItem`.`idVorlage`=? ORDER BY `VorlageItem`.`position` ASC;");
+				SQLiteStatement statement = connection
+						.prepare("SELECT `Building`.`displayName`, `VorlageItem`.`level` FROM `VorlageItem` JOIN `Building` ON `VorlageItem`.`idBuilding`=`Building`.`idBuilding` WHERE `VorlageItem`.`idVorlage`=? ORDER BY `VorlageItem`.`position` ASC;");
 				statement.bind(1, id);
 				while (statement.step()) {
-					content.add("<table style=\"width: 100%;\"><tr><td style=\"text-align: left;\">" + statement.columnString(0) + "</td><td style=\"text-align: right;\">" + statement.columnInt(1) + "</td></tr></table>");
+					content.add("<table style=\"width: 100%;\"><tr><td style=\"text-align: left;\">"
+							+ statement.columnString(0)
+							+ "</td><td style=\"text-align: right;\">"
+							+ statement.columnInt(1) + "</td></tr></table>");
 				}
 
 				return content;
@@ -133,13 +150,16 @@ public class Database extends SQLiteQueue {
 	public static List<VorlageItem> getBuildingPatternContent(final long id) {
 		return getInstance().execute(new SQLiteJob<List<VorlageItem>>() {
 			@Override
-			protected List<VorlageItem> job(SQLiteConnection connection) throws Throwable {
+			protected List<VorlageItem> job(SQLiteConnection connection)
+					throws Throwable {
 				List<VorlageItem> items = new ArrayList<VorlageItem>();
 
-				SQLiteStatement statement = connection.prepare("SELECT `Building`.`name`, `VorlageItem`.`level` FROM `VorlageItem` JOIN `Building` ON `VorlageItem`.`idBuilding`=`Building`.`idBuilding` WHERE `VorlageItem`.`idVorlage`=? ORDER BY `VorlageItem`.`position` ASC;");
+				SQLiteStatement statement = connection
+						.prepare("SELECT `Building`.`name`, `VorlageItem`.`level` FROM `VorlageItem` JOIN `Building` ON `VorlageItem`.`idBuilding`=`Building`.`idBuilding` WHERE `VorlageItem`.`idVorlage`=? ORDER BY `VorlageItem`.`position` ASC;");
 				statement.bind(1, id);
 				while (statement.step()) {
-					items.add(new VorlageItem(statement.columnString(0), statement.columnInt(1)));
+					items.add(new VorlageItem(statement.columnString(0),
+							statement.columnInt(1)));
 				}
 
 				return items;
@@ -147,16 +167,22 @@ public class Database extends SQLiteQueue {
 		}).complete();
 	}
 
-	public static void logBuilding(final String dorfname, final int x, final int y, String building, int toLevel) {
+	public static void logBuilding(final String dorfname, final int x,
+			final int y, String building, int toLevel) {
 		Date date = new Date();
 		SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
 		String formattedTime = format.format(date);
-		final String logMessage = "<table style=\"width: 100%;\"><tr>" + "<td style=\"width: 20%\">" + formattedTime + "</td>" + "<td style=\"width: 20%\">" + dorfname + "(" + x + "|" + y + ")" + "</td>" + "<td style=\"width: 60%\">Ausbau von " + building + " auf Stufe " + toLevel + "</td>"
+		final String logMessage = "<table style=\"width: 100%;\"><tr>"
+				+ "<td style=\"width: 20%\">" + formattedTime + "</td>"
+				+ "<td style=\"width: 20%\">" + dorfname + "(" + x + "|" + y
+				+ ")" + "</td>" + "<td style=\"width: 60%\">Ausbau von "
+				+ building + " auf Stufe " + toLevel + "</td>"
 				+ "</tr></table>";
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
 			protected Void job(SQLiteConnection connection) throws Throwable {
-				SQLiteStatement statement = connection.prepare("INSERT INTO BuildLog (message) VALUES (?);");
+				SQLiteStatement statement = connection
+						.prepare("INSERT INTO BuildLog (message) VALUES (?);");
 				statement.bind(1, logMessage);
 				statement.stepThrough();
 				return null;
@@ -164,16 +190,24 @@ public class Database extends SQLiteQueue {
 		}).complete();
 	}
 
-	public static void logAttack(final String destinationDorfname, final int destinationX, final int destinationY, final String targetDorfname, final int targetX, final int targetY) {
+	public static void logAttack(final String destinationDorfname,
+			final int destinationX, final int destinationY,
+			final String targetDorfname, final int targetX, final int targetY) {
 		Date date = new Date();
 		SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
 		String formattedTime = format.format(date);
-		final String logMessage = "<table style=\"width: 100%;\"><tr>" + "<td style=\"width: 20%\">" + formattedTime + "</td>" + "<td style=\"width: 20%\">" + destinationDorfname + "(" + destinationX + "|" + destinationY + ")</td>" + "<td style=\"width: 20%\">" + targetDorfname + "(" + targetX
-				+ "|" + targetY + ")</td>" + "<td style=\"width: 40%\"></td>" + "</tr></table>";
+		final String logMessage = "<table style=\"width: 100%;\"><tr>"
+				+ "<td style=\"width: 20%\">" + formattedTime + "</td>"
+				+ "<td style=\"width: 20%\">" + destinationDorfname + "("
+				+ destinationX + "|" + destinationY + ")</td>"
+				+ "<td style=\"width: 20%\">" + targetDorfname + "(" + targetX
+				+ "|" + targetY + ")</td>" + "<td style=\"width: 40%\"></td>"
+				+ "</tr></table>";
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
 			protected Void job(SQLiteConnection connection) throws Throwable {
-				SQLiteStatement statement = connection.prepare("INSERT INTO `AngriffLog` (message) VALUES (?);");
+				SQLiteStatement statement = connection
+						.prepare("INSERT INTO `AngriffLog` (message) VALUES (?);");
 				statement.bind(1, logMessage);
 				statement.stepThrough();
 				return null;
@@ -181,13 +215,16 @@ public class Database extends SQLiteQueue {
 		}).complete();
 	}
 
-	public static List<String> getLogBuildings(final long startID, final int count) {
+	public static List<String> getLogBuildings(final long startID,
+			final int count) {
 		return getInstance().execute(new SQLiteJob<List<String>>() {
 			@Override
-			protected List<String> job(SQLiteConnection connection) throws Throwable {
+			protected List<String> job(SQLiteConnection connection)
+					throws Throwable {
 				List<String> messages = new ArrayList<String>();
 
-				SQLiteStatement statement = connection.prepare("SELECT `message` FROM `BuildLog` WHERE `idLogItem` >=? ORDER BY `idLogItem` DESC LIMIT ?;");
+				SQLiteStatement statement = connection
+						.prepare("SELECT `message` FROM `BuildLog` WHERE `idLogItem` >=? ORDER BY `idLogItem` DESC LIMIT ?;");
 				statement.bind(1, startID);
 				statement.bind(2, count);
 
@@ -203,10 +240,12 @@ public class Database extends SQLiteQueue {
 	public static List<String> getLogAttack(final long startID, final int count) {
 		return getInstance().execute(new SQLiteJob<List<String>>() {
 			@Override
-			protected List<String> job(SQLiteConnection connection) throws Throwable {
+			protected List<String> job(SQLiteConnection connection)
+					throws Throwable {
 				List<String> messages = new ArrayList<String>();
 
-				SQLiteStatement statement = connection.prepare("SELECT `message` FROM `AngriffLog` WHERE `idLogItem` >=? ORDER BY `idLogItem` DESC LIMIT ?;");
+				SQLiteStatement statement = connection
+						.prepare("SELECT `message` FROM `AngriffLog` WHERE `idLogItem` >=? ORDER BY `idLogItem` DESC LIMIT ?;");
 				statement.bind(1, startID);
 				statement.bind(2, count);
 
@@ -218,14 +257,16 @@ public class Database extends SQLiteQueue {
 			}
 		}).complete();
 	}
-	
-	public static List<Farm> getFarms(final String villageID, final boolean onlyFarmable, final boolean resetIfEmpty) {
+
+	public static List<Farm> getFarms(final String villageID,
+			final boolean onlyFarmable, final boolean resetIfEmpty) {
 		List<Farm> out = getInstance().execute(new SQLiteJob<List<Farm>>() {
 			@Override
-			protected List<Farm> job(SQLiteConnection connection) throws Throwable {
+			protected List<Farm> job(SQLiteConnection connection)
+					throws Throwable {
 				List<Farm> farms = new ArrayList<Farm>();
-				String query = "Select Farm.xCoord, Farm.yCoord, FarmAssignation.FarmAssignationID, Farm.farm from Farm left join FarmAssignation on Farm.FarmID = FarmAssignation.FarmID and FarmAssignation.VillageID=?";
-				if(onlyFarmable) {
+				String query = "Select Farm.xCoord, Farm.yCoord, FarmAssignation.FarmAssignationID, Farm.farm, Farm.hasOwner from Farm left join FarmAssignation on Farm.FarmID = FarmAssignation.FarmID and FarmAssignation.VillageID=?";
+				if (onlyFarmable) {
 					query += " where Farm.farm = 1 and FarmAssignation.farmed = 0;";
 				} else {
 					query += ";";
@@ -234,82 +275,87 @@ public class Database extends SQLiteQueue {
 				statement.bind(1, villageID);
 
 				while (statement.step()) {
-					farms.add(new Farm(statement.columnInt(2), statement.columnInt(0) ,statement.columnInt(1), statement.columnInt(3)));
+					farms.add(new Farm(statement.columnInt(2), statement
+							.columnInt(0), statement.columnInt(1), statement
+							.columnInt(3), statement.columnInt(4) == 0 ? false : true));
 				}
 				return farms;
 			}
 		}).complete();
-		if(out.size() == 0 && resetIfEmpty) {
+		if (out.size() == 0 && resetIfEmpty) {
 			resetFarms(villageID);
 			out = getFarms(villageID, onlyFarmable, false);
 		}
 		return out;
 	}
-	
+
 	public static void resetFarms(final String villageID) {
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
 			protected Void job(SQLiteConnection connection) throws Throwable {
-				SQLiteStatement statement = connection.prepare("Update FarmAssignation Set farmed=0 where FarmAssignation.VillageID=?;");
+				SQLiteStatement statement = connection
+						.prepare("Update FarmAssignation Set farmed=0 where FarmAssignation.VillageID=?;");
 				statement.bind(1, villageID);
 				statement.step();
 				return null;
 			}
 		}).complete();
 	}
-	
+
 	public static void setFarmed(Farm farm) {
 		ArrayList<Farm> farms = new ArrayList<Farm>();
 		farms.add(farm);
 		setFarmed(farms);
 	}
-	
+
 	public static void setFarmed(final List<Farm> farms) {
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
 			protected Void job(SQLiteConnection connection) throws Throwable {
 				String query = "Update FarmAssignation Set farmed = 1 where ";
-				for(int i = 0; i < farms.size()-1; i++) {
+				for (int i = 0; i < farms.size() - 1; i++) {
 					query += "FarmAssignationID=? or ";
 				}
 				query += "FarmAssignationID=?;";
 				SQLiteStatement statement = connection.prepare(query);
-				for(int i = 0; i < farms.size(); i++) {
-					statement.bind(i+1, farms.get(i).farmID);
-				}	
+				for (int i = 0; i < farms.size(); i++) {
+					statement.bind(i + 1, farms.get(i).farmID);
+				}
 				statement.step();
 				return null;
 			}
 		}).complete();
 	}
-	
+
 	public static void addVillageToDatabase(final Village village) {
-		//check if the village is already in the db
+		// check if the village is already in the db
 		boolean isInDB = getInstance().execute(new SQLiteJob<Boolean>() {
 			@Override
 			protected Boolean job(SQLiteConnection connection) throws Throwable {
 				String query = "Select Villages.VillageID from Villages Where VillageID=?;";
 				SQLiteStatement statement = connection.prepare(query);
 				statement.bind(1, village.getId());
-				if(statement.step()) {
+				if (statement.step()) {
 					return true;
 				} else {
 					return false;
 				}
 			}
 		}).complete();
-		
-		if(!isInDB) {
+
+		if (!isInDB) {
 			getInstance().execute(new SQLiteJob<Void>() {
 				@Override
-				protected Void job(SQLiteConnection connection) throws Throwable {
-					String query = "Insert Into Villages (VillageID,xCoord,yCoord,name,farm) Values (?,?,?,?,?);";
+				protected Void job(SQLiteConnection connection)
+						throws Throwable {
+					String query = "Insert Into Villages (VillageID,xCoord,yCoord,name,farm, ramm) Values (?,?,?,?,?,?);";
 					SQLiteStatement statement = connection.prepare(query);
 					statement.bind(1, village.getId());
 					statement.bind(2, village.getX());
 					statement.bind(3, village.getY());
 					statement.bind(4, village.getName());
-					statement.bind(5, 0);
+					statement.bind(5, village.isFarming() ? 1 : 0);
+					statement.bind(6, village.isRamm() ? 1 : 0);
 					statement.step();
 					return null;
 				}
@@ -317,38 +363,50 @@ public class Database extends SQLiteQueue {
 		} else {
 			getInstance().execute(new SQLiteJob<Void>() {
 				@Override
-				protected Void job(SQLiteConnection connection) throws Throwable {
-					String query = "Update Villages Set name=? Where VillageID=?;";
+				protected Void job(SQLiteConnection connection)
+						throws Throwable {
+					String query = "Update Villages Set name=?, farm=?, ramm=? Where VillageID=?;";
 					SQLiteStatement statement = connection.prepare(query);
 					statement.bind(1, village.getName());
-					statement.bind(2, village.getId());
+					statement.bind(2, village.isFarming() ? 1 : 0);
+					statement.bind(3, village.isRamm() ? 1 : 0);
+					statement.bind(4, village.getId());
 					statement.step();
 					return null;
 				}
 			}).complete();
 		}
 	}
-	
-	public static boolean addFarmToDatabase(final String villageID, final int x, final int y, final boolean hasOwner, final boolean farm) {
-		int farmID = getInstance().execute(new SQLiteJob<Integer>() { //check if the Farm is in the Database
-			@Override
-			protected Integer job(SQLiteConnection connection) throws Throwable {
-				String query = "Select Farm.FarmID From Farm Where xCoord=? and yCoord=?;";
-				SQLiteStatement statement = connection.prepare(query);
-				statement.bind(1, x);
-				statement.bind(2, y);
-				if(statement.step()) {
-					return statement.columnInt(0);
-				} else {
-					return 0;
-				}
-			}
-		}).complete();
-		
-		if(farmID == 0) {
+
+	public static boolean addFarmToDatabase(final String villageID,
+			final int x, final int y, final boolean hasOwner, final boolean farm) {
+		int farmID = getInstance().execute(new SQLiteJob<Integer>() { // check
+																		// if
+																		// the
+																		// Farm
+																		// is in
+																		// the
+																		// Database
+					@Override
+					protected Integer job(SQLiteConnection connection)
+							throws Throwable {
+						String query = "Select Farm.FarmID From Farm Where xCoord=? and yCoord=?;";
+						SQLiteStatement statement = connection.prepare(query);
+						statement.bind(1, x);
+						statement.bind(2, y);
+						if (statement.step()) {
+							return statement.columnInt(0);
+						} else {
+							return 0;
+						}
+					}
+				}).complete();
+
+		if (farmID == 0) {
 			getInstance().execute(new SQLiteJob<Void>() {
 				@Override
-				protected Void job(SQLiteConnection connection) throws Throwable {
+				protected Void job(SQLiteConnection connection)
+						throws Throwable {
 					String query = "Insert Into Farm(xCoord, yCoord, hasOwner, farm) VALUES (?, ?, ?, ?);";
 					SQLiteStatement statement = connection.prepare(query);
 					statement.bind(1, x);
@@ -361,7 +419,8 @@ public class Database extends SQLiteQueue {
 			}).complete();
 			farmID = getInstance().execute(new SQLiteJob<Integer>() {
 				@Override
-				protected Integer job(SQLiteConnection connection) throws Throwable {
+				protected Integer job(SQLiteConnection connection)
+						throws Throwable {
 					String query = "Select Farm.FarmID From Farm Where xCoord=? and yCoord=?;";
 					SQLiteStatement statement = connection.prepare(query);
 					statement.bind(1, x);
@@ -369,27 +428,30 @@ public class Database extends SQLiteQueue {
 					statement.step();
 					return statement.columnInt(0);
 				}
-			}).complete();		
+			}).complete();
 		} else {
 			final int tempFarmID = farmID;
-			//check if the Assignation is already in the db
-			boolean isAFarmAssignation = getInstance().execute(new SQLiteJob<Boolean>() {
-				@Override
-				protected Boolean job(SQLiteConnection connection) throws Throwable {
-					String query = "Select FarmAssignation.FarmAssignationID from FarmAssignation Where FarmID=? and VillageID=?;";
-					SQLiteStatement statement = connection.prepare(query);
-					statement.bind(1, tempFarmID);
-					statement.bind(2, villageID);
-					if(statement.step()) {
-						return true;
-					}  else {
-						return false;
-					}
-				}
-			}).complete();
-			if(isAFarmAssignation) {
-				//Farm is already in FarmAssignation
-				return false; //--> not added
+			// check if the Assignation is already in the db
+			boolean isAFarmAssignation = getInstance().execute(
+					new SQLiteJob<Boolean>() {
+						@Override
+						protected Boolean job(SQLiteConnection connection)
+								throws Throwable {
+							String query = "Select FarmAssignation.FarmAssignationID from FarmAssignation Where FarmID=? and VillageID=?;";
+							SQLiteStatement statement = connection
+									.prepare(query);
+							statement.bind(1, tempFarmID);
+							statement.bind(2, villageID);
+							if (statement.step()) {
+								return true;
+							} else {
+								return false;
+							}
+						}
+					}).complete();
+			if (isAFarmAssignation) {
+				// Farm is already in FarmAssignation
+				return false; // --> not added
 			}
 		}
 		final int tempFarmID = farmID;
@@ -408,40 +470,50 @@ public class Database extends SQLiteQueue {
 		return true;
 	}
 
-	public static List<Farm> testFuction() throws IOException {
+	public static List<Farm> addFarmsFromFile() throws IOException {
 		List<Farm> out = new ArrayList<Farm>();
 		String content = "";
-		BufferedReader reader = new BufferedReader(new FileReader(new File("test.txt")));
-		String line = "";
-		while(((line = reader.readLine()) != null)) {
-			int pos = line.indexOf("(") + 1;
-			String coordsRaw = line.substring(pos, pos + 7);
-			String[] coords = coordsRaw.split("\\|"); 
-			out.add(new Farm(0, Integer.valueOf(coords[0]), Integer.valueOf(coords[1]), 0));
+		File file = new File("farm.txt");
+		if (file.exists()) {
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String line = "";
+			while (((line = reader.readLine()) != null)) {
+				int pos = line.indexOf("(") + 1;
+				String coordsRaw = line.substring(pos, pos + 7);
+				String[] coords = coordsRaw.split("\\|");
+				out.add(new Farm(0, Integer.valueOf(coords[0]), Integer
+						.valueOf(coords[1]), 0, false));
+			}
 		}
-		
 		return out;
 	}
-	
+
 	public static Map<String, Village> getVillages() {
 		return getInstance().execute(new SQLiteJob<Map<String, Village>>() {
 			@Override
-			protected Map<String, Village> job(SQLiteConnection connection) throws Throwable {
+			protected Map<String, Village> job(SQLiteConnection connection)
+					throws Throwable {
 				Map<String, Village> out = new HashMap<String, Village>();
 				String query = "Select * from Villages;";
 				SQLiteStatement statement = connection.prepare(query);
-				while(statement.step()) {
-					int villageId= statement.columnInt(0);
+				while (statement.step()) {
+					int villageId = statement.columnInt(0);
 					int x = statement.columnInt(1);
 					int y = statement.columnInt(2);
 					String name = statement.columnString(3);
-					out.put("" + villageId , new Village(null, "" + villageId, name, x, y));
+					boolean farm = statement.columnInt(4) == 1 ? true : false;
+					boolean ramm = statement.columnInt(5) == 1 ? true : false;
+					Village temp = new Village(null, "" + villageId,
+							name, x, y);
+					temp.setFarm(farm);
+					temp.setRamm(ramm);
+					out.put("" + villageId, temp);
 				}
 				return out;
 			}
 		}).complete();
 	}
-	
+
 	public static void deleteVillage(final String villageID) {
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
@@ -454,7 +526,7 @@ public class Database extends SQLiteQueue {
 			}
 		}).complete();
 	}
-	
+
 	public static void deleteFarm(final int x, final int y) {
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
@@ -469,7 +541,66 @@ public class Database extends SQLiteQueue {
 		}).complete();
 	}
 	
-	public static void main(String[] args) throws IOException {
-		testFuction();
+	public static void markFarm(final String farmAssignationID) {
+		final int farmID = getInstance().execute(new SQLiteJob<Integer>() {
+			@Override
+			protected Integer job(SQLiteConnection connection) throws Throwable {
+				String query = "SELECT FarmID from FarmAssignation WHERE FarmAssignationID=?;";
+				SQLiteStatement statement = connection.prepare(query);
+				statement.bind(1, farmAssignationID);
+				statement.step();
+				return statement.columnInt(0);
+			}
+		}).complete();
+		
+		getInstance().execute(new SQLiteJob<Void>() {
+			@Override
+			protected Void job(SQLiteConnection connection) throws Throwable {
+				String query = "UPDATE Farm SET hasOwner=1, farm=0 WHERE FarmID=?;";
+				SQLiteStatement statement = connection.prepare(query);
+				statement.bind(1, farmID);
+				statement.step();
+				return null;
+			}
+		}).complete();
+	}
+	public static List<FarmVorlage> getFarmVorlagen() {
+		return null; //TODO
+	}
+	
+	public static List<FarmVorlage> getFarmVorlagen(String villageID) {
+		return null; //TODO
+	}
+	
+	public static void addFarmVorlage(FarmVorlage vorlage) {
+		//TODO
+	}	
+	
+	public static void updateFarmVorlage(FarmVorlage vorlage) {
+		//TODO
+	}
+	
+	public static void deleteFarmVorlage(String farmVorlagenID) {
+		//TODO
+	}
+	
+	public static void addFarmVorlagenZuweisung(String farmVorlagenID, String villageID) {
+		//TODO
+	}
+	
+	public static void deleteFarmVorlagenZuweisung(String farmVorlagenID, String villageID) {
+		//TODO
+	}
+	
+	public static List<Farm> getRammAuftraege(String villageID) {
+		return null; //TODO
+	}
+	
+	public static void updateRammAuftrag() {
+		//TODO
+	}
+	
+	public static void deleteRammAuftrag(String auftragsID) {
+		//TODO
 	}
 }

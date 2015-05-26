@@ -6,7 +6,8 @@ CREATE TABLE `Villages` (
 	`xCoord`	INTEGER NOT NULL,
 	`yCoord`	INTEGER NOT NULL,
 	`name`	TEXT,
-	`farm`	NUMERIC,
+	`farm`	NUMERIC DEFAULT 0,
+	`ramm`	NUMERIC DEFAULT 0,
 	PRIMARY KEY(VillageID)
 );
 CREATE TABLE `SystemLog` ( `idLogItem` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `message` INTEGER);
@@ -15,15 +16,25 @@ CREATE TABLE `SubmissionAssignation` (
 	`SubmissionID`	INTEGER,
 	`VillageID`	INTEGER
 );
+CREATE TABLE `RammAssignment` (
+	`RammID`	INTEGER,
+	`FarmID`	INTEGER,
+	`rammed`	NUMERIC DEFAULT 0
+);
 CREATE TABLE `FarmSubmission` (
 	`FarmSubmissionID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 	`Speer`	INTEGER,
 	`Schwert`	INTEGER,
 	`Axt`	INTEGER,
-	`lKav`	INTEGER,
-	`rambock`	INTEGER
+	`bogi`	INTEGER,
+	`spaeher`	INTEGER,
+	`lk`	INTEGER,
+	`berittenerbogi`	INTEGER,
+	`sk`	INTEGER,
+	`ramm`	INTEGER,
+	`kata`	INTEGER
 );
-CREATE TABLE "FarmAssignation" (
+CREATE TABLE `FarmAssignation` (
 	`FarmAssignationID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 	`VillageID`	INTEGER NOT NULL,
 	`FarmID`	INTEGER NOT NULL,
@@ -46,6 +57,9 @@ CREATE TRIGGER angriffLogTrimmer AFTER INSERT ON `AngriffLog` BEGIN  DELETE FROM
 CREATE TRIGGER systemLogTrimmer AFTER INSERT ON `SystemLog` BEGIN  DELETE FROM SystemLog WHERE idLogItem NOT IN (SELECT idLogItem FROM SystemLog ORDER BY idLogItem DESC LIMIT 160); END; 
 CREATE TRIGGER `farmAssignationTrimmer2` AFTER DELETE ON `Villages` BEGIN  DELETE FROM `FarmAssignation` WHERE `VillageID`=OLD.`VillageID`; END;
 CREATE TRIGGER `farmAssignationTrimmer1` AFTER DELETE ON `Farm` BEGIN  DELETE FROM `FarmAssignation` WHERE `FarmID`=OLD.`FarmID`; END;
+CREATE TRIGGER `villageSubmissionAssignationTrimmer` AFTER DELETE ON `Villages` BEGIN  DELETE FROM `SubmissionAssignation` WHERE `VillageID`=OLD.`VillageID`; END;
+CREATE TRIGGER `farmSubmissionTrimmer` AFTER DELETE ON `FarmSubmission` BEGIN  DELETE FROM `SubmissionAssignation` WHERE `SubmissionID`=OLD.`FarmSubmissionID`; END;
+CREATE TRIGGER `rammAssignmentTrimmer` AFTER DELETE ON `Farm` BEGIN  DELETE FROM `RammAssignment` WHERE `FarmID`=OLD.`FarmID`; END;
 
 -- DEFAULT VALUES
 INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (1, 'main', '<img src="images/haupthaus.png">&nbsp;Hauptgeb&auml;de');
