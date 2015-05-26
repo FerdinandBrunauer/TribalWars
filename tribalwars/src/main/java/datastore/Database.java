@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteJob;
@@ -18,6 +20,12 @@ import datastore.memoryObjects.VorlageItem;
 public class Database extends SQLiteQueue {
 
 	private static Database instance = null;
+
+	static {
+		if (!Configuration.isDebugmodeEnabled()) {
+			Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.OFF);
+		}
+	}
 
 	private Database(File databaseFile) {
 		super(databaseFile);
@@ -33,9 +41,8 @@ public class Database extends SQLiteQueue {
 
 	private synchronized static Database getInstance() {
 		if (instance == null) {
-			File databaseFile = new File("database.d3b");
-			// databaseFile.delete(); // TODO remove '//' when changing the sql
-			// file
+			File databaseFile = new File("database.db3");
+			// databaseFile.delete(); // TODO remove first double slash ('//') when changing the database.sql file
 			boolean exists = databaseFile.exists();
 			instance = new Database(databaseFile);
 			if (!exists) {
@@ -54,7 +61,6 @@ public class Database extends SQLiteQueue {
 						if (line.startsWith("--") || line.equals("")) {
 							continue;
 						} else {
-							System.out.println(line);
 							connection.prepare(line).stepThrough();
 						}
 					}
@@ -135,6 +141,20 @@ public class Database extends SQLiteQueue {
 				}
 
 				return items;
+			}
+		}).complete();
+	}
+
+	public static void insertVillage(final long idVillage, final int x, final int y) {
+		getInstance().execute(new SQLiteJob<Void>() {
+			@Override
+			protected Void job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("INSERT OR IGNORE INTO `Village` (`idVillage`, `x`, `y`) VALUES (?, ?, ?);");
+				statement.bind(1, idVillage);
+				statement.bind(2, x);
+				statement.bind(3, y);
+				statement.stepThrough();
+				return null;
 			}
 		}).complete();
 	}

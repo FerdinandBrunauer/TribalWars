@@ -1,150 +1,126 @@
 package browser;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.CookieHandler;
-import java.net.CookieManager;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
-import sun.net.www.protocol.http.HttpURLConnection;
+import logger.Logger;
 
 public class WebBrowser {
 
-	private List<String> cookies = new ArrayList<String>();
-	private HttpURLConnection conn;
-	private final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36";
+	private HashMap<String, String> cookies;
 
-	static {
-		CookieHandler.setDefault(new CookieManager());
+	public WebBrowser() {
+		cookies = new HashMap<String, String>();
 	}
 
-	public Document POST(String url, String postParams) throws IOException, CaptchaException, SessionException {
-		try {
-			Thread.sleep(generateRandomSleep());
-		} catch (InterruptedException ignore) {
+	public String post(String link, String post) throws IOException {
+		String output = "";
+		URL url = new URL(link);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("POST");
+		connection.setDoInput(true);
+		connection.setDoOutput(true);
+		connection.setUseCaches(false);
+		connection.setRequestProperty("Connection", "keep-alive");
+		connection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+		connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+		connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36");
+		connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+		connection.setRequestProperty("Cookie", getCookieString());
+
+		OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+		writer.write(post);
+		writer.flush();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), Charset.forName("UTF-8")));
+
+		String newCookies = connection.getHeaderField("Set-Cookie");
+		addCoockieToStore(newCookies);
+
+		for (String line; (line = reader.readLine()) != null;) {
+			output += line;
 		}
 
-		URL obj = new URL(url);
-		conn = (HttpURLConnection) obj.openConnection();
+		writer.close();
+		reader.close();
+		return output;
+	}
 
-		// Acts like a browser
-		conn.setUseCaches(false);
-		conn.setRequestMethod("POST");
-		conn.setRequestProperty("User-Agent", USER_AGENT);
-		conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-		conn.setRequestProperty("Accept-Language", "de-DE,en;q=0.5");
-		if (cookies != null) {
+	public String get(String link) throws IOException, SessionException {
+		String output = "";
+		URL url = new URL(link);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setInstanceFollowRedirects(false);
+		connection.setRequestProperty("Connection", "keep-alive");
+		connection.setRequestProperty("Accept-Language", "de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4");
+		connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36");
+		connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+		connection.setRequestProperty("Accept-Encoding", "");
+		connection.setRequestProperty("Cookie", getCookieString());
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+		for (String line; (line = reader.readLine()) != null;) {
+			output += line;
+		}
+
+		reader.close();
+
+		String newCookies = connection.getHeaderField("Set-Cookie");
+		addCoockieToStore(newCookies);
+
+		if (connection.getHeaderField("Location") != null) {
+			if (connection.getHeaderField("Location").endsWith("sid_wrong.php")) {
+				throw new SessionException();
+			} else {
+				System.out.println("Weiterleitung -> \"" + connection.getHeaderField("Location") + "\"");
+				return get(connection.getHeaderField("Location"));
+			}
+		} else {
+			return output;
+		}
+	}
+
+	private String getCookieString() {
+		String cookieString = "";
+		Iterator<Entry<String, String>> it = cookies.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<String, String> entry = it.next();
+			cookieString += entry.getKey() + "=" + entry.getValue() + "; ";
+		}
+		if (cookieString.endsWith("; ")) {
+			cookieString = cookieString.substring(0, cookieString.length() - 2);
+		}
+		return cookieString;
+	}
+
+	private void addCoockieToStore(String newCookie) {
+		try {
+			String[] cookies = newCookie.split("; ");
 			for (String cookie : cookies) {
-				conn.addRequestProperty("Cookie", cookie.split(";", 1)[0]);
+				try {
+					String key = cookie.substring(0, cookie.lastIndexOf("="));
+					String value = cookie.substring(cookie.lastIndexOf("=") + 1);
+
+					WebBrowser.this.cookies.put(key, value);
+				} catch (Exception e) {
+					if (cookie.toLowerCase().compareTo("httponly") != 0) {
+						Logger.logMessage("Falschen Cookie erhalten. Cookie: \"" + cookie + "\"", e);
+					}
+				}
+			}
+		} catch (Exception e) {
+			if (!(e instanceof NullPointerException)) {
+				Logger.logMessage("Konnte Cookies nicht parsen! Cookies: \"" + newCookie + "\"", e);
 			}
 		}
-		conn.setRequestProperty("Connection", "keep-alive");
-		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-		conn.setRequestProperty("Content-Length", Integer.toString(postParams.length()));
-
-		conn.setDoOutput(true);
-		conn.setDoInput(true);
-
-		// Send post request
-		DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-		wr.writeBytes(postParams);
-		wr.flush();
-		wr.close();
-
-		int responseCode = conn.getResponseCode();
-		System.out.println("\nSending 'POST' request to URL : " + url);
-		System.out.println("Post parameters : " + postParams);
-		System.out.println("Response Code : " + responseCode);
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		Document document = Jsoup.parse(response.toString());
-		try {
-			SafetyManager.checkSession(document);
-			document = SafetyManager.checkCaptcha(this, document, url);
-		} catch (SessionException e) {
-			throw e;
-		} catch (CaptchaException e) {
-			throw e;
-		}
-		return document;
-	}
-
-	public Document GET(String url) throws IOException, CaptchaException, SessionException {
-		try {
-			Thread.sleep(generateRandomSleep());
-		} catch (InterruptedException ignore) {
-		}
-
-		URL obj = new URL(url);
-		conn = (HttpURLConnection) obj.openConnection();
-
-		// default is GET
-		conn.setRequestMethod("GET");
-
-		conn.setUseCaches(false);
-
-		// act like a browser
-		conn.setRequestProperty("User-Agent", USER_AGENT);
-		conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-		conn.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-		if (cookies != null) {
-			for (String cookie : this.cookies) {
-				conn.addRequestProperty("Cookie", cookie.split(";", 1)[0]);
-			}
-		}
-		int responseCode = conn.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode);
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		// Get the response cookies
-		setCookies(conn.getHeaderFields().get("Set-Cookie"));
-
-		Document document = Jsoup.parse(response.toString());
-		try {
-			SafetyManager.checkSession(document);
-			document = SafetyManager.checkCaptcha(this, document, url);
-		} catch (SessionException e) {
-			throw e;
-		} catch (CaptchaException e) {
-			throw e;
-		}
-		return document;
-	}
-
-	private static long generateRandomSleep() {
-		return (long)(Math.random() * 600 + 200);
-	}
-
-	public List<String> getCookies() {
-		return cookies;
-	}
-
-	public void setCookies(List<String> cookies) {
-		this.cookies = cookies;
 	}
 
 }

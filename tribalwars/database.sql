@@ -1,26 +1,31 @@
 -- TABLES
 CREATE TABLE `VorlageItem` ( `idVorlage` INTEGER NOT NULL, `position` INTEGER NOT NULL, `idBuilding` INTEGER NOT NULL, `level` INTEGER NOT NULL);
 CREATE TABLE `Vorlage` ( `idVorlage` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `name` INTEGER NOT NULL);
-CREATE TABLE `Building` ( `idBuilding` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL);
+CREATE TABLE `Building` ( `idBuilding` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `displayName` TEXT NOT NULL);
+CREATE TABLE `Village` ( `idVillage` INTEGER UNIQUE, `farmed` INTEGER NOT NULL DEFAULT 0, `x` INTEGER NOT NULL, `y` INTEGER NOT NULL, PRIMARY KEY(`idVillage`) UNIQUE(`x`, `y`));
+-- Try to change attackTime to Date or something like that
+CREATE TABLE `Report` ( `idReport` INTEGER NOT NULL, `idVillage` INTEGER NOT NULL, `attackTime` TEXT, `spyedWood` INTEGER NOT NULL DEFAULT 0, `spyedStone` INTEGER NOT NULL DEFAULT 0, `spyedIron` INTEGER NOT NULL DEFAULT 0, `wood` INTEGER NOT NULL DEFAULT 0, `stone` INTEGER NOT NULL DEFAULT 0, `iron` INTEGER NOT NULL DEFAULT 0, `wall` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`idReport`));
 
 -- TRIGGER
+-- Trigger for deleting a report, when a newer one is inserted
 
 -- DEFAULT VALUES
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (1, 'main');
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (2, 'barracks');
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (3, 'stable');
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (4, 'garage');
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (5, 'snob');
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (6, 'smith');
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (7, 'place');
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (8, 'market');
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (9, 'wood');
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (10, 'stone');
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (11, 'iron');
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (12, 'farm');
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (13, 'storage');
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (14, 'hide');
-INSERT INTO `Building` (`idBuilding`, `name`) VALUES (15, 'wall');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (1, 'main', '<img src="images/haupthaus.png">&nbsp;Hauptgeb&auml;de');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (2, 'barracks', '<img src="images/att1.png">&nbsp;Kaserne');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (3, 'stable', '<img src="images/stall.png">&nbsp;Stall');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (4, 'garage', '<img src="images/werkstaette.png">&nbsp;Werkstatt');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (5, 'snob', '<img src="images/adelshof.png">&nbsp;Adelshof');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (6, 'smith', '<img src="images/schmiede.png">&nbsp;Schmiede');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (7, 'place', '<img src="images/platz.png">&nbsp;Versammlungsplatz');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (8, 'market', '<img src="images/marktplatz.png">&nbsp;Marktplatz');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (9, 'wood', '<img src="images/holzmine.png">&nbsp;Holzf&auml;ller');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (10, 'stone', '<img src="images/lehmmine.png">&nbsp;Lehmgrube');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (11, 'iron', '<img src="images/eisenmine.png">&nbsp;Eisenmine');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (12, 'farm', '<img src="images/farm.png">&nbsp;Bauernhof');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (13, 'storage', '<img src="images/speicher.png">&nbsp;Speicher');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (14, 'hide', '<img src="images/verstecke.png">&nbsp;Versteck');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (15, 'wall', '<img src="images/wall.png">&nbsp;Wall');
+INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (16, 'statue', '<img src="images/statue.png">&nbsp;Statue');
 
 -- Deffensiv
 INSERT INTO `Vorlage` (`idVorlage`, `name`) VALUES (1, 'Deffensiv');
@@ -169,6 +174,7 @@ INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUE
 INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (1, 143, 12, 30);
 INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (1, 144, 3, 20);
 INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (1, 145, 4, 5);
+INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (1, 146, 14, 10);
 -- Offensiv
 INSERT INTO `Vorlage` (`idVorlage`, `name`) VALUES (2, 'Offensiv');
 INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (2, 1, 1, 1);
@@ -294,6 +300,7 @@ INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUE
 INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (2, 121, 3, 20);
 INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (2, 122, 11, 30);
 INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (2, 123, 13, 30);
+INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (2, 124, 14, 10);
 -- Rohstoffe
 INSERT INTO `Vorlage` (`idVorlage`, `name`) VALUES (3, 'Rohstoffe');
 INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (3, 1, 9, 3);
@@ -335,3 +342,4 @@ INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUE
 INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (3, 37, 4, 15);
 INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (3, 38, 8, 20);
 INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (3, 39, 8, 22);
+INSERT INTO `VorlageItem` (`idVorlage`, `position`, `idBuilding`, `level`) VALUES (3, 40, 14, 10);

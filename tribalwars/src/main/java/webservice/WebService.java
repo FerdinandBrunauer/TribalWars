@@ -1,5 +1,7 @@
 package webservice;
 
+import logger.Logger;
+
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -45,9 +47,8 @@ public class WebService implements Runnable {
 			server.start();
 			server.join();
 		} catch (Exception e) {
-			System.err.println("Konnte Server nicht starten");
-			// TODO log error message
-			System.exit(1);
+			Logger.logMessage("Konnte Server nicht starten!", e);
+			System.exit(4);
 		}
 	}
 

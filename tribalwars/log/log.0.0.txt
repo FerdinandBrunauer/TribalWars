@@ -10,3 +10,82 @@
 26.05.2015 20:53:11 	Weltenzahl: "5"                         
 26.05.2015 20:53:12 	Weltgeschwindigkeit: "1"                
 26.05.2015 20:53:12 	9kw.eu Credits: "1302"                  
+26.05.2015 21:46:57 	Benutzername: "MrLordFred"              
+26.05.2015 21:46:57 	Passwort: "Ferdinand1!$"                
+26.05.2015 21:46:57 	Weltprefix: "dep"                       
+26.05.2015 21:46:57 	Weltenzahl: "5"                         
+26.05.2015 21:46:57 	Weltgeschwindigkeit: "1"                
+26.05.2015 21:46:58 	9kw.eu Credits: "1302"                  
+26.05.2015 21:47:25 	Benutzername: "MrLordFred"              
+26.05.2015 21:47:25 	Passwort: "Ferdinand1!$"                
+26.05.2015 21:47:25 	Weltprefix: "dep"                       
+26.05.2015 21:47:25 	Weltenzahl: "5"                         
+26.05.2015 21:47:25 	Weltgeschwindigkeit: "1"                
+26.05.2015 21:47:25 	9kw.eu Credits: "1302"                  
+26.05.2015 21:47:26 	Recieved wrong Cookie. Cookie: "java.lang.StringIndexOutOfBoundsException: String index out of range: -1"
+26.05.2015 21:47:27 	Schwerer Fehler während des Ablaufes aufgetreten!	Verändertes Loginsystem oder falsche Accountdaten!                                                  
+26.05.2015 21:49:35 	Benutzername: "MrLordFred"              
+26.05.2015 21:49:35 	Passwort: "Ferdinand1!$"                
+26.05.2015 21:49:35 	Weltprefix: "dep"                       
+26.05.2015 21:49:35 	Weltenzahl: "5"                         
+26.05.2015 21:49:35 	Weltgeschwindigkeit: "1"                
+26.05.2015 21:49:36 	9kw.eu Credits: "1302"                  
+26.05.2015 21:49:36 	Recieved wrong Cookie. Cookie: "httponly"	String index out of range: -1                                                                       
+26.05.2015 21:49:37 	Session abgelaufen ...                  	null                                                                                                
+26.05.2015 21:49:37 	Recieved wrong Cookie. Cookie: "httponly"	String index out of range: -1                                                                       
+26.05.2015 21:49:37 	Session abgelaufen ...                  	null                                                                                                
+26.05.2015 21:49:38 	Recieved wrong Cookie. Cookie: "httponly"	String index out of range: -1                                                                       
+26.05.2015 21:49:38 	Session abgelaufen ...                  	null                                                                                                
+26.05.2015 21:49:39 	Recieved wrong Cookie. Cookie: "httponly"	String index out of range: -1                                                                       
+26.05.2015 21:49:39 	Session abgelaufen ...                  	null                                                                                                
+26.05.2015 21:49:39 	Recieved wrong Cookie. Cookie: "httponly"	String index out of range: -1                                                                       
+26.05.2015 21:49:40 	Session abgelaufen ...                  	null                                                                                                
+26.05.2015 21:49:40 	Recieved wrong Cookie. Cookie: "httponly"	String index out of range: -1                                                                       
+26.05.2015 21:49:41 	Session abgelaufen ...                  	null                                                                                                
+26.05.2015 21:49:41 	Recieved wrong Cookie. Cookie: "httponly"	String index out of range: -1                                                                       
+26.05.2015 21:51:54 	Benutzername: "MrLordFred"              
+26.05.2015 21:51:54 	Passwort: "Ferdinand1!$"                
+26.05.2015 21:51:54 	Weltprefix: "dep"                       
+26.05.2015 21:51:54 	Weltenzahl: "5"                         
+26.05.2015 21:51:54 	Weltgeschwindigkeit: "1"                
+26.05.2015 21:51:54 	9kw.eu Credits: "1302"                  
+26.05.2015 21:51:55 	Recieved wrong Cookie. Cookie: "httponly"	String index out of range: -1                                                                       
+26.05.2015 21:51:56 	Session abgelaufen. Relogin in 5 Minuten ...	null                                                                                                
+26.05.2015 21:54:12 	Benutzername: "MrLordFred"              
+26.05.2015 21:54:12 	Passwort: "Ferdinand1!$"                
+26.05.2015 21:54:12 	Weltprefix: "dep"                       
+26.05.2015 21:54:12 	Weltenzahl: "5"                         
+26.05.2015 21:54:14 	Weltgeschwindigkeit: "1"                
+26.05.2015 21:54:14 	9kw.eu Credits: "1302"                  
+26.05.2015 21:54:15 	Konnte Cookies nicht parsen! Cookies: "null"	null                                                                                                
+26.05.2015 21:54:16 	Konnte Cookies nicht parsen! Cookies: "null"	null                                                                                                
+26.05.2015 21:54:16 	Konnte Cookies nicht parsen! Cookies: "null"	null                                                                                                
+26.05.2015 21:54:16 	Session abgelaufen. Relogin in 5 Minuten ...
+26.05.2015 21:54:56 	Benutzername: "MrLordFred"              
+26.05.2015 21:54:56 	Passwort: "Ferdinand1!$"                
+26.05.2015 21:54:56 	Weltprefix: "dep"                       
+26.05.2015 21:54:56 	Weltenzahl: "5"                         
+26.05.2015 21:54:56 	Weltgeschwindigkeit: "1"                
+26.05.2015 21:54:56 	9kw.eu Credits: "1302"                  
+26.05.2015 21:55:04 	Session abgelaufen. Relogin in 5 Minuten ...
+26.05.2015 22:03:04 	Benutzername: "MrLordFred"              
+26.05.2015 22:03:04 	Passwort: "Ferdinand1!$"                
+26.05.2015 22:03:04 	Weltprefix: "dep"                       
+26.05.2015 22:03:04 	Weltenzahl: "5"                         
+26.05.2015 22:03:05 	Weltgeschwindigkeit: "1"                
+26.05.2015 22:03:05 	9kw.eu Credits: "1302"                  
+26.05.2015 22:03:06 	Session abgelaufen. Relogin in 5 Minuten ...
+26.05.2015 22:33:30 	Benutzername: "MrLordFred"              
+26.05.2015 22:33:30 	Passwort: "Ferdinand1!$"                
+26.05.2015 22:33:30 	Weltprefix: "dep"                       
+26.05.2015 22:33:30 	Weltenzahl: "5"                         
+26.05.2015 22:33:30 	Weltgeschwindigkeit: "1"                
+26.05.2015 22:33:31 	9kw.eu Credits: "1302"                  
+26.05.2015 22:33:32 	Session abgelaufen. Relogin in 5 Minuten ...
+26.05.2015 23:28:45 	Benutzername: "MrLordFred"              
+26.05.2015 23:28:45 	Passwort: "Ferdinand1!$"                
+26.05.2015 23:28:45 	Weltprefix: "dep"                       
+26.05.2015 23:28:45 	Weltenzahl: "5"                         
+26.05.2015 23:28:46 	Weltgeschwindigkeit: "1"                
+26.05.2015 23:28:46 	9kw.eu Credits: "1302"                  
+26.05.2015 23:28:47 	Session abgelaufen. Relogin in 5 Minuten ...

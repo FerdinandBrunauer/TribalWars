@@ -12,6 +12,19 @@ import tribalwars.Account;
 import webservice.WebService;
 import datastore.Configuration;
 
+/**
+ * Dear maintainer:
+ * 
+ * When i wrote this code, only I and God knew what it was. Know, only God
+ * knows!
+ * 
+ * So if you are done trying to 'optimize' this routine (and failed), please
+ * increment the following counter as a warning to the next guy:
+ * 
+ * total_hours_wasted_here = 67
+ * 
+ */
+
 public class Main {
 
 	private static Scanner scanner = new Scanner(System.in);
@@ -20,7 +33,7 @@ public class Main {
 		new ConsoleLogger();
 		new FileLogger();
 		System.setProperty("org.eclipse.jetty.LEVEL", "OFF");
-		
+
 		String username = getConfiguration(Configuration.configuration_username, "Bitte Benutzername eingeben: ");
 		Logger.logMessage("Benutzername: \"" + username + "\"");
 		String password = getConfiguration(Configuration.configuration_password, "Bitte Passwort eingeben: ");

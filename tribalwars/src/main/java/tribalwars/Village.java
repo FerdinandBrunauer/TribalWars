@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -77,7 +78,7 @@ public class Village {
 	}
 
 	public void completeRefresh() throws IOException, CaptchaException, SessionException {
-		Document document = account.getBrowser().GET("http://" + account.getWelt() + account.getWeltNummer() + ".die-staemme.de/game.php?village=" + id + "&screen=overview");
+		Document document = Jsoup.parse(account.getBrowser().get("http://" + account.getWelt() + account.getWeltNummer() + ".die-staemme.de/game.php?village=" + id + "&screen=overview"));
 		completeRefresh(document);
 	}
 
@@ -125,25 +126,6 @@ public class Village {
 				break;
 			}
 		}
-
-		// TODO Building is not working
-		/* String nextBuilding = Utils.calculateNextBuilding(2, this);
-		if (nextBuilding != null) {
-			document = account.getBrowser().GET("http://de" + account.getWelt() + ".die-staemme.de/game.php?village=" + id + "&screen=main");
-			Element buildRow = document.getElementById("main_buildrow_" + nextBuilding);
-			if (buildPossible(buildRow.html())) {
-				String hWert = getHValueForBuild(buildRow.html());
-				System.out.println(account.getBrowser().GET("http://de" + account.getWelt() + ".die-staemme.de/game.php?village=" + id + "&ajaxaction=upgrade_building&h=" + hWert + "&type=main&screen=main&&client_time=" + getTimestamp()));
-				System.out.println("H-Wert: \"" + hWert + "\"");
-				// http://de116.die-staemme.de/game.php?village=17105&ajaxaction=upgrade_building&h=a6b1f2a0&type=main&screen=main&&client_time=1430752527
-
-				Database.logBuilding(name, x, y, nextBuilding, getBuildToLevel(buildRow.html())); // TODO get nice buildingname from database
-			} else {
-				// TODO read time
-			}
-		} else {
-			nextBuildingOrder = new Date(2000000000); // no more buildings to buy
-		} */
 	}
 
 	public static String getHValue(String tableRow) throws IOException {

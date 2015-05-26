@@ -1,66 +1,13 @@
 package browser;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.jsoup.nodes.Document;
 
 public class SafetyManager {
 
-	public static Document checkCaptcha(WebBrowser browser, Document document, String url) throws CaptchaException, MalformedURLException, IOException, SessionException {
-		// TODO check captcha
-		if (document.toString().contains("Botschutz")) {
-			File botSchutz = new File("test.html");
-			PrintWriter writer = new PrintWriter(botSchutz);
-			writer.append(document.toString());
-			writer.flush();
-			writer.close();
-			Pattern pattern = Pattern.compile("document\\.getElementById\\('bot_check_image'\\).src = '(.+)';");
-			Matcher matcher = pattern.matcher(document.toString());
-			String link = "";
-			if (matcher.find()) {
-				link = matcher.group(1);
-			} else {
-				writer = new PrintWriter(new File("output.txt"));
-				writer.append("Found Botschutz\n");
-				writer.flush();
-				writer.close();
-				pattern = Pattern.compile("\\$\\('#bot_check_image'\\)\\.attr\\('src', '(.+?)'\\)");
-				matcher = pattern.matcher(document.toString());
-				if (!matcher.find()) {
-					throw new IOException("Unexpected Error");
-				}
-				link = matcher.group(1);
-			}
-			pattern = Pattern.compile("http:\\/\\/(.+?)\\.");
-			matcher = pattern.matcher(url);
-			matcher.find();
-			String worldAndNumber = matcher.group(1);
-			if (worldAndNumber.compareTo("www") != 0) {
-				InputStream in = new BufferedInputStream(new URL("http://" + worldAndNumber + ".die-staemme.de" + link).openStream());
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				byte[] buf = new byte[1024];
-				int n = 0;
-				while (-1 != (n = in.read(buf))) {
-					out.write(buf, 0, n);
-				}
-				out.close();
-				in.close();
-				byte[] response = out.toByteArray();
-				Captcha testCaptcha = new Captcha(response);
-				String solution = testCaptcha.solveCapture();
-				return browser.POST(url, "code=" + solution);
-			}
+	public static void checkCaptcha(WebBrowser browser, Document document) throws CaptchaException {
+		if(document.getElementById("bot_check") != null) {
+			throw new CaptchaException();
 		}
-		return document;
 		/*
 		 * <div id="bot_check"> <h2>Botschutz</h2>
 		 * 
