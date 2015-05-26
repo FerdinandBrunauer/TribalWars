@@ -1,7 +1,6 @@
 package tribalwars;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,8 +47,6 @@ public class Village {
 	private int speicher;
 	private int versteck = 0;
 	private int wall = 0;
-	private Date nextAttackReturn = new Date();
-	private Date nextBuildingOrder = new Date();
 	private boolean farm = false;
 	private boolean ramm = false;
 
@@ -83,6 +80,7 @@ public class Village {
 		Document document = account.getBrowser().GET("http://" + account.getWelt() + account.getWeltNummer() + ".die-staemme.de/game.php?village=" + id + "&screen=overview");
 		completeRefresh(document);
 	}
+
 	public void completeRefresh(Document document) throws IOException, CaptchaException, SessionException {
 		holz = Integer.parseInt(document.getElementById("wood").html());
 		lehm = Integer.parseInt(document.getElementById("stone").html());
@@ -123,7 +121,7 @@ public class Village {
 		for (int i = 1; i < attacks.size(); i++) {
 			attack = attacks.get(i);
 			if (attack.html().contains("data-command-type=\"return\"")) {
-				nextAttackReturn = new Date(getAttackReturnTime(attack.html()));
+				// nextAttackReturn = new Date(getAttackReturnTime(attack.html()));
 				break;
 			}
 		}
@@ -196,86 +194,6 @@ public class Village {
 		} catch (Exception e) {
 			return 0;
 		}
-	}
-
-	public boolean farmPossible(FarmVorlage[] vorlagen) throws IOException, CaptchaException, SessionException {
-		/*Date now = new Date();
-		if (now.after(nextAttackReturn)) {
-			completeRefresh();
-		}* This isn't working*/
-
-		for (FarmVorlage vorlage : vorlagen) {
-			if(vorlage.getSpeertraeger() <= speertraeger &&
-			vorlage.getSchwertkaempfer() <= schwertkaempfer &&
-			vorlage.getAxtkaempfer() <= axtkaempfer &&
-			vorlage.getBogenschuetzen() <= bogenschuetzen &&
-			vorlage.getSpaeher() <= spaeher &&
-			vorlage.getLeichteKavallerie() <= leichteKavallerie &&
-			vorlage.getBerittenerBogenschuetze() <= berittenerBogenschuetze &&
-			vorlage.getSchwereKavallerie() <= schwereKavallerie &&
-			vorlage.getRammboecke() <= rammboecke &&
-			vorlage.getKatapult() <= katapult) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public boolean canFarm(FarmVorlage vorlage) {
-		if(vorlage.getSpeertraeger() <= speertraeger &&
-		vorlage.getSchwertkaempfer() <= schwertkaempfer &&
-		vorlage.getAxtkaempfer() <= axtkaempfer &&
-		vorlage.getBogenschuetzen() <= bogenschuetzen &&
-		vorlage.getSpaeher() <= spaeher &&
-		vorlage.getLeichteKavallerie() <= leichteKavallerie &&
-		vorlage.getBerittenerBogenschuetze() <= berittenerBogenschuetze &&
-		vorlage.getSchwereKavallerie() <= schwereKavallerie &&
-		vorlage.getRammboecke() <= rammboecke &&
-		vorlage.getKatapult() <= katapult) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	public void removeUnit(FarmVorlage vorlage) {
-		speertraeger -= vorlage.getSpeertraeger();
-		schwertkaempfer -= vorlage.getSchwertkaempfer();
-		axtkaempfer -= vorlage.getAxtkaempfer();
-		bogenschuetzen -= vorlage.getBogenschuetzen(); 
-		spaeher -= vorlage.getSpaeher();
-		leichteKavallerie -= vorlage.getLeichteKavallerie();
-		berittenerBogenschuetze -= vorlage.getBerittenerBogenschuetze();
-		schwereKavallerie -= vorlage.getSchwereKavallerie();
-		rammboecke -= vorlage.getRammboecke();
-		katapult -= vorlage.getKatapult();
-	}
-	
-	public int getUnitCount(Unit unit) {
-		switch (unit) {
-		case Speer:
-			return getSpeertraeger();
-		case Schwert:
-			return getSchwertkaempfer();
-		case Axt:
-			return getAxtkaempfer();
-		case Bogen:
-			return getBogenschuetzen();
-		case Spaeher:
-			getSpaeher();
-		case LKAV:
-			return getLeichteKavallerie();
-		case BBOGEN:
-			return getBogenschuetzen();
-		case SKAV:
-			return getSchwereKavallerie();
-		case Rammen:
-			return getRammboecke();
-		case Kata:
-			return getKatapult();
-		}
-		// TODO log message
-		return 0;
 	}
 
 	public static String getTimestamp() {
@@ -413,11 +331,11 @@ public class Village {
 	public int getSpeicherKapazitaet() {
 		return speicherKapazitaet;
 	}
-	
+
 	public void setFarm(boolean farm) {
 		this.farm = farm;
 	}
-	
+
 	public boolean isFarming() {
 		return this.farm;
 	}
@@ -429,6 +347,5 @@ public class Village {
 	public void setRamm(boolean ramm) {
 		this.ramm = ramm;
 	}
-	
-	
+
 }

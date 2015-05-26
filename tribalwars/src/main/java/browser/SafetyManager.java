@@ -17,46 +17,47 @@ public class SafetyManager {
 
 	public static Document checkCaptcha(WebBrowser browser, Document document, String url) throws CaptchaException, MalformedURLException, IOException, SessionException {
 		// TODO check captcha
-		if(document.toString().contains("Botschutz")) {
-		File botSchutz = new File("test.html");
-		PrintWriter writer = new PrintWriter(botSchutz);
-		writer.append(document.toString());
-		writer.flush();writer.close();
-		Pattern pattern = Pattern.compile("document\\.getElementById\\('bot_check_image'\\).src = '(.+)';");
-		Matcher matcher = pattern.matcher(document.toString());
-		String link = "";
-		if(matcher.find()) {
-			link = matcher.group(1);
-		} else {
-			writer = new PrintWriter(new File("output.txt"));
-			writer.append("Found Botschutz\n");
+		if (document.toString().contains("Botschutz")) {
+			File botSchutz = new File("test.html");
+			PrintWriter writer = new PrintWriter(botSchutz);
+			writer.append(document.toString());
 			writer.flush();
 			writer.close();
-			pattern = Pattern.compile("\\$\\('#bot_check_image'\\)\\.attr\\('src', '(.+?)'\\)");
-			matcher = pattern.matcher(document.toString());
-			if(!matcher.find()) {
-				throw new IOException("Unexpected Error");
+			Pattern pattern = Pattern.compile("document\\.getElementById\\('bot_check_image'\\).src = '(.+)';");
+			Matcher matcher = pattern.matcher(document.toString());
+			String link = "";
+			if (matcher.find()) {
+				link = matcher.group(1);
+			} else {
+				writer = new PrintWriter(new File("output.txt"));
+				writer.append("Found Botschutz\n");
+				writer.flush();
+				writer.close();
+				pattern = Pattern.compile("\\$\\('#bot_check_image'\\)\\.attr\\('src', '(.+?)'\\)");
+				matcher = pattern.matcher(document.toString());
+				if (!matcher.find()) {
+					throw new IOException("Unexpected Error");
+				}
+				link = matcher.group(1);
 			}
-			link = matcher.group(1);
-		}
 			pattern = Pattern.compile("http:\\/\\/(.+?)\\.");
 			matcher = pattern.matcher(url);
 			matcher.find();
 			String worldAndNumber = matcher.group(1);
-			if(worldAndNumber.compareTo("www") != 0) {
-			InputStream in = new BufferedInputStream(new URL("http://" + worldAndNumber + ".die-staemme.de" + link).openStream());
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			byte[] buf = new byte[1024];
-			int n = 0;
-			while (-1 != (n = in.read(buf))) {
-				out.write(buf, 0, n);
-			}
-			out.close();
-			in.close();
-			byte[] response = out.toByteArray();
-			Captcha testCaptcha = new Captcha(response);
-			String solution = testCaptcha.solveCapture();
-			return browser.POST(url, "code=" + solution);
+			if (worldAndNumber.compareTo("www") != 0) {
+				InputStream in = new BufferedInputStream(new URL("http://" + worldAndNumber + ".die-staemme.de" + link).openStream());
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				byte[] buf = new byte[1024];
+				int n = 0;
+				while (-1 != (n = in.read(buf))) {
+					out.write(buf, 0, n);
+				}
+				out.close();
+				in.close();
+				byte[] response = out.toByteArray();
+				Captcha testCaptcha = new Captcha(response);
+				String solution = testCaptcha.solveCapture();
+				return browser.POST(url, "code=" + solution);
 			}
 		}
 		return document;
@@ -75,7 +76,7 @@ public class SafetyManager {
 	}
 
 	public static void checkSession(Document document) throws SessionException {
-		if(document.getElementsByTag("body").get(0).getAllElements().size() <= 1) { 
+		if (document.getElementsByTag("body").get(0).getAllElements().size() <= 1) {
 			System.out.println("Session expired - Reloggin");
 			throw new SessionException();
 		}

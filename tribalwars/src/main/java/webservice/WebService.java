@@ -2,9 +2,9 @@ package webservice;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
@@ -17,10 +17,10 @@ public class WebService implements Runnable {
 
 	public WebService(Account account, int port) {
 		this.account = account;
-
+		
 		this.server = new Server();
-
-		SelectChannelConnector connector = new SelectChannelConnector();
+		
+		ServerConnector connector = new ServerConnector(this.server);
 		connector.setPort(port);
 		server.addConnector(connector);
 

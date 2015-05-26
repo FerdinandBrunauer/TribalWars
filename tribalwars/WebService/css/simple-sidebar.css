@@ -232,3 +232,9 @@ li.sortable-placeholder {
 #nachrichten {
 	padding: 5px;
 }
+
+.active {
+	text-decoration: none;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.2);
+}

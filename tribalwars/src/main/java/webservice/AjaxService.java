@@ -48,15 +48,6 @@ public class AjaxService extends HttpServlet {
 					response.getWriter().println(generateBuildingPatternList(request));
 					break;
 				}
-				case "buildlog": {
-					response.getWriter().println(generateBuildlog(request));
-					break;
-				}
-				case "attacklog": {
-					response.getWriter().println(generateAttackLog(request));
-					break;
-				}
-				// TODO add more request methods
 				default: {
 					response.getWriter().println(generateErrorMessage("Ung&uuml;ltige Anfrage!"));
 					break;
@@ -189,44 +180,6 @@ public class AjaxService extends HttpServlet {
 
 		buildingPatternList += "</ul>";
 		return buildingPatternList;
-	}
-
-	private String generateBuildlog(HttpServletRequest request) {
-		String buildLog = "<div id=\"container\"><ul class=\"sortable list\" style=\"width: 80%;\">";
-
-		long startID;
-		try {
-			startID = Long.parseLong(request.getParameter("startid"));
-		} catch (Exception e) {
-			startID = 0;
-		}
-
-		List<String> logs = Database.getLogBuildings(startID, 40);
-		for (String log : logs) {
-			buildLog += "<li>" + log + "</li>";
-		}
-
-		buildLog += "</ul></div>";
-		return buildLog;
-	}
-
-	private String generateAttackLog(HttpServletRequest request) {
-		String attackLog = "";
-
-		long startID;
-		try {
-			startID = Long.parseLong(request.getParameter("startid"));
-		} catch (Exception e) {
-			startID = 0;
-		}
-
-		List<String> logs = Database.getLogAttack(startID, 40);
-		for (String log : logs) {
-			attackLog += "<li>" + log + "</li>";
-		}
-
-		attackLog += "</ul></div>";
-		return attackLog;
 	}
 
 	private String generateHeader() {

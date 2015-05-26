@@ -7,6 +7,14 @@ import java.util.Properties;
 
 public class Configuration {
 
+	public static final String configuration_username = "username";
+	public static final String configuration_password = "password";
+	public static final String configuration_worldprefix = "worldprefix";
+	public static final String configuration_worldnumber = "worldnumber";
+	public static final String configuration_9kweu_javaapikey = "9kwApiKey";
+	public static final String configuration_webserviceport = "webserviceport";
+	public static final String configuration_worldspeed = "worldspeed";
+
 	private static Properties defaultProperties = new Properties();
 
 	static {
@@ -20,13 +28,15 @@ public class Configuration {
 	}
 
 	public static void setProperty(String key, String value) {
-		defaultProperties.setProperty(key, value);
-		try {
-			OutputStream out = new FileOutputStream("configuration.prop");
-			defaultProperties.store(out, null);
-			out.close();
-		} catch (Exception e) {
-			// TODO log message
+		if (value != null) {
+			defaultProperties.setProperty(key, value);
+			try {
+				OutputStream out = new FileOutputStream("configuration.prop");
+				defaultProperties.store(out, null);
+				out.close();
+			} catch (Exception e) {
+				// TODO log message
+			}
 		}
 	}
 

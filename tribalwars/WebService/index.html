@@ -30,20 +30,11 @@
 					<li class="sidebar-brand" style="color: #FFFFFF;">
 						Die St&auml;mme Bot
 					</li>
-					<li>
+					<li class="active liitem" onclick="setLiActive(this);">
 						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=dashboard');">Dashboard</a> <!-- Meine Dörfer Übersicht + einstellbar welche Bau Vorlage -->
 					</li>
-					<li>
+					<li class="liitem" onclick="setLiActive(this);">
 						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=building_pattern');">Bauvorlagen</a>
-					</li>
-					<li>
-						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=buildlog');">Ausbau - Log</a>
-					</li>
-					<li>
-						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=attacklog');">Angriff - Log</a>
-					</li>
-					<li>
-						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=#');">System - Log</a>
 					</li>
 					<!-- <li>
 						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=#');">Einstellungen</a>
@@ -68,6 +59,11 @@
 				$("#page-header").load("ajax/ajax?method=header");
 			}
 			var refreshId = setInterval(refreshHeader, 3000);
+			
+			function setLiActive(element) {
+				$(".liitem").removeClass("active");
+				$(element).addClass("active");
+			}
 			
 			function tryLogin(name, password) {
 				$("#page-content-wrapper").load("ajax/ajax?method=login&name=" + name + "&password=" + password);

@@ -19,7 +19,7 @@ public class WebBrowser {
 
 	private List<String> cookies = new ArrayList<String>();
 	private HttpURLConnection conn;
-	private final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36";
+	private final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36";
 
 	static {
 		CookieHandler.setDefault(new CookieManager());

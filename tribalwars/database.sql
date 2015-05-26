@@ -1,82 +1,26 @@
 -- TABLES
 CREATE TABLE `VorlageItem` ( `idVorlage` INTEGER NOT NULL, `position` INTEGER NOT NULL, `idBuilding` INTEGER NOT NULL, `level` INTEGER NOT NULL);
 CREATE TABLE `Vorlage` ( `idVorlage` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `name` INTEGER NOT NULL);
-CREATE TABLE `Villages` (
-	`VillageID`	INTEGER NOT NULL UNIQUE,
-	`xCoord`	INTEGER NOT NULL,
-	`yCoord`	INTEGER NOT NULL,
-	`name`	TEXT,
-	`farm`	NUMERIC DEFAULT 0,
-	`ramm`	NUMERIC DEFAULT 0,
-	PRIMARY KEY(VillageID)
-);
-CREATE TABLE `SystemLog` ( `idLogItem` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `message` INTEGER);
-CREATE TABLE `SubmissionAssignation` (
-	`AssignationID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-	`SubmissionID`	INTEGER,
-	`VillageID`	INTEGER
-);
-CREATE TABLE `RammAssignment` (
-	`RammID`	INTEGER,
-	`FarmID`	INTEGER,
-	`rammed`	NUMERIC DEFAULT 0
-);
-CREATE TABLE `FarmSubmission` (
-	`FarmSubmissionID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-	`Speer`	INTEGER,
-	`Schwert`	INTEGER,
-	`Axt`	INTEGER,
-	`bogi`	INTEGER,
-	`spaeher`	INTEGER,
-	`lk`	INTEGER,
-	`berittenerbogi`	INTEGER,
-	`sk`	INTEGER,
-	`ramm`	INTEGER,
-	`kata`	INTEGER
-);
-CREATE TABLE `FarmAssignation` (
-	`FarmAssignationID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-	`VillageID`	INTEGER NOT NULL,
-	`FarmID`	INTEGER NOT NULL,
-	`farmed`	NUMERIC NOT NULL DEFAULT 0
-);
-CREATE TABLE `Farm` (
-	`FarmID`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-	`xCoord`	INTEGER,
-	`yCoord`	INTEGER,
-	`hasOwner`	NUMERIC,
-	`farm`	NUMERIC
-);
-CREATE TABLE `Building` ( `idBuilding` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `displayName` TEXT NOT NULL);
-CREATE TABLE `BuildLog` ( `idLogItem` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `message` INTEGER);
-CREATE TABLE `AngriffLog` ( `idLogItem` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `message` INTEGER);
+CREATE TABLE `Building` ( `idBuilding` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL);
 
 -- TRIGGER
-CREATE TRIGGER buildLogTrimmer AFTER INSERT ON `BuildLog` BEGIN  DELETE FROM BuildLog WHERE idLogItem NOT IN (SELECT idLogItem FROM BuildLog ORDER BY idLogItem DESC LIMIT 160); END; 
-CREATE TRIGGER angriffLogTrimmer AFTER INSERT ON `AngriffLog` BEGIN  DELETE FROM AngriffLog WHERE idLogItem NOT IN (SELECT idLogItem FROM AngriffLog ORDER BY idLogItem DESC LIMIT 160); END; 
-CREATE TRIGGER systemLogTrimmer AFTER INSERT ON `SystemLog` BEGIN  DELETE FROM SystemLog WHERE idLogItem NOT IN (SELECT idLogItem FROM SystemLog ORDER BY idLogItem DESC LIMIT 160); END; 
-CREATE TRIGGER `farmAssignationTrimmer2` AFTER DELETE ON `Villages` BEGIN  DELETE FROM `FarmAssignation` WHERE `VillageID`=OLD.`VillageID`; END;
-CREATE TRIGGER `farmAssignationTrimmer1` AFTER DELETE ON `Farm` BEGIN  DELETE FROM `FarmAssignation` WHERE `FarmID`=OLD.`FarmID`; END;
-CREATE TRIGGER `villageSubmissionAssignationTrimmer` AFTER DELETE ON `Villages` BEGIN  DELETE FROM `SubmissionAssignation` WHERE `VillageID`=OLD.`VillageID`; END;
-CREATE TRIGGER `farmSubmissionTrimmer` AFTER DELETE ON `FarmSubmission` BEGIN  DELETE FROM `SubmissionAssignation` WHERE `SubmissionID`=OLD.`FarmSubmissionID`; END;
-CREATE TRIGGER `rammAssignmentTrimmer` AFTER DELETE ON `Farm` BEGIN  DELETE FROM `RammAssignment` WHERE `FarmID`=OLD.`FarmID`; END;
 
 -- DEFAULT VALUES
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (1, 'main', '<img src="images/haupthaus.png">&nbsp;Hauptgeb&auml;de');
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (2, 'barracks', '<img src="images/att1.png">&nbsp;Kaserne');
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (3, 'stable', '<img src="images/stall.png">&nbsp;Stall');
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (4, 'garage', '<img src="images/werkstaette.png">&nbsp;Werkstatt');
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (5, 'snob', '<img src="images/adelshof.png">&nbsp;Adelshof');
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (6, 'smith', '<img src="images/schmiede.png">&nbsp;Schmiede');
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (7, 'place', '<img src="images/platz.png">&nbsp;Versammlungsplatz');
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (8, 'market', '<img src="images/marktplatz.png">&nbsp;Marktplatz');
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (9, 'wood', '<img src="images/holzmine.png">&nbsp;Holzf&auml;ller');
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (10, 'stone', '<img src="images/lehmmine.png">&nbsp;Lehmgrube');
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (11, 'iron', '<img src="images/eisenmine.png">&nbsp;Eisenmine');
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (12, 'farm', '<img src="images/farm.png">&nbsp;Bauernhof');
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (13, 'storage', '<img src="images/speicher.png">&nbsp;Speicher');
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (14, 'hide', '<img src="images/verstecke.png">&nbsp;Versteck');
-INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (15, 'wall', '<img src="images/wall.png">&nbsp;Wall');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (1, 'main');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (2, 'barracks');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (3, 'stable');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (4, 'garage');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (5, 'snob');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (6, 'smith');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (7, 'place');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (8, 'market');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (9, 'wood');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (10, 'stone');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (11, 'iron');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (12, 'farm');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (13, 'storage');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (14, 'hide');
+INSERT INTO `Building` (`idBuilding`, `name`) VALUES (15, 'wall');
 
 -- Deffensiv
 INSERT INTO `Vorlage` (`idVorlage`, `name`) VALUES (1, 'Deffensiv');
