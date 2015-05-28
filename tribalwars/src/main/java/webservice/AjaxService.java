@@ -102,7 +102,7 @@ public class AjaxService extends HttpServlet {
 	}
 
 	private String generateDashboard() {
-		String dashboard = "<div class=\"container\"><h1>Dashboard</h1><table class=\"table table-striped table-bordered\"><thead><tr><th>Nr.</th><th>Name</th><th>Koodinaten</th><th><img src=\"images/holz.png\"></th><th><img src=\"images/lehm.png\"></th><th><img src=\"images/eisen.png\"></th><th><img src=\"images/speicher.png\"></th><th><img src=\"images/speer.png\"></th><th><img src=\"images/schwert.png\"></th><th><img src=\"images/axt.png\"></th><th><img src=\"images/bogen.png\"></th><th><img src=\"images/spaeher.png\"></th><th><img src=\"images/lkav.png\"></th><th><img src=\"images/bb.png\"></th><th><img src=\"images/skav.png\"></th><th><img src=\"images/ram.png\"></th><th><img src=\"images/katapult.png\"></th></tr></thead><tbody>";
+		String dashboard = "<div class=\"container\"><h1>Dashboard</h1><table class=\"table table-striped table-bordered\"><thead><tr><th>Nr.</th><th>Name</th><th>Koodinaten</th><th><img src=\"images/holz.png\"></th><th><img src=\"images/lehm.png\"></th><th><img src=\"images/eisen.png\"></th><th><img src=\"images/speicher.png\"></th></tr></thead><tbody>";
 
 		Village[] villages = this.account.getMyVillages();
 		int counter = 1;
@@ -115,17 +115,7 @@ public class AjaxService extends HttpServlet {
 			dashboard += "<td>" + village.getHolz() + "</td>";
 			dashboard += "<td>" + village.getLehm() + "</td>";
 			dashboard += "<td>" + village.getEisen() + "</td>";
-			dashboard += "<td>" + village.getSpeicherKapazitaet() + "</td>";
-			dashboard += "<td>" + village.getSpeertraeger() + "</td>";
-			dashboard += "<td>" + village.getSchwertkaempfer() + "</td>";
-			dashboard += "<td>" + village.getAxtkaempfer() + "</td>";
-			dashboard += "<td>" + village.getBogenschuetzen() + "</td>";
-			dashboard += "<td>" + village.getSpaeher() + "</td>";
-			dashboard += "<td>" + village.getLeichteKavallerie() + "</td>";
-			dashboard += "<td>" + village.getBerittenerBogenschuetze() + "</td>";
-			dashboard += "<td>" + village.getSchwereKavallerie() + "</td>";
-			dashboard += "<td>" + village.getRammboecke() + "</td>";
-			dashboard += "<td>" + village.getKatapult() + "</td>";
+			dashboard += "<td>" + village.getSpeicher() + "</td>";
 			dashboard += "</tr>";
 		}
 

@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
+import logger.Logger;
+
 public class Configuration {
 
 	public static final String configuration_username = "username";
@@ -23,7 +25,7 @@ public class Configuration {
 			defaultProperties.load(in);
 			in.close();
 		} catch (Exception e) {
-			// TODO log message
+			Logger.logMessage("Konnte Property-Datei nicht lesen!", e);
 		}
 	}
 
@@ -35,7 +37,7 @@ public class Configuration {
 				defaultProperties.store(out, null);
 				out.close();
 			} catch (Exception e) {
-				// TODO log message
+				Logger.logMessage("Konnte Property-Datei nicht schreiben!", e);
 			}
 		}
 	}

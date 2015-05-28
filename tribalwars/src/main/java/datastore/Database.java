@@ -42,7 +42,6 @@ public class Database extends SQLiteQueue {
 	private synchronized static Database getInstance() {
 		if (instance == null) {
 			File databaseFile = new File("database.db3");
-			// databaseFile.delete(); // TODO remove first double slash ('//') when changing the database.sql file
 			boolean exists = databaseFile.exists();
 			instance = new Database(databaseFile);
 			if (!exists) {
