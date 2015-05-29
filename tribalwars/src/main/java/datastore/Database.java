@@ -3,7 +3,9 @@ package datastore;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -158,8 +160,25 @@ public class Database extends SQLiteQueue {
 		}).complete();
 	}
 
-	public static void insertReport() {
-		// TODO insert Report
-	}
+	public static void insertReport(final long idReport, final long idVillage, final Date attackTime, final int spyedWood, final int spyedStone, final int spyedIron, final int wood, final int stone, final int iron, final int wall) {
+		getInstance().execute(new SQLiteJob<Void>() {
+			@Override
+			protected Void job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("INSERT INTO `Report`(`idReport`,`idVillage`,`attackTime`, `spyedWood`, `spyedStone`, `spyedIron`, `wood`, `stone`, `iron`, `wall`) VALUES (?,?,?,?,?,?,?,?,?,?);");
+				statement.bind(1, idReport);
+				statement.bind(2, idVillage);
+				statement.bind(3, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(attackTime));
+				statement.bind(4, spyedWood);
+				statement.bind(5, spyedStone);
+				statement.bind(6, spyedIron);
+				statement.bind(7, wood);
+				statement.bind(8, stone);
+				statement.bind(9, iron);
+				statement.bind(10, wall);
 
+				statement.stepThrough();
+				return null;
+			}
+		}).complete();
+	}
 }

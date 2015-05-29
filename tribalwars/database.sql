@@ -3,8 +3,7 @@ CREATE TABLE `VorlageItem` ( `idVorlage` INTEGER NOT NULL, `position` INTEGER NO
 CREATE TABLE `Vorlage` ( `idVorlage` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `name` INTEGER NOT NULL);
 CREATE TABLE `Building` ( `idBuilding` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `displayName` TEXT NOT NULL);
 CREATE TABLE `Village` ( `idVillage` INTEGER UNIQUE, `farmed` INTEGER NOT NULL DEFAULT 0, `x` INTEGER NOT NULL, `y` INTEGER NOT NULL, PRIMARY KEY(`idVillage`) UNIQUE(`x`, `y`));
--- Try to change attackTime to Date or something like that
-CREATE TABLE `Report` ( `idReport` INTEGER NOT NULL, `idVillage` INTEGER NOT NULL, `attackTime` TEXT, `spyedWood` INTEGER NOT NULL DEFAULT 0, `spyedStone` INTEGER NOT NULL DEFAULT 0, `spyedIron` INTEGER NOT NULL DEFAULT 0, `wood` INTEGER NOT NULL DEFAULT 0, `stone` INTEGER NOT NULL DEFAULT 0, `iron` INTEGER NOT NULL DEFAULT 0, `wall` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`idReport`));
+CREATE TABLE `Report` ( `idReport` INTEGER NOT NULL, `idVillage` INTEGER NOT NULL, `attackTime` DATETIME, `spyedWood` INTEGER NOT NULL DEFAULT 0, `spyedStone` INTEGER NOT NULL DEFAULT 0, `spyedIron` INTEGER NOT NULL DEFAULT 0, `wood` INTEGER NOT NULL DEFAULT 0, `stone` INTEGER NOT NULL DEFAULT 0, `iron` INTEGER NOT NULL DEFAULT 0, `wall` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`idReport`));
 
 -- TRIGGER
 -- Trigger for deleting a report, when a newer one is inserted
