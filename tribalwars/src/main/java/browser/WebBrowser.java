@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.CookieHandler;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -17,8 +18,8 @@ public class WebBrowser {
 	private String referrer;
 
 	public WebBrowser() {
-		CookieManager.setDefault(new CookieManager());
-		referrer = "http://www.google.at";
+		CookieHandler.setDefault(new CookieManager());
+		this.referrer = "http://www.google.at";
 	}
 
 	public String post(String link, String post) throws IOException {
@@ -88,11 +89,11 @@ public class WebBrowser {
 	}
 
 	private void setNewReferrer(String url) {
-		referrer = url;
+		this.referrer = url;
 	}
 
 	private String getReferrer() {
-		return referrer;
+		return this.referrer;
 	}
 
 }

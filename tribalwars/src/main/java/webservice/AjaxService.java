@@ -110,7 +110,7 @@ public class AjaxService extends HttpServlet {
 			dashboard += "<tr>";
 			dashboard += "<td>" + counter + "</td>";
 			counter += 1;
-			dashboard += "<td>" + village.getName() + "</td>";
+			dashboard += "<td>" + village.getDorfname() + "</td>";
 			dashboard += "<td>" + village.getX() + "|" + village.getY() + "</td>";
 			dashboard += "<td>" + village.getHolz() + "</td>";
 			dashboard += "<td>" + village.getLehm() + "</td>";
@@ -173,7 +173,7 @@ public class AjaxService extends HttpServlet {
 	}
 
 	private String generateHeader() {
-		if (account.hasNewMessage()) {
+		if (this.account.hasNewMessage()) {
 			return "<div id=\"nachrichten\"><img src=\"images/new_mail.png\">&nbsp; Eine ungelesene Nachricht</div>";
 		} else {
 			return "<div id=\"nachrichten\"><img src=\"images/read_mail.png\">&nbsp; Keine neuen Nachrichten</div>";

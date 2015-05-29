@@ -1,53 +1,120 @@
 package tribalwars;
 
+import java.util.Date;
+
 public class Village {
 
-	private String id = "";
-	private String name = "";
-	private int x = 0;
-	private int y = 0;
+	private final String id;
+	private String dorfname;
+	private final int x;
+	private final int y;
 	private int holz = 0;
 	private int lehm = 0;
 	private int eisen = 0;
 	private int speicher = 0;
+	private Date nextBuildingbuildPossible;
+	private Date nextTroupBuildBarracksPossible;
+	private Date nextTroupBuildStablePossible;
+	private Date nextTroupBuildWorkshopPossible;
+	private Date nextFarmattackPossible;
 
-	public Village(Account account, String id, String name, int x, int y) {
+	public Village(String id, String dorfname, int x, int y) {
 		this.id = id;
-		this.name = name;
+		this.dorfname = dorfname;
 		this.x = x;
 		this.y = y;
 	}
 
-	public String getId() {
-		return id;
+	public String getID() {
+		return this.id;
 	}
 
-	public String getName() {
-		return name;
+	public void setDorfname(String dorfname) {
+		this.dorfname = dorfname;
+	}
+
+	public String getDorfname() {
+		return this.dorfname;
 	}
 
 	public int getX() {
-		return x;
+		return this.x;
 	}
 
 	public int getY() {
-		return y;
+		return this.y;
 	}
 
 	public int getHolz() {
-		return holz;
+		return this.holz;
 	}
 
 	public int getLehm() {
-		return lehm;
+		return this.lehm;
 	}
 
 	public int getEisen() {
-		return eisen;
+		return this.eisen;
 	}
 
 	public int getSpeicher() {
-		return speicher;
+		return this.speicher;
+	}
+
+	public void setHolz(int holz) {
+		this.holz = holz;
+	}
+
+	public void setLehm(int lehm) {
+		this.lehm = lehm;
+	}
+
+	public void setEisen(int eisen) {
+		this.eisen = eisen;
+	}
+
+	public void setSpeicher(int speicher) {
+		this.speicher = speicher;
+	}
+
+	public boolean isNextBuildingbuildPossible() {
+		return new Date().after(this.nextBuildingbuildPossible);
+	}
+
+	public void setNextBuildingbuildPossible(Date nextBuildingbuildPossible) {
+		this.nextBuildingbuildPossible = nextBuildingbuildPossible;
+	}
+
+	public boolean isNextTroupBuildBarracksPossible() {
+		return new Date().after(this.nextTroupBuildBarracksPossible);
+	}
+
+	public void setNextTroupBuildBarracksPossible(Date nextTroupBuildBarracksPossible) {
+		this.nextTroupBuildBarracksPossible = nextTroupBuildBarracksPossible;
+	}
+
+	public boolean isNextTroupBuildStablePossible() {
+		return new Date().after(this.nextTroupBuildStablePossible);
+	}
+
+	public void setNextTroupBuildStablePossible(Date nextTroupBuildStablePossible) {
+		this.nextTroupBuildStablePossible = nextTroupBuildStablePossible;
+	}
+
+	public boolean isNextTroupBuildWorkshopPossible() {
+		return new Date().after(this.nextTroupBuildWorkshopPossible);
+	}
+
+	public void setNextTroupBuildWorkshopPossible(Date nextTroupBuildWorkshopPossible) {
+		this.nextTroupBuildWorkshopPossible = nextTroupBuildWorkshopPossible;
+	}
+
+	public boolean isNextFarmattackPossible() {
+		return new Date().after(this.nextFarmattackPossible);
+	}
+
+	public void setNextFarmattackPossible(Date nextFarmattackPossible) {
+		this.nextFarmattackPossible = nextFarmattackPossible;
 	}
 
 }

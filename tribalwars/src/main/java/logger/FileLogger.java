@@ -27,8 +27,8 @@ public class FileLogger extends LoggerInterface {
 				file.delete();
 			}
 
-			fileHandler = new FileHandler("log/log.%u.%g.txt", 1024 * 1024, 1, true);
-			fileHandler.setFormatter(new Formatter() {
+			this.fileHandler = new FileHandler("log/log.%u.%g.txt", 1024 * 1024, 1, true);
+			this.fileHandler.setFormatter(new Formatter() {
 				@Override
 				public String format(LogRecord lr) {
 					return lr.getMessage() + "\r\n";
@@ -37,7 +37,7 @@ public class FileLogger extends LoggerInterface {
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				@Override
 				public void run() {
-					fileHandler.close();
+					FileLogger.this.fileHandler.close();
 				}
 			});
 			Logger.addListener(this);
@@ -48,12 +48,12 @@ public class FileLogger extends LoggerInterface {
 
 	@Override
 	public void logMessage(String message) {
-		fileHandler.publish(new LogRecord(Level.ALL, String.format("%-20s\t%-40s", new Object[] { getTime(), message })));
+		this.fileHandler.publish(new LogRecord(Level.ALL, String.format("%-20s\t%-40s", new Object[] { getTime(), message })));
 	}
 
 	@Override
 	public void logMessage(String message, Throwable e) {
-		fileHandler.publish(new LogRecord(Level.ALL, String.format("%-20s\t%-40s\t%-100s", new Object[] { getTime(), message, e.getMessage() })));
+		this.fileHandler.publish(new LogRecord(Level.ALL, String.format("%-20s\t%-40s\t%-100s", new Object[] { getTime(), message, e.getMessage() })));
 	}
 
 }

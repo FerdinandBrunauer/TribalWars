@@ -12,10 +12,10 @@ import org.jsoup.select.Elements;
 
 import tribalwars.utils.RegexUtils;
 import tribalwars.utils.VillagenameUtils;
-import datastore.Database;
 import browser.CaptchaException;
 import browser.SessionException;
 import browser.WebBrowser;
+import datastore.Database;
 
 public class Account implements Runnable {
 
@@ -42,8 +42,8 @@ public class Account implements Runnable {
 	public void run() {
 		while (true) {
 			try {
-				if ((System.currentTimeMillis() - lastLoginAttempt) > (5 * 60 * 1000)) {
-					lastLoginAttempt = System.currentTimeMillis();
+				if ((System.currentTimeMillis() - this.lastLoginAttempt) > (5 * 60 * 1000)) {
+					this.lastLoginAttempt = System.currentTimeMillis();
 					gameLogic();
 				}
 			} catch (IOException e) {
@@ -74,31 +74,46 @@ public class Account implements Runnable {
 	}
 
 	private void gameLogic() throws CaptchaException, SessionException, IOException, InterruptedException {
-		browser = new WebBrowser();
+		this.browser = new WebBrowser();
 		if (login()) {
 			Logger.logMessage("Erfolgreich eingeloggt!");
 
 			// Get villages
 			analyzeVillages();
 			// Get farms for actual villages
-			for (Village village : villages) {
-				Logger.logMessage(analyzeFarms(village.getX(), village.getY()) + " Farmen für Dorf " + village.getName() + " (" + village.getX() + "|" + village.getY() + ") hinzugef\u00FCgt.");
+			for (Village village : this.villages) {
+				Logger.logMessage(analyzeFarms(village.getX(), village.getY()) + " Farmen für Dorf " + village.getDorfname() + " (" + village.getX() + "|" + village.getY() + ") hinzugef\u00FCgt.");
 			}
 			// Refresh reports
 			analyzeReports();
 
 			while (true) {
 				analyzeVillages(); // Ressourcen aktualisieren und überprüfen, ob der Spieler ein Dorf verloren hat.
-				for (Village village : villages) {
-					if (VillagenameUtils.getVillageDoFarming(village.getName())) {
-						// Farm
+				for (Village village : this.villages) {
+					if (VillagenameUtils.getVillageDoFarming(village.getDorfname())) {
+						if (village.isNextFarmattackPossible()) {
+							// Farm	
+						}
 					}
-					if (VillagenameUtils.getVillageBuildTroops(village.getName())) {
-						switch (VillagenameUtils.getVillageTroupType(village.getName())) {
+					if (VillagenameUtils.getVillageBuildTroops(village.getDorfname())) {
+						// Baue Truppen
+						switch (VillagenameUtils.getVillageTroupType(village.getDorfname())) {
 						case DEFF: {
+							if (village.isNextTroupBuildBarracksPossible()) {
+
+							}
 							break;
 						}
 						case OFF: {
+							if (village.isNextTroupBuildBarracksPossible()) {
+
+							}
+							if (village.isNextTroupBuildStablePossible()) {
+
+							}
+							if (village.isNextTroupBuildWorkshopPossible()) {
+
+							}
 							break;
 						}
 						case UNDEFINED: {
@@ -106,13 +121,14 @@ public class Account implements Runnable {
 							break;
 						}
 						}
-						// Baue Truppen
 					}
-					if (VillagenameUtils.getVillageBuildBuildings(village.getName())) {
-						// Baue Gebäude
+					if (VillagenameUtils.getVillageBuildBuildings(village.getDorfname())) {
+						if (village.isNextBuildingbuildPossible()) {
+							// Baue Gebäude	
+						}
 					}
 
-					Thread.sleep((long) (Math.random() * 600 + 200)); // Pause zwischen 200 und 800 millisekunden
+					Thread.sleep((long) ((Math.random() * 600) + 200)); // Pause zwischen 200 und 800 millisekunden
 				}
 			}
 
@@ -122,13 +138,13 @@ public class Account implements Runnable {
 	}
 
 	private boolean login() throws IOException, CaptchaException, SessionException {
-		browser.get("http://www.die-staemme.de/");
-		document = Jsoup.parse(browser.post("http://www.die-staemme.de/index.php?action=login&show_server_selection=1", "user=" + username + "&password=" + password + "&clear=true"));
-		Element passwordElement = document.getElementsByTag("input").get(1);
+		this.browser.get("http://www.die-staemme.de/");
+		this.document = Jsoup.parse(this.browser.post("http://www.die-staemme.de/index.php?action=login&show_server_selection=1", "user=" + this.username + "&password=" + this.password + "&clear=true"));
+		Element passwordElement = this.document.getElementsByTag("input").get(1);
 		String passwordHash = passwordElement.attr("value").replace("&quot;", "").replace("\"", "").replace("\\", "");
-		browser.post("http://www.die-staemme.de/index.php?action=login&server_" + worldPrefix + worldNumber, "user=" + username + "&password=" + passwordHash);
-		document = Jsoup.parse(browser.get("http://" + worldPrefix + worldNumber + ".die-staemme.de/game.php?screen=overview&intro"));
-		return document.getElementById("menu_counter_profile") != null;
+		this.browser.post("http://www.die-staemme.de/index.php?action=login&server_" + this.worldPrefix + this.worldNumber, "user=" + this.username + "&password=" + passwordHash);
+		this.document = Jsoup.parse(this.browser.get("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?screen=overview&intro"));
+		return this.document.getElementById("menu_counter_profile") != null;
 	}
 
 	/**
@@ -136,14 +152,16 @@ public class Account implements Runnable {
 	 * Dörfer
 	 */
 	private void analyzeVillages() {
+		// TODO analyze Villages (overview)
 		// optimized logic
 	}
 
 	/**
-	 * Durchsucht die Berichte nach möglichen neuen
+	 * Durchsucht die Berichte nach möglichen neuen Berichten
 	 */
 	private void analyzeReports() {
-		// read and insert into database
+		// TODO analyze Reports
+		// test where reports are, when not using farmassistant!
 
 		// http://dep5.die-staemme.de/game.php?village=56872&mode=attack&group_id=-1&screen=report
 		// http://dep5.die-staemme.de/game.php?village=56872&mode=attack&group_id=8382&screen=report
@@ -164,7 +182,7 @@ public class Account implements Runnable {
 		int counter = 0;
 
 		try {
-			document = Jsoup.connect("http://de.twstats.com/" + worldPrefix + worldNumber + "/index.php?page=village_locator&stage=3&source=village").data("village_coords", x + "|" + y).timeout(10 * 1000).post();
+			document = Jsoup.connect("http://de.twstats.com/" + this.worldPrefix + this.worldNumber + "/index.php?page=village_locator&stage=3&source=village").data("village_coords", x + "|" + y).timeout(10 * 1000).post();
 			widgetTable = document.getElementsByClass("widget").get(3);
 			tableVillages = widgetTable.getElementsByTag("tr");
 			tableVillages.remove(0); // Table header
@@ -193,23 +211,23 @@ public class Account implements Runnable {
 	}
 
 	public Village[] getMyVillages() {
-		return villages.toArray(new Village[villages.size()]);
+		return this.villages.toArray(new Village[this.villages.size()]);
 	}
 
 	public boolean hasNewMessage() {
-		return newMessage;
+		return this.newMessage;
 	}
 
 	public WebBrowser getBrowser() {
-		return browser;
+		return this.browser;
 	}
 
 	public String getWelt() {
-		return worldPrefix;
+		return this.worldPrefix;
 	}
 
 	public String getWeltNummer() {
-		return worldNumber;
+		return this.worldNumber;
 	}
 
 }

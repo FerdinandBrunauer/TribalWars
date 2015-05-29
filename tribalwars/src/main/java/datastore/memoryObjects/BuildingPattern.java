@@ -11,11 +11,11 @@ public class BuildingPattern {
 	}
 
 	public long getID() {
-		return ID;
+		return this.ID;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 }

@@ -29,7 +29,7 @@ public class Database extends SQLiteQueue {
 
 	private Database(File databaseFile) {
 		super(databaseFile);
-		this.start();
+		start();
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override

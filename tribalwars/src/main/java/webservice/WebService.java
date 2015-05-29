@@ -19,12 +19,12 @@ public class WebService implements Runnable {
 
 	public WebService(Account account, int port) {
 		this.account = account;
-		
+
 		this.server = new Server();
-		
+
 		ServerConnector connector = new ServerConnector(this.server);
 		connector.setPort(port);
-		server.addConnector(connector);
+		this.server.addConnector(connector);
 
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath("/");
@@ -37,15 +37,16 @@ public class WebService implements Runnable {
 
 		HandlerList handlers = new HandlerList();
 		handlers.setHandlers(new Handler[] { resource_handler, context });
-		server.setHandler(handlers);
+		this.server.setHandler(handlers);
 
 		new Thread(this, "WebService").start();
 	}
 
+	@Override
 	public void run() {
 		try {
-			server.start();
-			server.join();
+			this.server.start();
+			this.server.join();
 		} catch (Exception e) {
 			Logger.logMessage("Konnte Server nicht starten!", e);
 			System.exit(4);

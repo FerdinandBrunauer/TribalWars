@@ -5,7 +5,7 @@ import org.jsoup.nodes.Document;
 public class SafetyManager {
 
 	public static void checkCaptcha(WebBrowser browser, Document document) throws CaptchaException {
-		if(document.getElementById("bot_check") != null) {
+		if (document.getElementById("bot_check") != null) {
 			throw new CaptchaException();
 		}
 		/*

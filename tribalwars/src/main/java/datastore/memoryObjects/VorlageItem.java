@@ -11,11 +11,11 @@ public class VorlageItem {
 	}
 
 	public String getBuildingName() {
-		return buildingName;
+		return this.buildingName;
 	}
 
 	public int getLevel() {
-		return level;
+		return this.level;
 	}
 
 }
