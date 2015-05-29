@@ -6,7 +6,7 @@ CREATE TABLE `Village` ( `idVillage` INTEGER UNIQUE, `farmed` INTEGER NOT NULL D
 CREATE TABLE `Report` ( `idReport` INTEGER NOT NULL, `idVillage` INTEGER NOT NULL, `attackTime` DATETIME, `spyedWood` INTEGER NOT NULL DEFAULT 0, `spyedStone` INTEGER NOT NULL DEFAULT 0, `spyedIron` INTEGER NOT NULL DEFAULT 0, `wood` INTEGER NOT NULL DEFAULT 0, `stone` INTEGER NOT NULL DEFAULT 0, `iron` INTEGER NOT NULL DEFAULT 0, `wall` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`idReport`));
 
 -- TRIGGER
--- Trigger for deleting a report, when a newer one is inserted
+CREATE TRIGGER `reportTrimmer` AFTER INSERT ON `Report` BEGIN DELETE FROM `Report` WHERE `idVillage`=NEW.`idVillage` AND `idReport` NOT IN (SELECT `idReport` FROM `Report` WHERE `idVillage`=NEW.`idVillage` ORDER BY strftime("%s", attackTime) DESC LIMIT 1); END
 
 -- DEFAULT VALUES
 INSERT INTO `Building` (`idBuilding`, `name`, `displayName`) VALUES (1, 'main', '<img src="images/haupthaus.png">&nbsp;Hauptgeb&auml;de');

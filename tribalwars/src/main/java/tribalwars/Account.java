@@ -1,6 +1,7 @@
 package tribalwars;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 
 import logger.Logger;
@@ -24,6 +25,8 @@ public class Account implements Runnable {
 
 	private VillageList villages = new VillageList();
 	private long lastLoginAttempt = 0;
+	private long lastReportRefresh = 0;
+	private long lastFarmRefresh = 0;
 	private String username;
 	private String password;
 	private String worldPrefix;
@@ -83,14 +86,24 @@ public class Account implements Runnable {
 
 			// Get villages
 			analyzeVillages();
-			// Get farms for actual villages
-			for (Village village : this.villages) {
-				Logger.logMessage(analyzeFarms(village.getX(), village.getY()) + " Farmen für Dorf " + village.getDorfname() + " (" + village.getX() + "|" + village.getY() + ") hinzugef\u00FCgt.");
-			}
-			// Refresh reports
-			analyzeReports();
 
 			while (true) {
+				// Get farms for actual villages
+				if ((System.currentTimeMillis() - this.lastFarmRefresh) > (60 * 60 * 1000)) { // Jede Stunde aktuelle Farmen holen
+					Logger.logMessage("Aktualisiere Farmen");
+					for (Village village : this.villages) {
+						Logger.logMessage(analyzeFarms(village.getX(), village.getY()) + " Farmen für Dorf " + village.getDorfname() + " (" + village.getX() + "|" + village.getY() + ") hinzugef\u00FCgt.");
+					}
+					this.lastFarmRefresh = System.currentTimeMillis();
+				}
+
+				// Refresh reports
+				if ((System.currentTimeMillis() - this.lastReportRefresh) > (5 * 60 * 1000)) { // Alle 5 Minuten Berichte einlesen
+					Logger.logMessage("Aktualisiere Berichte");
+					Logger.logMessage(analyzeReports() + " Berichte gelesen!");
+					this.lastReportRefresh = System.currentTimeMillis();
+				}
+
 				analyzeVillages(); // Ressourcen aktualisieren und überprüfen, ob der Spieler ein Dorf verloren hat.
 				for (Village village : this.villages) {
 					if (VillagenameUtils.getVillageDoFarming(village.getDorfname())) {
@@ -132,7 +145,18 @@ public class Account implements Runnable {
 							HashMap<String, Integer> building = villageOverview(village.getID());
 							String nextBuilding = BuildingUtils.calculateNextBuilding(2, building);
 							if (nextBuilding != null) {
-								// TODO Build
+								Document mainOverview = Jsoup.parse(this.browser.get("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?village=" + village.getID() + "&screen=main"));
+								Element buildqueue = mainOverview.getElementById("buildqueue");
+								if (building != null) {
+									String timer = buildqueue.getElementsByClass("timer").get(0).html();
+									village.setNextBuildingbuildPossible(new Date(System.currentTimeMillis() + RegexUtils.convertTimestringToMilliseconds(timer)));
+
+									String actualBuildingBuilding = buildqueue.getElementsByClass("lit-item").get(0).getElementsByTag("img").get(0).attr("title");
+									Logger.logMessage(village.getDorfname() + " baut gerade an " + actualBuildingBuilding);
+								} else {
+									String hWert = RegexUtils.getHWert(mainOverview.head().html());
+									// TODO Build query
+								}
 							} else {
 								Logger.logMessage(village.getDorfname() + " ist vollst\u00E4ndig Ausgebaut! Bitte \u00E4ndern sie den Namen des Dorfes!");
 							}
@@ -168,14 +192,19 @@ public class Account implements Runnable {
 	}
 
 	/**
-	 * Durchsucht die Berichte nach möglichen neuen Berichten
+	 * Durchsucht die Berichte nach möglichen neuen Berichten und gibt die
+	 * Anzahl der gelesenen Berichte zurück
+	 * 
+	 * @return Die anzahl der gelesenen Berichte
 	 */
-	private void analyzeReports() {
+	private int analyzeReports() {
 		// TODO analyze Reports
-		// TODO test where reports are, when not using farmassistant!
+		int counter = 0;
 
 		// http://dep5.die-staemme.de/game.php?village=56872&mode=attack&group_id=-1&screen=report
 		// http://dep5.die-staemme.de/game.php?village=56872&mode=attack&group_id=8382&screen=report
+
+		return counter;
 	}
 
 	/**
