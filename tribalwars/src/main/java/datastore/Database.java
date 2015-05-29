@@ -158,4 +158,8 @@ public class Database extends SQLiteQueue {
 		}).complete();
 	}
 
+	public static void insertReport() {
+		// TODO insert Report
+	}
+
 }

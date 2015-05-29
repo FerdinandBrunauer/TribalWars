@@ -1,25 +1,28 @@
 package tribalwars;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import logger.Logger;
 
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import tribalwars.utils.BuildingUtils;
 import tribalwars.utils.RegexUtils;
 import tribalwars.utils.VillagenameUtils;
 import browser.CaptchaException;
 import browser.SessionException;
 import browser.WebBrowser;
 import datastore.Database;
+import datastore.memoryObjects.Village;
 
 public class Account implements Runnable {
 
-	private ArrayList<Village> villages = new ArrayList<Village>();
+	private VillageList villages = new VillageList();
 	private long lastLoginAttempt = 0;
 	private String username;
 	private String password;
@@ -93,10 +96,12 @@ public class Account implements Runnable {
 					if (VillagenameUtils.getVillageDoFarming(village.getDorfname())) {
 						if (village.isNextFarmattackPossible()) {
 							// Farm	
+							// TODO Farm
 						}
 					}
 					if (VillagenameUtils.getVillageBuildTroops(village.getDorfname())) {
 						// Baue Truppen
+						// TODO Baue Truppen
 						switch (VillagenameUtils.getVillageTroupType(village.getDorfname())) {
 						case DEFF: {
 							if (village.isNextTroupBuildBarracksPossible()) {
@@ -116,19 +121,25 @@ public class Account implements Runnable {
 							}
 							break;
 						}
-						case UNDEFINED: {
-							// Nichts machen, falscher Name!
+						default:
+							// Nichts machen
 							break;
-						}
 						}
 					}
 					if (VillagenameUtils.getVillageBuildBuildings(village.getDorfname())) {
 						if (village.isNextBuildingbuildPossible()) {
 							// Baue Gebäude	
+							HashMap<String, Integer> building = villageOverview(village.getID());
+							String nextBuilding = BuildingUtils.calculateNextBuilding(2, building);
+							if (nextBuilding != null) {
+								// TODO Build
+							} else {
+								Logger.logMessage(village.getDorfname() + " ist vollst\u00E4ndig Ausgebaut! Bitte \u00E4ndern sie den Namen des Dorfes!");
+							}
 						}
 					}
 
-					Thread.sleep((long) ((Math.random() * 600) + 200)); // Pause zwischen 200 und 800 millisekunden
+					Thread.sleep((long) ((Math.random() * 800) + 400)); // Pause zwischen 400 und 1200 millisekunden
 				}
 			}
 
@@ -148,7 +159,7 @@ public class Account implements Runnable {
 	}
 
 	/**
-	 * Ruft die Dorfübersicht auf und aktualisiert die aktuell vorhandenen
+	 * Ruft die Dörferübersicht auf und aktualisiert die aktuell vorhandenen
 	 * Dörfer
 	 */
 	private void analyzeVillages() {
@@ -161,7 +172,7 @@ public class Account implements Runnable {
 	 */
 	private void analyzeReports() {
 		// TODO analyze Reports
-		// test where reports are, when not using farmassistant!
+		// TODO test where reports are, when not using farmassistant!
 
 		// http://dep5.die-staemme.de/game.php?village=56872&mode=attack&group_id=-1&screen=report
 		// http://dep5.die-staemme.de/game.php?village=56872&mode=attack&group_id=8382&screen=report
@@ -210,24 +221,57 @@ public class Account implements Runnable {
 		return counter;
 	}
 
+	/**
+	 * Ruft die Dorfübersicht des Dorfes auf und gibt eine {@link HashMap} mit
+	 * den aktuell vorhandenen Gebäudestufen zurück
+	 * 
+	 * @param dorfID die DorfId des Dorfes
+	 * @return {@link HashMap} mit den aktuellen Gebäudestufen
+	 * @throws SessionException Wenn die Session abgelaufen ist und ein ReLogin
+	 *             vorgenommen werden muss.
+	 * @throws IOException Wenn die Verbindung zum Internet unterbrochen wird.
+	 * @throws CaptchaException Wenn der Botschutz auftritt
+	 */
+	private HashMap<String, Integer> villageOverview(String dorfID) throws IOException, SessionException, CaptchaException {
+		String head = Jsoup.parse(browser.get("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?village=" + dorfID + "&screen=overview")).head().html();
+		HashMap<String, Integer> building = new HashMap<String, Integer>();
+
+		JSONObject village = RegexUtils.getJsonFromHead(head).getJSONObject("village");
+		JSONObject buildings = village.getJSONObject("buildings");
+
+		building.put("main", buildings.getInt("main"));
+		building.put("barracks", buildings.getInt("barracks"));
+		building.put("stable", buildings.getInt("stable"));
+		building.put("garage", buildings.getInt("garage"));
+		building.put("snob", buildings.getInt("snob"));
+		building.put("smith", buildings.getInt("smith"));
+		building.put("place", buildings.getInt("place"));
+		building.put("market", buildings.getInt("market"));
+		building.put("wood", buildings.getInt("wood"));
+		building.put("stone", buildings.getInt("stone"));
+		building.put("iron", buildings.getInt("iron"));
+		building.put("farm", buildings.getInt("farm"));
+		building.put("storage", buildings.getInt("storage"));
+		building.put("hide", buildings.getInt("hide"));
+		building.put("wall", buildings.getInt("wall"));
+		building.put("statue", buildings.getInt("statue"));
+
+		Village actualVillage = villages.getVillage(buildings.getString("village"));
+		actualVillage.setDorfname(village.getString("name"));
+		actualVillage.setHolz(village.getInt("wood"));
+		actualVillage.setLehm(village.getInt("stone"));
+		actualVillage.setEisen(village.getInt("iron"));
+		actualVillage.setSpeicher(village.getInt("storage_max"));
+
+		return building;
+	}
+
 	public Village[] getMyVillages() {
 		return this.villages.toArray(new Village[this.villages.size()]);
 	}
 
 	public boolean hasNewMessage() {
 		return this.newMessage;
-	}
-
-	public WebBrowser getBrowser() {
-		return this.browser;
-	}
-
-	public String getWelt() {
-		return this.worldPrefix;
-	}
-
-	public String getWeltNummer() {
-		return this.worldNumber;
 	}
 
 }

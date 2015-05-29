@@ -11,10 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import tribalwars.Account;
-import tribalwars.Village;
 import datastore.Configuration;
 import datastore.Database;
 import datastore.memoryObjects.BuildingPattern;
+import datastore.memoryObjects.Village;
 
 public class AjaxService extends HttpServlet {
 	private static final long serialVersionUID = -527089361769286098L;

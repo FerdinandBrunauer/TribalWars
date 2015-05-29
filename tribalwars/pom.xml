@@ -41,5 +41,10 @@
                <type>jar</type>
                <version>${sqlite4java.version}</version>
           </dependency>
+          <dependency>
+               <groupId>org.json</groupId>
+               <artifactId>json</artifactId>
+               <version>20141113</version>
+          </dependency>
      </dependencies>
 </project>

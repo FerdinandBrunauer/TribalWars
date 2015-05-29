@@ -1,4 +1,4 @@
-package tribalwars;
+package datastore.memoryObjects;
 
 import java.util.Date;
 
@@ -12,11 +12,11 @@ public class Village {
 	private int lehm = 0;
 	private int eisen = 0;
 	private int speicher = 0;
-	private Date nextBuildingbuildPossible;
-	private Date nextTroupBuildBarracksPossible;
-	private Date nextTroupBuildStablePossible;
-	private Date nextTroupBuildWorkshopPossible;
-	private Date nextFarmattackPossible;
+	private Date nextBuildingbuildPossible = new Date();
+	private Date nextTroupBuildBarracksPossible = new Date();
+	private Date nextTroupBuildStablePossible = new Date();
+	private Date nextTroupBuildWorkshopPossible = new Date();
+	private Date nextFarmattackPossible = new Date();
 
 	public Village(String id, String dorfname, int x, int y) {
 		this.id = id;
@@ -24,6 +24,20 @@ public class Village {
 		this.x = x;
 		this.y = y;
 	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (object instanceof Village) {
+			Village village = (Village) object;
+			if (village.getDorfname().compareTo(this.getDorfname()) == 0) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	};
 
 	public String getID() {
 		return this.id;

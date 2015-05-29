@@ -22,7 +22,7 @@ public class WebBrowser {
 		this.referrer = "http://www.google.at";
 	}
 
-	public String post(String link, String post) throws IOException {
+	public String post(String link, String post) throws IOException, CaptchaException {
 		String output = "";
 		URL url = new URL(link);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -51,10 +51,14 @@ public class WebBrowser {
 
 		setNewReferrer(link);
 
+		if (output.contains("Botschutz")) {
+			throw new CaptchaException();
+		}
+
 		return output;
 	}
 
-	public String get(String link) throws IOException, SessionException {
+	public String get(String link) throws IOException, SessionException, CaptchaException {
 		String output = "";
 
 		URL url = new URL(link);
@@ -76,6 +80,10 @@ public class WebBrowser {
 		reader.close();
 
 		setNewReferrer(link);
+
+		if (output.contains("Botschutz")) {
+			throw new CaptchaException();
+		}
 
 		if (connection.getHeaderField("Location") != null) {
 			if (connection.getHeaderField("Location").endsWith("sid_wrong.php")) {
