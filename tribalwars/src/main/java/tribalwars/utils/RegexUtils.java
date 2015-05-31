@@ -1,6 +1,8 @@
 package tribalwars.utils;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,10 +57,44 @@ public class RegexUtils {
 	public static String getHWert(String html) throws IOException {
 		Pattern pattern = Pattern.compile("h=([a-z0-9]{8})");
 		Matcher matcher = pattern.matcher(html);
-		if(matcher.find()) {
+		if (matcher.find()) {
 			return matcher.group(1);
 		} else {
 			throw new IOException("Konnte H-Wert nicht im Quelltext finden!");
+		}
+	}
+
+	public static Date getTime(String html) throws IOException {
+		Pattern pattern = Pattern.compile("(\\d\\d)\\.(\\d\\d)\\.(15)\\s(\\d\\d):(\\d\\d):(\\d\\d)");
+		Matcher matcher = pattern.matcher(html);
+		if (matcher.find()) {
+			int date = Integer.parseInt(matcher.group(1));
+			int month = Integer.parseInt(matcher.group(2));
+			int year = Integer.parseInt("20" + matcher.group(3));
+			int hours = Integer.parseInt(matcher.group(4));
+			int minutes = Integer.parseInt(matcher.group(5));
+			int seconds = Integer.parseInt(matcher.group(6));
+
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(Calendar.YEAR, year);
+			calendar.set(Calendar.MONTH, month);
+			calendar.set(Calendar.DAY_OF_MONTH, date);
+			calendar.set(Calendar.HOUR, hours);
+			calendar.set(Calendar.MINUTE, minutes);
+			calendar.set(Calendar.SECOND, seconds);
+			return calendar.getTime();
+		} else {
+			throw new IOException("Konnte Datum nicht im Quelltext finden!");
+		}
+	}
+
+	public static int getBuildinglevelFromReport(String json, String building) throws IOException {
+		Pattern pattern = Pattern.compile("\\\"id\\\":\\\"" + building + "\\\",\\\"level\\\":\\\"(\\d\\d?)\\\"");
+		Matcher matcher = pattern.matcher(json);
+		if (matcher.find()) {
+			return Integer.parseInt(matcher.group(1));
+		} else {
+			throw new IOException("Konnte Gebäude nicht im Quelltext finden!");
 		}
 	}
 

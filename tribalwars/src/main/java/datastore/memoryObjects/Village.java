@@ -29,7 +29,7 @@ public class Village {
 	public boolean equals(Object object) {
 		if (object instanceof Village) {
 			Village village = (Village) object;
-			if (village.getDorfname().compareTo(this.getDorfname()) == 0) {
+			if (village.getID().compareTo(this.getID()) == 0) {
 				return true;
 			} else {
 				return false;

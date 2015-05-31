@@ -1,6 +1,7 @@
 package tribalwars;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -34,6 +35,7 @@ public class Account implements Runnable {
 	private boolean newMessage = false;
 	private WebBrowser browser;
 	private Document document;
+	private long lastReadReportID = Database.getMaximalReportID();
 
 	public Account(String username, String password, String world, String worldNumber) {
 		this.username = username;
@@ -172,6 +174,16 @@ public class Account implements Runnable {
 		}
 	}
 
+	/**
+	 * Loggt sich ein.
+	 * 
+	 * @return Gibt einen boolean zurück, der angibt, ob der login erfolgreich
+	 *         war.
+	 * @throws IOException Wenn keine Verbindung aufgebaut werden konnte.
+	 * @throws CaptchaException Wenn der Botschutz aktiviert worden ist.
+	 * @throws SessionException Wenn sich der Benutzer eingeloggt hat, und die
+	 *             Session abgelaufen ist.
+	 */
 	private boolean login() throws IOException, CaptchaException, SessionException {
 		this.browser.get("http://www.die-staemme.de/");
 		this.document = Jsoup.parse(this.browser.post("http://www.die-staemme.de/index.php?action=login&show_server_selection=1", "user=" + this.username + "&password=" + this.password + "&clear=true"));
@@ -185,10 +197,39 @@ public class Account implements Runnable {
 	/**
 	 * Ruft die Dörferübersicht auf und aktualisiert die aktuell vorhandenen
 	 * Dörfer
+	 * 
+	 * @throws IOException Wenn keine Verbindung aufgebaut werden konnte.
+	 * @throws CaptchaException Wenn der Botschutz aktiviert worden ist.
+	 * @throws SessionException Wenn sich der Benutzer eingeloggt hat, und die
+	 *             Session abgelaufen ist.
 	 */
-	private void analyzeVillages() {
-		// TODO analyze Villages (overview)
-		// optimized logic
+	private void analyzeVillages() throws IOException, SessionException, CaptchaException {
+		ArrayList<Village> newVillages = new ArrayList<Village>();
+
+		this.document = Jsoup.parse(this.browser.get("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?screen=overview_villages"));
+		Elements villageRows = this.document.getElementById("production_table").getElementsByTag("tr");
+		villageRows.remove(0); // Header
+		Elements tableDatas;
+		for (Element villageRow : villageRows) {
+			tableDatas = villageRow.getElementsByTag("td");
+			String id = tableDatas.get(0).getElementsByTag("span").get(0).attr("data-id");
+			String dorfname = tableDatas.get(0).getElementsByTag("span").get(0).getElementsByTag("span").get(0).getElementsByTag("a").get(0).getElementsByTag("span").get(0).attr("data-text");
+			int[] coords = RegexUtils.getCoordsFromVillagename(tableDatas.get(0).html());
+			int holz = Integer.parseInt(tableDatas.get(2).getElementsByClass("wood").get(0).html().replace("<span class=\"grey\">.</span>", ""));
+			int lehm = Integer.parseInt(tableDatas.get(2).getElementsByClass("stone").get(0).html().replace("<span class=\"grey\">.</span>", ""));
+			int eisen = Integer.parseInt(tableDatas.get(2).getElementsByClass("iron").get(0).html().replace("<span class=\"grey\">.</span>", ""));
+
+			Village village = new Village(id, dorfname, coords[0], coords[1]);
+			village.setHolz(holz);
+			village.setLehm(lehm);
+			village.setEisen(eisen);
+
+			newVillages.add(village);
+		}
+		villages.compareToNewList(newVillages);
+
+		tableDatas = null; // save memory
+		newVillages = null; // save memory
 	}
 
 	/**
@@ -196,13 +237,62 @@ public class Account implements Runnable {
 	 * Anzahl der gelesenen Berichte zurück
 	 * 
 	 * @return Die anzahl der gelesenen Berichte
+	 * @throws IOException Wenn keine Verbindung aufgebaut werden konnte.
+	 * @throws CaptchaException Wenn der Botschutz aktiviert worden ist.
+	 * @throws SessionException Wenn sich der Benutzer eingeloggt hat, und die
+	 *             Session abgelaufen ist.
 	 */
-	private int analyzeReports() {
+	private int analyzeReports() throws IOException, SessionException, CaptchaException {
 		// TODO analyze Reports
 		int counter = 0;
+		long highestId = 0; // TODO
 
-		// http://dep5.die-staemme.de/game.php?village=56872&mode=attack&group_id=-1&screen=report
-		// http://dep5.die-staemme.de/game.php?village=56872&mode=attack&group_id=8382&screen=report
+		Elements reports;
+		Element spyedResources;
+		String json;
+		int pager = 0;
+		boolean paginate = true;
+		while (paginate) {
+			this.document = Jsoup.parse(this.browser.get("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?mode=attack&from=" + pager + "&screen=report"));
+			reports = this.document.getElementById("report_list").getElementsByTag("tr");
+			reports.remove(0); // Header
+			reports.remove(reports.size() - 1); // check all
+			for (Element report : reports) {
+				long idReport = Long.parseLong(report.getElementsByClass("quickedit").get(0).attr("data-id"));
+				if (idReport <= this.lastReadReportID) {
+					paginate = false;
+					break;
+				} else {
+					this.document = Jsoup.parse(this.browser.get("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?mode=attack&view=" + idReport + "&screen=report"));
+					spyedResources = this.document.getElementById("attack_spy_resources");
+					if (spyedResources != null) {
+						json = this.document.getElementById("attack_spy_building_data").attr("value");
+						if ((json != null) && (json.compareTo("") != 0)) {
+							int spyedWood = Integer.parseInt(spyedResources.getElementsByClass("nowrap").get(0).text());
+							int spyedStone = Integer.parseInt(spyedResources.getElementsByClass("nowrap").get(1).text());
+							int spyedIron = Integer.parseInt(spyedResources.getElementsByClass("nowrap").get(2).text());
+
+							Date attackTime = RegexUtils.getTime(this.document.html());
+							long idVillage = Long.parseLong(this.document.getElementsByClass("village_anchor").get(1).attr("data-id"));
+
+							int wood = RegexUtils.getBuildinglevelFromReport(json, "wood");
+							int stone = RegexUtils.getBuildinglevelFromReport(json, "stone");
+							int iron = RegexUtils.getBuildinglevelFromReport(json, "iron");
+							int wall = RegexUtils.getBuildinglevelFromReport(json, "wall");
+
+							Database.insertReport(idReport, idVillage, attackTime, spyedWood, spyedStone, spyedIron, wood, stone, iron, wall);
+							counter += 1;
+							if (idReport > highestId) {
+								highestId = idReport;
+							}
+						}
+					}
+				}
+				pager += 1;
+			}
+		}
+
+		// http://dep5.die-staemme.de/game.php?mode=attack&group_id=8382&screen=report
 
 		return counter;
 	}

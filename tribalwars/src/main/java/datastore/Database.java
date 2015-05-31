@@ -54,6 +54,9 @@ public class Database extends SQLiteQueue {
 	}
 
 	private static void createDatabase() {
+		logger.Logger.logMessage("Erstellen der Datenbank gestartet!");
+		long startTime = System.currentTimeMillis();
+
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
 			protected Void job(SQLiteConnection connection) throws Throwable {
@@ -66,12 +69,14 @@ public class Database extends SQLiteQueue {
 						}
 					}
 				} catch (Exception e) {
-					System.err.println("Konnte Datenbank nicht erstellen! Error: \"" + e.getMessage() + "\"");
+					logger.Logger.logMessage("Konnte Datenbank nicht erstellen!", e);
 					System.exit(1);
 				}
 				return null;
 			}
 		}).complete();
+
+		logger.Logger.logMessage("Erstellen der Datenbank abgeschlossen! Dauer: \"" + (System.currentTimeMillis() - startTime) + "ms\"");
 	}
 
 	public static HashMap<String, Integer> getMaximalBuildinglevelFromVorlage(final long vorlageID) {
@@ -176,6 +181,31 @@ public class Database extends SQLiteQueue {
 				statement.bind(9, iron);
 				statement.bind(10, wall);
 
+				statement.stepThrough();
+				return null;
+			}
+		}).complete();
+	}
+
+	public static long getMaximalReportID() {
+		return getInstance().execute(new SQLiteJob<Long>() {
+			@Override
+			protected Long job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("SELECT ifnull(MAX(`idReport`), 0) FROM `Report`;");
+				statement.step();
+				return statement.columnLong(0);
+			}
+		}).complete();
+	}
+
+	public static void insertFarmAttack(final long idVillage, final Date arrival, final int possibleLoot) {
+		getInstance().execute(new SQLiteJob<Void>() {
+			@Override
+			protected Void job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("INSERT INTO `FarmAttack`(`idVillage`,`arrival`,`possibleLoot`) VALUES (?,?,?);");
+				statement.bind(1, idVillage);
+				statement.bind(2, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(arrival));
+				statement.bind(3, possibleLoot);
 				statement.stepThrough();
 				return null;
 			}

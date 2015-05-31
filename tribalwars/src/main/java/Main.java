@@ -21,7 +21,7 @@ import datastore.Configuration;
  * So if you are done trying to 'optimize' this routine (and failed), please
  * increment the following counter as a warning to the next guy:
  * 
- * total_hours_wasted_here = 16
+ * total_hours_wasted_here = 72
  * 
  */
 
@@ -30,10 +30,13 @@ public class Main {
 	private static Scanner scanner = new Scanner(System.in);
 
 	public static void main(String[] args) {
+		// Disable other Logger
+		System.setProperty("org.eclipse.jetty.LEVEL", "OFF");
+		java.util.logging.Logger.getLogger("com.almworks.sqlite4java").setLevel(java.util.logging.Level.WARNING);
+		// Instantiate Logger
 		new FileLogger();
 		Logger.logMessage("===============================================================================================================");
 		new ConsoleLogger();
-		System.setProperty("org.eclipse.jetty.LEVEL", "OFF");
 
 		String username = getConfiguration(Configuration.configuration_username, "Bitte Benutzername eingeben: ");
 		Logger.logMessage("Benutzername: \"" + username + "\"");

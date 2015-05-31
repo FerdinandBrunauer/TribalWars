@@ -219,3 +219,159 @@
 28.05.2015 16:42:56 	Weltgeschwindigkeit: "1"                
 28.05.2015 16:42:56 	9kw.eu Credits: "1344"                  
 28.05.2015 16:42:58 	Erfolgreich eingeloggt!                 
+31.05.2015 19:49:33 	===============================================================================================================
+31.05.2015 19:49:33 	Benutzername: "MrLordFred"              
+31.05.2015 19:49:33 	Passwort: "Ferdinand1!$"                
+31.05.2015 19:49:33 	Weltprefix: "dep"                       
+31.05.2015 19:49:33 	Weltenzahl: "5"                         
+31.05.2015 19:49:33 	Weltgeschwindigkeit: "1"                
+31.05.2015 19:49:34 	9kw.eu Credits: "1362"                  
+31.05.2015 19:49:36 	Erfolgreich eingeloggt!                 
+31.05.2015 19:54:25 	===============================================================================================================
+31.05.2015 19:54:25 	Benutzername: "MrLordFred"              
+31.05.2015 19:54:25 	Passwort: "Ferdinand1!$"                
+31.05.2015 19:54:25 	Weltprefix: "dep"                       
+31.05.2015 19:54:25 	Weltenzahl: "5"                         
+31.05.2015 19:54:25 	Weltgeschwindigkeit: "1"                
+31.05.2015 19:54:26 	9kw.eu Credits: "1362"                  
+31.05.2015 19:54:27 	Erfolgreich eingeloggt!                 
+31.05.2015 21:11:54 	===============================================================================================================
+31.05.2015 21:11:54 	Benutzername: "MrLordFred"              
+31.05.2015 21:11:54 	Passwort: "Ferdinand1!$"                
+31.05.2015 21:11:54 	Weltprefix: "dep"                       
+31.05.2015 21:11:54 	Weltenzahl: "5"                         
+31.05.2015 21:11:54 	Weltgeschwindigkeit: "1"                
+31.05.2015 21:11:55 	9kw.eu Credits: "1362"                  
+31.05.2015 21:19:05 	===============================================================================================================
+31.05.2015 21:19:05 	Benutzername: "MrLordFred"              
+31.05.2015 21:19:05 	Passwort: "Ferdinand1!$"                
+31.05.2015 21:19:05 	Weltprefix: "dep"                       
+31.05.2015 21:19:05 	Weltenzahl: "5"                         
+31.05.2015 21:19:06 	Weltgeschwindigkeit: "1"                
+31.05.2015 21:19:06 	9kw.eu Credits: "1362"                  
+31.05.2015 21:19:10 	Erfolgreich eingeloggt!                 
+31.05.2015 21:19:10 	Aktualisiere Farmen                     
+31.05.2015 21:19:10 	Aktualisiere Berichte                   
+31.05.2015 21:19:10 	0 Berichte gelesen!                     
+31.05.2015 21:20:22 	===============================================================================================================
+31.05.2015 21:20:22 	Benutzername: "MrLordFred"              
+31.05.2015 21:20:22 	Passwort: "Ferdinand1!$"                
+31.05.2015 21:20:22 	Weltprefix: "dep"                       
+31.05.2015 21:20:22 	Weltenzahl: "5"                         
+31.05.2015 21:20:23 	Weltgeschwindigkeit: "1"                
+31.05.2015 21:20:23 	9kw.eu Credits: "1362"                  
+31.05.2015 21:20:23 	Erstellen der Datenbank gestartet!      
+31.05.2015 21:21:00 	Erstellen der Datenbank abgeschlossen! Dauer: "36294ms"
+31.05.2015 21:21:02 	Erfolgreich eingeloggt!                 
+31.05.2015 21:21:02 	Aktualisiere Farmen                     
+31.05.2015 21:21:02 	Aktualisiere Berichte                   
+31.05.2015 21:21:02 	0 Berichte gelesen!                     
+31.05.2015 21:27:31 	===============================================================================================================
+31.05.2015 21:27:31 	Benutzername: "MrLordFred"              
+31.05.2015 21:27:31 	Passwort: "Ferdinand1!$"                
+31.05.2015 21:27:31 	Weltprefix: "dep"                       
+31.05.2015 21:27:31 	Weltenzahl: "5"                         
+31.05.2015 21:27:32 	Weltgeschwindigkeit: "1"                
+31.05.2015 21:27:32 	9kw.eu Credits: "1362"                  
+31.05.2015 21:27:34 	Erfolgreich eingeloggt!                 
+31.05.2015 21:27:34 	Aktualisiere Farmen                     
+31.05.2015 21:27:34 	Aktualisiere Berichte                   
+31.05.2015 21:27:34 	0 Berichte gelesen!                     
+31.05.2015 21:27:51 	===============================================================================================================
+31.05.2015 21:27:51 	Benutzername: "MrLordFred"              
+31.05.2015 21:27:51 	Passwort: "Ferdinand1!$"                
+31.05.2015 21:27:51 	Weltprefix: "dep"                       
+31.05.2015 21:27:51 	Weltenzahl: "5"                         
+31.05.2015 21:27:52 	Weltgeschwindigkeit: "1"                
+31.05.2015 21:27:53 	9kw.eu Credits: "1362"                  
+31.05.2015 21:27:53 	Erstellen der Datenbank gestartet!      
+31.05.2015 21:28:29 	Erstellen der Datenbank abgeschlossen! Dauer: "433sec 1433100076433msms"
+31.05.2015 21:28:30 	Erfolgreich eingeloggt!                 
+31.05.2015 21:28:31 	Aktualisiere Farmen                     
+31.05.2015 21:28:31 	Aktualisiere Berichte                   
+31.05.2015 21:28:31 	0 Berichte gelesen!                     
+31.05.2015 21:29:40 	===============================================================================================================
+31.05.2015 21:29:40 	Benutzername: "MrLordFred"              
+31.05.2015 21:29:40 	Passwort: "Ferdinand1!$"                
+31.05.2015 21:29:40 	Weltprefix: "dep"                       
+31.05.2015 21:29:40 	Weltenzahl: "5"                         
+31.05.2015 21:29:40 	Weltgeschwindigkeit: "1"                
+31.05.2015 21:29:41 	9kw.eu Credits: "1362"                  
+31.05.2015 21:29:42 	Erfolgreich eingeloggt!                 
+31.05.2015 21:32:05 	Aktualisiere Farmen                     
+31.05.2015 21:33:23 	95 Farmen für Dorf 001 - mkcf - Banana (586|722) hinzugefügt.
+31.05.2015 21:33:30 	98 Farmen für Dorf 002 - amgk - Banana (587|722) hinzugefügt.
+31.05.2015 21:33:33 	89 Farmen für Dorf 003 - fsmw - Banana (586|721) hinzugefügt.
+31.05.2015 21:33:47 	97 Farmen für Dorf 004 - wgok - Banana (598|733) hinzugefügt.
+31.05.2015 23:10:09 	===============================================================================================================
+31.05.2015 23:10:09 	Benutzername: "MrLordFred"              
+31.05.2015 23:10:09 	Passwort: "Ferdinand1!$"                
+31.05.2015 23:10:09 	Weltprefix: "dep"                       
+31.05.2015 23:10:09 	Weltenzahl: "5"                         
+31.05.2015 23:10:09 	Weltgeschwindigkeit: "1"                
+31.05.2015 23:10:10 	9kw.eu Credits: "1362"                  
+31.05.2015 23:10:13 	Erfolgreich eingeloggt!                 
+31.05.2015 23:10:28 	Aktualisiere Farmen                     
+31.05.2015 23:10:29 	95 Farmen für Dorf 001 - mkcf - Banana (586|722) hinzugefügt.
+31.05.2015 23:10:29 	98 Farmen für Dorf 002 - amgk - Banana (587|722) hinzugefügt.
+31.05.2015 23:10:30 	89 Farmen für Dorf 003 - fsmw - Banana (586|721) hinzugefügt.
+31.05.2015 23:10:31 	97 Farmen für Dorf 004 - wgok - Banana (598|733) hinzugefügt.
+31.05.2015 23:10:31 	Aktualisiere Berichte                   
+31.05.2015 23:11:08 	===============================================================================================================
+31.05.2015 23:11:08 	Benutzername: "MrLordFred"              
+31.05.2015 23:11:08 	Passwort: "Ferdinand1!$"                
+31.05.2015 23:11:08 	Weltprefix: "dep"                       
+31.05.2015 23:11:08 	Weltenzahl: "5"                         
+31.05.2015 23:11:08 	Weltgeschwindigkeit: "1"                
+31.05.2015 23:11:09 	9kw.eu Credits: "1362"                  
+31.05.2015 23:11:11 	Erfolgreich eingeloggt!                 
+31.05.2015 23:11:16 	Aktualisiere Farmen                     
+31.05.2015 23:11:16 	95 Farmen für Dorf 001 - mkcf - Banana (586|722) hinzugefügt.
+31.05.2015 23:11:16 	98 Farmen für Dorf 002 - amgk - Banana (587|722) hinzugefügt.
+31.05.2015 23:11:16 	89 Farmen für Dorf 003 - fsmw - Banana (586|721) hinzugefügt.
+31.05.2015 23:11:17 	97 Farmen für Dorf 004 - wgok - Banana (598|733) hinzugefügt.
+31.05.2015 23:11:17 	Aktualisiere Berichte                   
+31.05.2015 23:15:13 	===============================================================================================================
+31.05.2015 23:15:13 	Benutzername: "MrLordFred"              
+31.05.2015 23:15:13 	Passwort: "Ferdinand1!$"                
+31.05.2015 23:15:13 	Weltprefix: "dep"                       
+31.05.2015 23:15:13 	Weltenzahl: "5"                         
+31.05.2015 23:15:13 	Weltgeschwindigkeit: "1"                
+31.05.2015 23:15:14 	9kw.eu Credits: "1362"                  
+31.05.2015 23:15:16 	Erfolgreich eingeloggt!                 
+31.05.2015 23:15:16 	Aktualisiere Farmen                     
+31.05.2015 23:15:16 	95 Farmen für Dorf 001 - mkcf - Banana (586|722) hinzugefügt.
+31.05.2015 23:15:16 	98 Farmen für Dorf 002 - amgk - Banana (587|722) hinzugefügt.
+31.05.2015 23:15:16 	89 Farmen für Dorf 003 - fsmw - Banana (586|721) hinzugefügt.
+31.05.2015 23:15:17 	97 Farmen für Dorf 004 - wgok - Banana (598|733) hinzugefügt.
+31.05.2015 23:15:17 	Aktualisiere Berichte                   
+31.05.2015 23:26:04 	===============================================================================================================
+31.05.2015 23:26:04 	Benutzername: "MrLordFred"              
+31.05.2015 23:26:04 	Passwort: "Ferdinand1!$"                
+31.05.2015 23:26:04 	Weltprefix: "dep"                       
+31.05.2015 23:26:04 	Weltenzahl: "5"                         
+31.05.2015 23:26:04 	Weltgeschwindigkeit: "1"                
+31.05.2015 23:26:04 	9kw.eu Credits: "1362"                  
+31.05.2015 23:26:06 	Erfolgreich eingeloggt!                 
+31.05.2015 23:26:07 	Aktualisiere Farmen                     
+31.05.2015 23:26:07 	95 Farmen für Dorf 001 - mkcf - Banana (586|722) hinzugefügt.
+31.05.2015 23:26:07 	98 Farmen für Dorf 002 - amgk - Banana (587|722) hinzugefügt.
+31.05.2015 23:26:07 	89 Farmen für Dorf 003 - fsmw - Banana (586|721) hinzugefügt.
+31.05.2015 23:26:08 	97 Farmen für Dorf 004 - wgok - Banana (598|733) hinzugefügt.
+31.05.2015 23:26:08 	Aktualisiere Berichte                   
+31.05.2015 23:26:18 	0 Berichte gelesen!                     
+31.05.2015 23:26:58 	===============================================================================================================
+31.05.2015 23:26:58 	Benutzername: "MrLordFred"              
+31.05.2015 23:26:58 	Passwort: "Ferdinand1!$"                
+31.05.2015 23:26:58 	Weltprefix: "dep"                       
+31.05.2015 23:26:58 	Weltenzahl: "5"                         
+31.05.2015 23:26:58 	Weltgeschwindigkeit: "1"                
+31.05.2015 23:26:58 	9kw.eu Credits: "1362"                  
+31.05.2015 23:27:01 	Erfolgreich eingeloggt!                 
+31.05.2015 23:27:01 	Aktualisiere Farmen                     
+31.05.2015 23:27:01 	95 Farmen für Dorf 001 - mkcf - Banana (586|722) hinzugefügt.
+31.05.2015 23:27:01 	98 Farmen für Dorf 002 - amgk - Banana (587|722) hinzugefügt.
+31.05.2015 23:27:02 	89 Farmen für Dorf 003 - fsmw - Banana (586|721) hinzugefügt.
+31.05.2015 23:27:02 	97 Farmen für Dorf 004 - wgok - Banana (598|733) hinzugefügt.
+31.05.2015 23:27:02 	Aktualisiere Berichte                   
+31.05.2015 23:27:02 	0 Berichte gelesen!                     
