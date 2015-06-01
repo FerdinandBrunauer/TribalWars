@@ -102,6 +102,7 @@ public class Account implements Runnable {
 				}
 
 				// Refresh reports
+				// TODO change too boolean
 				if ((System.currentTimeMillis() - this.lastReportRefresh) > (5 * 60 * 1000)) { // Alle 5 Minuten Berichte einlesen
 					Logger.logMessage("Aktualisiere Berichte");
 					Logger.logMessage(analyzeReports() + " Berichte gelesen!");
@@ -248,8 +249,12 @@ public class Account implements Runnable {
 		}
 		this.villages.compareToNewList(newVillages);
 
+		this.document = null;
+		villageRows = null;
 		tableDatas = null; // save memory
 		newVillages = null; // save memory
+
+		System.gc();
 	}
 
 	/**
@@ -328,7 +333,6 @@ public class Account implements Runnable {
 	 * @return Die Anzahl der Farmen
 	 */
 	private int analyzeFarms(int x, int y) {
-		Document document;
 		Element widgetTable;
 		Elements tableVillages, tableData;
 		int counter = 0;
@@ -403,6 +407,12 @@ public class Account implements Runnable {
 		actualVillage.setLehm(village.getInt("stone"));
 		actualVillage.setEisen(village.getInt("iron"));
 		actualVillage.setSpeicher(village.getInt("storage_max"));
+
+		head = null;
+		village = null;
+		buildings = null;
+
+		System.gc();
 
 		return building;
 	}
