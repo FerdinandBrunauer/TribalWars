@@ -15,8 +15,8 @@ public class VillageList extends ArrayList<Village> {
 	 * @return Den Pointer des Dorf Objektes wenn vorhanden
 	 */
 	public Village getVillage(String dorfID) {
-		for (int i = 0; i < this.size(); i++) {
-			if (get(i).getDorfname().compareTo(dorfID) == 0) {
+		for (int i = 0; i < size(); i++) {
+			if (get(i).getID().compareTo(dorfID) == 0) {
 				return get(i);
 			}
 		}
@@ -24,7 +24,8 @@ public class VillageList extends ArrayList<Village> {
 	}
 
 	/**
-	 * Gleicht die ausgelesene Dorfübersicht mit der vorhandenen ab und aktualisiert die Werte
+	 * Gleicht die ausgelesene Dorfübersicht mit der vorhandenen ab und
+	 * aktualisiert die Werte
 	 * 
 	 * @param newList Die ausgelesene Dorfübersicht
 	 */
@@ -45,8 +46,8 @@ public class VillageList extends ArrayList<Village> {
 
 		if (idList.size() > 0) {
 			// Dorf/Dörfer verloren
-			for(String id : idList) {
-				this.remove(this.indexOf(new Village(id, "undefined", 0, 0)));
+			for (String id : idList) {
+				this.remove(indexOf(new Village(id, "undefined", 0, 0)));
 			}
 		}
 	}

@@ -1,6 +1,8 @@
 package tribalwars;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -100,11 +102,11 @@ public class Account implements Runnable {
 				}
 
 				// Refresh reports
-				if ((System.currentTimeMillis() - this.lastReportRefresh) > (5 * 60 * 1000)) { // Alle 5 Minuten Berichte einlesen
+				/*if ((System.currentTimeMillis() - this.lastReportRefresh) > (5 * 60 * 1000)) { // Alle 5 Minuten Berichte einlesen
 					Logger.logMessage("Aktualisiere Berichte");
 					Logger.logMessage(analyzeReports() + " Berichte gelesen!");
 					this.lastReportRefresh = System.currentTimeMillis();
-				}
+				}*/
 
 				analyzeVillages(); // Ressourcen aktualisieren und überprüfen, ob der Spieler ein Dorf verloren hat.
 				for (Village village : this.villages) {
@@ -149,24 +151,42 @@ public class Account implements Runnable {
 							if (nextBuilding != null) {
 								Document mainOverview = Jsoup.parse(this.browser.get("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?village=" + village.getID() + "&screen=main"));
 								Element buildqueue = mainOverview.getElementById("buildqueue");
-								if (building != null) {
+								if (buildqueue != null) {
 									String timer = buildqueue.getElementsByClass("timer").get(0).html();
 									village.setNextBuildingbuildPossible(new Date(System.currentTimeMillis() + RegexUtils.convertTimestringToMilliseconds(timer)));
 
 									String actualBuildingBuilding = buildqueue.getElementsByClass("lit-item").get(0).getElementsByTag("img").get(0).attr("title");
-									Logger.logMessage(village.getDorfname() + " baut gerade an " + actualBuildingBuilding);
+									Logger.logMessage(village.getDorfname() + " baut noch bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextBuildingbuildPossible()) + " an " + actualBuildingBuilding);
 								} else {
-									String hWert = RegexUtils.getHWert(mainOverview.head().html());
-									// TODO Build query
+									Element buildrow = mainOverview.getElementById("main_buildrow_" + nextBuilding);
+									if (buildrow != null) {
+										if (buildrow.getElementsByTag("td").get(6).getElementsByClass("inactive").size() < 1) { // buildable
+											long time = RegexUtils.convertTimestringToMilliseconds(buildrow.getElementsByTag("td").get(4).html());
+											String hWert = RegexUtils.getHWert(mainOverview.head().html());
+
+											ArrayList<SimpleEntry<String, String>> additionalHeader = new ArrayList<SimpleEntry<String, String>>();
+											additionalHeader.add(new SimpleEntry<String, String>("TribalWars-Ajax", "1"));
+											this.browser.post(
+													"http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?village=" + village.getID() + "&ajaxaction=upgrade_building&h=" + hWert + "&type=main&screen=main&&client_time=" + (System.currentTimeMillis() + "").substring(0, 10),
+													"id=" + nextBuilding + "&force=1&destroy=0&source=" + village.getID(), additionalHeader);
+											Logger.logMessage("\"" + village.getDorfname() + "\" baut nun an " + BuildingUtils.getFullBuildingname(nextBuilding) + "."); // TODO
+											village.setNextBuildingbuildPossible(new Date(System.currentTimeMillis() + time));
+										} else {
+											village.setNextBuildingbuildPossible(new Date(System.currentTimeMillis() + (5 * 60 * 1000)));
+											// In 5 Minuten noch einmal schauen
+										}
+									}
 								}
 							} else {
-								Logger.logMessage(village.getDorfname() + " ist vollst\u00E4ndig Ausgebaut! Bitte \u00E4ndern sie den Namen des Dorfes!");
+								Logger.logMessage("\"" + village.getDorfname() + "\" ist vollst\u00E4ndig Ausgebaut! Bitte \u00E4ndern sie den Namen des Dorfes!");
+								village.setNextBuildingbuildPossible(new Date(System.currentTimeMillis() + (30 * 60 * 1000)));
 							}
 						}
 					}
 
-					Thread.sleep((long) ((Math.random() * 800) + 400)); // Pause zwischen 400 und 1200 millisekunden
+					Thread.sleep((long) ((Math.random() * 800) + 400)); // Pause zwischen 400 und 1200 Millisekunden
 				}
+				Thread.sleep((long) ((Math.random() * (9 * 1000)) + 1000)); // Pause zwischen 1 und 10 Sekunden
 			}
 
 		} else {
@@ -226,7 +246,7 @@ public class Account implements Runnable {
 
 			newVillages.add(village);
 		}
-		villages.compareToNewList(newVillages);
+		this.villages.compareToNewList(newVillages);
 
 		tableDatas = null; // save memory
 		newVillages = null; // save memory
@@ -257,6 +277,11 @@ public class Account implements Runnable {
 			reports = this.document.getElementById("report_list").getElementsByTag("tr");
 			reports.remove(0); // Header
 			reports.remove(reports.size() - 1); // check all
+			System.out.println("Size: " + reports.size());
+			if (reports.size() < 1) {
+				paginate = false;
+				break;
+			}
 			for (Element report : reports) {
 				long idReport = Long.parseLong(report.getElementsByClass("quickedit").get(0).attr("data-id"));
 				if (idReport <= this.lastReadReportID) {
@@ -268,9 +293,9 @@ public class Account implements Runnable {
 					if (spyedResources != null) {
 						json = this.document.getElementById("attack_spy_building_data").attr("value");
 						if ((json != null) && (json.compareTo("") != 0)) {
-							int spyedWood = Integer.parseInt(spyedResources.getElementsByClass("nowrap").get(0).text());
-							int spyedStone = Integer.parseInt(spyedResources.getElementsByClass("nowrap").get(1).text());
-							int spyedIron = Integer.parseInt(spyedResources.getElementsByClass("nowrap").get(2).text());
+							int spyedWood = Integer.parseInt(spyedResources.getElementsByClass("nowrap").get(0).text().replace(".", ""));
+							int spyedStone = Integer.parseInt(spyedResources.getElementsByClass("nowrap").get(1).text().replace(".", ""));
+							int spyedIron = Integer.parseInt(spyedResources.getElementsByClass("nowrap").get(2).text().replace(".", ""));
 
 							Date attackTime = RegexUtils.getTime(this.document.html());
 							long idVillage = Long.parseLong(this.document.getElementsByClass("village_anchor").get(1).attr("data-id"));
@@ -352,7 +377,7 @@ public class Account implements Runnable {
 	 * @throws CaptchaException Wenn der Botschutz auftritt
 	 */
 	private HashMap<String, Integer> villageOverview(String dorfID) throws IOException, SessionException, CaptchaException {
-		String head = Jsoup.parse(browser.get("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?village=" + dorfID + "&screen=overview")).head().html();
+		String head = Jsoup.parse(this.browser.get("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?village=" + dorfID + "&screen=overview")).head().html();
 		HashMap<String, Integer> building = new HashMap<String, Integer>();
 
 		JSONObject village = RegexUtils.getJsonFromHead(head).getJSONObject("village");
@@ -375,7 +400,7 @@ public class Account implements Runnable {
 		building.put("wall", buildings.getInt("wall"));
 		building.put("statue", buildings.getInt("statue"));
 
-		Village actualVillage = villages.getVillage(buildings.getString("village"));
+		Village actualVillage = this.villages.getVillage(buildings.getString("village"));
 		actualVillage.setDorfname(village.getString("name"));
 		actualVillage.setHolz(village.getInt("wood"));
 		actualVillage.setLehm(village.getInt("stone"));

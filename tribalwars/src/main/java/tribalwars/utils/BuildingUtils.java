@@ -28,4 +28,43 @@ public class BuildingUtils {
 		}
 	}
 
+	public static String getFullBuildingname(String shortName) {
+		switch (shortName) {
+		case "main":
+			return "Hauptgeb\u00E4ude";
+		case "barracks":
+			return "Kaserne";
+		case "stable":
+			return "Stall";
+		case "garage":
+			return "Werkstatt";
+		case "snob":
+			return "Adelshof";
+		case "smith":
+			return "Schmiede";
+		case "place":
+			return "Versammlungsplatz";
+		case "market":
+			return "Marktplatz";
+		case "wood":
+			return "Holzf\u00E4ller";
+		case "stone":
+			return "Lehmgrube";
+		case "iron":
+			return "Eisenmine";
+		case "farm":
+			return "Bauernhof";
+		case "storage":
+			return "Speiczher";
+		case "hide":
+			return "Versteck";
+		case "wall":
+			return "Wall";
+		case "statue":
+			return "Statue";
+		default:
+			return null;
+		}
+	}
+
 }

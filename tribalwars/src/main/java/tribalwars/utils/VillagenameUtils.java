@@ -16,28 +16,21 @@ public class VillagenameUtils {
 		System.out.println("Truppen bauen: " + getVillageBuildTroops(name));
 		System.out.println("Farmen: " + getVillageDoFarming(name));
 
-		name = generateVillagename(2, VillageTroupType.DEFF, false, false, false);
+		name = generateVillagename(2, VillageTroupType.DEFF, true, true, true);
 		System.out.println("Name: " + name);
 		System.out.println("Truppentyp: " + getVillageTroupType(name));
 		System.out.println("Geb\u00E4ude bauen: " + getVillageBuildBuildings(name));
 		System.out.println("Truppen bauen: " + getVillageBuildTroops(name));
 		System.out.println("Farmen: " + getVillageDoFarming(name));
 
-		name = generateVillagename(3, VillageTroupType.DEFF, true, false, true);
+		name = generateVillagename(3, VillageTroupType.DEFF, true, true, true);
 		System.out.println("Name: " + name);
 		System.out.println("Truppentyp: " + getVillageTroupType(name));
 		System.out.println("Geb\u00E4ude bauen: " + getVillageBuildBuildings(name));
 		System.out.println("Truppen bauen: " + getVillageBuildTroops(name));
 		System.out.println("Farmen: " + getVillageDoFarming(name));
 
-		name = generateVillagename(4, VillageTroupType.OFF, false, true, false);
-		System.out.println("Name: " + name);
-		System.out.println("Truppentyp: " + getVillageTroupType(name));
-		System.out.println("Geb\u00E4ude bauen: " + getVillageBuildBuildings(name));
-		System.out.println("Truppen bauen: " + getVillageBuildTroops(name));
-		System.out.println("Farmen: " + getVillageDoFarming(name));
-
-		name = "Banana";
+		name = generateVillagename(4, VillageTroupType.OFF, true, true, true);
 		System.out.println("Name: " + name);
 		System.out.println("Truppentyp: " + getVillageTroupType(name));
 		System.out.println("Geb\u00E4ude bauen: " + getVillageBuildBuildings(name));

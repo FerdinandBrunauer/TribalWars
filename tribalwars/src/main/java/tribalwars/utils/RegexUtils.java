@@ -94,7 +94,7 @@ public class RegexUtils {
 		if (matcher.find()) {
 			return Integer.parseInt(matcher.group(1));
 		} else {
-			throw new IOException("Konnte Gebäude nicht im Quelltext finden!");
+			return 0; // Building does not exist.
 		}
 	}
 

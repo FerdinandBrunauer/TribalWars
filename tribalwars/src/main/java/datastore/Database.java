@@ -76,7 +76,14 @@ public class Database extends SQLiteQueue {
 			}
 		}).complete();
 
-		logger.Logger.logMessage("Erstellen der Datenbank abgeschlossen! Dauer: \"" + (System.currentTimeMillis() - startTime) + "ms\"");
+		long executionTime = System.currentTimeMillis() - startTime;
+
+		int seconds = (int) (executionTime / 1000) % 60;
+		int minutes = (int) ((executionTime / (1000 * 60)) % 60);
+		int milliseconds = (int) executionTime - (minutes * 1000 * 60) - (seconds * 1000);
+
+		String time = String.format("%d " + ((minutes == 1) ? "Minuten" : "Minute") + " %d " + ((seconds == 1) ? "Sekunden" : "Sekunde") + " %d " + ((milliseconds == 1) ? "Millisekunde" : "Millisekunden"), minutes, seconds, milliseconds);
+		logger.Logger.logMessage("Erstellen der Datenbank abgeschlossen! Dauer: \"" + time + "\"");
 	}
 
 	public static HashMap<String, Integer> getMaximalBuildinglevelFromVorlage(final long vorlageID) {

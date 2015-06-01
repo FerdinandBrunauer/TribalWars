@@ -8,8 +8,8 @@ import java.net.CookieHandler;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
-
-import logger.Logger;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.List;
 
 import com.sun.webkit.network.CookieManager;
 
@@ -23,6 +23,10 @@ public class WebBrowser {
 	}
 
 	public String post(String link, String post) throws IOException, CaptchaException {
+		return post(link, post, null);
+	}
+
+	public String post(String link, String post, List<SimpleEntry<String, String>> additionalHeader) throws IOException, CaptchaException {
 		String output = "";
 		URL url = new URL(link);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -36,6 +40,11 @@ public class WebBrowser {
 		connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 		connection.setRequestProperty("Accept-Encoding", "");
 		connection.setRequestProperty("Referer", getReferrer());
+		if (additionalHeader != null) {
+			for (SimpleEntry<String, String> entry : additionalHeader) {
+				connection.setRequestProperty(entry.getKey(), entry.getValue());
+			}
+		}
 
 		OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
 		writer.write(post);
@@ -89,7 +98,6 @@ public class WebBrowser {
 			if (connection.getHeaderField("Location").endsWith("sid_wrong.php")) {
 				throw new SessionException();
 			}
-			Logger.logMessage("Weiterleitung -> \"" + connection.getHeaderField("Location") + "\"");
 			return get(connection.getHeaderField("Location"));
 		} else {
 			return output;
