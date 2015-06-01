@@ -102,11 +102,11 @@ public class Account implements Runnable {
 				}
 
 				// Refresh reports
-				/*if ((System.currentTimeMillis() - this.lastReportRefresh) > (5 * 60 * 1000)) { // Alle 5 Minuten Berichte einlesen
+				if ((System.currentTimeMillis() - this.lastReportRefresh) > (5 * 60 * 1000)) { // Alle 5 Minuten Berichte einlesen
 					Logger.logMessage("Aktualisiere Berichte");
 					Logger.logMessage(analyzeReports() + " Berichte gelesen!");
 					this.lastReportRefresh = System.currentTimeMillis();
-				}*/
+				}
 
 				analyzeVillages(); // Ressourcen aktualisieren und überprüfen, ob der Spieler ein Dorf verloren hat.
 				for (Village village : this.villages) {
@@ -169,7 +169,7 @@ public class Account implements Runnable {
 											this.browser.post(
 													"http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?village=" + village.getID() + "&ajaxaction=upgrade_building&h=" + hWert + "&type=main&screen=main&&client_time=" + (System.currentTimeMillis() + "").substring(0, 10),
 													"id=" + nextBuilding + "&force=1&destroy=0&source=" + village.getID(), additionalHeader);
-											Logger.logMessage("\"" + village.getDorfname() + "\" baut nun an " + BuildingUtils.getFullBuildingname(nextBuilding) + "."); // TODO
+											Logger.logMessage("\"" + village.getDorfname() + "\" baut nun an " + BuildingUtils.getFullBuildingname(nextBuilding) + ".");
 											village.setNextBuildingbuildPossible(new Date(System.currentTimeMillis() + time));
 										} else {
 											village.setNextBuildingbuildPossible(new Date(System.currentTimeMillis() + (5 * 60 * 1000)));
@@ -265,9 +265,8 @@ public class Account implements Runnable {
 	private int analyzeReports() throws IOException, SessionException, CaptchaException {
 		// TODO analyze Reports
 		int counter = 0;
-		long highestId = 0; // TODO
 
-		Elements reports;
+		/* Elements reports;
 		Element spyedResources;
 		String json;
 		int pager = 0;
@@ -307,18 +306,16 @@ public class Account implements Runnable {
 
 							Database.insertReport(idReport, idVillage, attackTime, spyedWood, spyedStone, spyedIron, wood, stone, iron, wall);
 							counter += 1;
-							if (idReport > highestId) {
-								highestId = idReport;
-							}
 						}
 					}
 				}
 				pager += 1;
 			}
-		}
+		}*/
 
 		// http://dep5.die-staemme.de/game.php?mode=attack&group_id=8382&screen=report
 
+		this.lastReadReportID = Database.getMaximalReportID();
 		return counter;
 	}
 

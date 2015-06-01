@@ -1,0 +1,1 @@
+java -jar TribalWars.jar -Xmx250m
