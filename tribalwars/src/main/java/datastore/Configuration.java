@@ -24,8 +24,8 @@ public class Configuration {
 			FileInputStream in = new FileInputStream("configuration.prop");
 			defaultProperties.load(in);
 			in.close();
-		} catch (Exception e) {
-			Logger.logMessage("Konnte Property-Datei nicht lesen!", e);
+		} catch (Exception ignore) {
+			// Datei existiert nicht
 		}
 	}
 

@@ -82,7 +82,7 @@ public class Database extends SQLiteQueue {
 		int minutes = (int) ((executionTime / (1000 * 60)) % 60);
 		int milliseconds = (int) executionTime - (minutes * 1000 * 60) - (seconds * 1000);
 
-		String time = String.format("%d " + ((minutes == 1) ? "Minuten" : "Minute") + " %d " + ((seconds == 1) ? "Sekunden" : "Sekunde") + " %d " + ((milliseconds == 1) ? "Millisekunde" : "Millisekunden"), minutes, seconds, milliseconds);
+		String time = String.format("%d " + ((minutes == 1) ? "Minute" : "Minuten") + " %d " + ((seconds == 1) ? "Sekunde" : "Sekunden") + " %d " + ((milliseconds == 1) ? "Millisekunde" : "Millisekunden"), minutes, seconds, milliseconds);
 		logger.Logger.logMessage("Erstellen der Datenbank abgeschlossen! Dauer: \"" + time + "\"");
 	}
 
