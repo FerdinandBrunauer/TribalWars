@@ -156,7 +156,7 @@ public class Account implements Runnable {
 									village.setNextBuildingbuildPossible(new Date(System.currentTimeMillis() + RegexUtils.convertTimestringToMilliseconds(timer)));
 
 									String actualBuildingBuilding = buildqueue.getElementsByClass("lit-item").get(0).getElementsByTag("img").get(0).attr("title");
-									Logger.logMessage(village.getDorfname() + " baut noch bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextBuildingbuildPossible()) + " an " + actualBuildingBuilding);
+									Logger.logMessage("\"" + village.getDorfname() + "\" baut noch bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextBuildingbuildPossible()) + " an " + actualBuildingBuilding);
 								} else {
 									Element buildrow = mainOverview.getElementById("main_buildrow_" + nextBuilding);
 									if (buildrow != null) {

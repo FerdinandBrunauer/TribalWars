@@ -4,6 +4,7 @@ import java.util.Scanner;
 import logger.ConsoleLogger;
 import logger.FileLogger;
 import logger.Logger;
+import logger.NoLogging;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -31,6 +32,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		// Disable other Logger
+		org.eclipse.jetty.util.log.Log.setLog(new NoLogging());
 		System.setProperty("org.eclipse.jetty.LEVEL", "OFF");
 		java.util.logging.Logger.getLogger("com.almworks.sqlite4java").setLevel(java.util.logging.Level.WARNING);
 

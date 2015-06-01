@@ -21,7 +21,7 @@ public class WebService implements Runnable {
 		this.account = account;
 
 		this.server = new Server();
-
+		
 		ServerConnector connector = new ServerConnector(this.server);
 		connector.setPort(port);
 		this.server.addConnector(connector);
