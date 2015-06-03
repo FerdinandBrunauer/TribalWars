@@ -36,6 +36,13 @@ public class VillagenameUtils {
 		System.out.println("Geb\u00E4ude bauen: " + getVillageBuildBuildings(name));
 		System.out.println("Truppen bauen: " + getVillageBuildTroops(name));
 		System.out.println("Farmen: " + getVillageDoFarming(name));
+
+		name = generateVillagename(5, VillageTroupType.DEFF, true, true, true);
+		System.out.println("Name: " + name);
+		System.out.println("Truppentyp: " + getVillageTroupType(name));
+		System.out.println("Geb\u00E4ude bauen: " + getVillageBuildBuildings(name));
+		System.out.println("Truppen bauen: " + getVillageBuildTroops(name));
+		System.out.println("Farmen: " + getVillageDoFarming(name));
 	}
 
 	public static VillageTroupType getVillageTroupType(String villagename) {

@@ -22,7 +22,7 @@ import datastore.Configuration;
  * So if you are done trying to 'optimize' this routine (and failed), please
  * increment the following counter as a warning to the next guy:
  * 
- * total_hours_wasted_here = 81
+ * total_hours_wasted_here = 86
  * 
  */
 
@@ -32,9 +32,10 @@ public class Main {
 
 	public static void main(String[] args) {
 		// Disable other Logger
+		java.util.logging.Logger.getLogger("com.almworks.sqlite4java").setUseParentHandlers(false);
+		java.util.logging.Logger.getLogger("com.almworks.sqlite4java").setLevel(java.util.logging.Level.OFF);
 		org.eclipse.jetty.util.log.Log.setLog(new NoLogging());
 		System.setProperty("org.eclipse.jetty.LEVEL", "OFF");
-		java.util.logging.Logger.getLogger("com.almworks.sqlite4java").setLevel(java.util.logging.Level.WARNING);
 
 		// Instantiate Logger
 		new FileLogger();
@@ -44,7 +45,7 @@ public class Main {
 		String username = getConfiguration(Configuration.configuration_username, "Bitte Benutzername eingeben: ");
 		Logger.logMessage("Benutzername: \"" + username + "\"");
 		String password = getConfiguration(Configuration.configuration_password, "Bitte Passwort eingeben: ");
-		Logger.logMessage("Passwort: \"" + password + "\"");
+		Logger.logMessage("Passwort: \"" + password.replaceAll(".", "*") + "\"");
 		String worldPrefix = getConfiguration(Configuration.configuration_worldprefix, "Bitte den Weltprefix eingeben (z.B. \"de\", oder \"deq\" ohne \"): ");
 		Logger.logMessage("Weltprefix: \"" + worldPrefix + "\"");
 		String worldNumber = getConfiguration(Configuration.configuration_worldnumber, "Bitte die Weltenzahl eingeben (z.B. \"115\", \"116\" ohne \"): ");

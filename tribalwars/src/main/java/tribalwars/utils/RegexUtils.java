@@ -30,13 +30,23 @@ public class RegexUtils {
 		}
 	}
 
-	public static JSONObject getJsonFromHead(String head) {
+	public static JSONObject getVillageJSONFromHead(String head) throws IOException {
 		Pattern pattern = Pattern.compile("var\\sgame_data\\s=\\s(.*);");
 		Matcher matcher = pattern.matcher(head);
 		if (matcher.find()) {
 			return new JSONObject(matcher.group(1));
 		} else {
-			return null;
+			throw new IOException("Konnte Dorf\u00FCbersicht-JSON nicht finden!");
+		}
+	}
+
+	public static JSONObject getTroupJSON(String html) throws IOException {
+		Pattern pattern = Pattern.compile("UnitPopup.unit_data\\s=\\s(.*);");
+		Matcher matcher = pattern.matcher(html);
+		if (matcher.find()) {
+			return new JSONObject(matcher.group(1));
+		} else {
+			throw new IOException("Konnte Truppen\u00FCbersicht-Json nicht finden!");
 		}
 	}
 
@@ -95,6 +105,16 @@ public class RegexUtils {
 			return Integer.parseInt(matcher.group(1));
 		} else {
 			return 0; // Building does not exist.
+		}
+	}
+
+	public static int[] getPopulationFromOverview(String tableData) throws IOException {
+		Pattern pattern = Pattern.compile("(\\d{1,5})\\/(\\d{1,5})");
+		Matcher matcher = pattern.matcher(tableData);
+		if (matcher.find()) {
+			return new int[] { Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2)) };
+		} else {
+			throw new IOException("Konnte Bev\u00F6lkerung nicht im Quelltext finden!");
 		}
 	}
 

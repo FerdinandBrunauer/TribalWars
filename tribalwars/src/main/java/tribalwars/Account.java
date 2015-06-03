@@ -26,18 +26,21 @@ import datastore.memoryObjects.Village;
 
 public class Account implements Runnable {
 
+	private static final int BUILD_TROOP_PER_ORDER_BARRACKS = 30;
+	private static final int BUILD_TROOP_PER_ORDER_STABLE = 10;
+	private static final int BUILD_TROOP_PER_ORDER_WORKSHOP = 10;
+
 	private VillageList villages = new VillageList();
 	private long lastLoginAttempt = 0;
-	private long lastReportRefresh = 0;
 	private long lastFarmRefresh = 0;
 	private String username;
 	private String password;
 	private String worldPrefix;
 	private String worldNumber;
 	private boolean newMessage = false;
+	private boolean newReport = false;
 	private WebBrowser browser;
 	private Document document;
-	private long lastReadReportID = Database.getMaximalReportID();
 
 	public Account(String username, String password, String world, String worldNumber) {
 		this.username = username;
@@ -91,6 +94,10 @@ public class Account implements Runnable {
 			// Get villages
 			analyzeVillages();
 
+			// Neue berichte seit dem letzten mal einlesen
+			Logger.logMessage("Aktualisiere Berichte");
+			Logger.logMessage(analyzeReports() + " Berichte gelesen!");
+
 			while (true) {
 				// Get farms for actual villages
 				if ((System.currentTimeMillis() - this.lastFarmRefresh) > (60 * 60 * 1000)) { // Jede Stunde aktuelle Farmen holen
@@ -101,15 +108,14 @@ public class Account implements Runnable {
 					this.lastFarmRefresh = System.currentTimeMillis();
 				}
 
+				analyzeVillages(); // Ressourcen aktualisieren und überprüfen, ob der Spieler ein Dorf verloren hat.
+
 				// Refresh reports
-				// TODO change too boolean
-				if ((System.currentTimeMillis() - this.lastReportRefresh) > (5 * 60 * 1000)) { // Alle 5 Minuten Berichte einlesen
+				if (this.newReport) {
 					Logger.logMessage("Aktualisiere Berichte");
 					Logger.logMessage(analyzeReports() + " Berichte gelesen!");
-					this.lastReportRefresh = System.currentTimeMillis();
 				}
 
-				analyzeVillages(); // Ressourcen aktualisieren und überprüfen, ob der Spieler ein Dorf verloren hat.
 				for (Village village : this.villages) {
 					if (VillagenameUtils.getVillageDoFarming(village.getDorfname())) {
 						if (village.isNextFarmattackPossible()) {
@@ -117,25 +123,237 @@ public class Account implements Runnable {
 							// TODO Farm
 						}
 					}
+
 					if (VillagenameUtils.getVillageBuildTroops(village.getDorfname())) {
 						// Baue Truppen
-						// TODO Baue Truppen
 						switch (VillagenameUtils.getVillageTroupType(village.getDorfname())) {
 						case DEFF: {
+							// 10k Speer
+							// 8k Schwert
+							// 2k Bogen
 							if (village.isNextTroupBuildBarracksPossible()) {
+								this.document = Jsoup.parse(this.browser.get("http://dep5.die-staemme.de/game.php?village=" + village.getID() + "&screen=barracks"));
+								long remainingBuildTime = getRemainingBuildtime();
+								if (remainingBuildTime > 0) {
+									village.setNextTroupBuildBarracksPossible(new Date(System.currentTimeMillis() + remainingBuildTime));
+									Logger.logMessage("\"" + village.getDorfname() + "\" baut noch bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextTroupBuildBarracks()) + " an Truppen in der Kaserne");
+								} else {
+									String hWert = RegexUtils.getHWert(this.document.html());
+									JSONObject troupObject = RegexUtils.getTroupJSON(this.document.html());
+									int speer = 10000 - troupObject.getJSONObject("spear").getInt("all_count");
+									int schwert = 8000 - troupObject.getJSONObject("sword").getInt("all_count");
+									int bogen = 2000 - troupObject.getJSONObject("archer").getInt("all_count");
 
+									if ((speer >= schwert) && (speer >= bogen)) {
+										if (troupObject.getJSONObject("spear").getBoolean("requirements_met")) {
+											// baue speer
+											if (speer > BUILD_TROOP_PER_ORDER_BARRACKS) {
+												speer = BUILD_TROOP_PER_ORDER_BARRACKS;
+											}
+											if (speer <= troupObject.getJSONObject("spear").getInt("max")) {
+												if (speer > 0) {
+													this.browser.post("http://dep5.die-staemme.de/game.php?village=" + village.getID() + "&ajaxaction=train&h=" + hWert + "&mode=train&screen=barracks&&client_time=" + (System.currentTimeMillis() + "").substring(0, 10), "units%5Bspear%5D=" + speer);
+
+													village.setHolz(village.getHolz() - (speer * troupObject.getJSONObject("spear").getInt("wood")));
+													village.setLehm(village.getLehm() - (speer * troupObject.getJSONObject("spear").getInt("stone")));
+													village.setEisen(village.getEisen() - (speer * troupObject.getJSONObject("spear").getInt("iron")));
+
+													long time = speer * troupObject.getJSONObject("spear").getInt("build_time") * 1000;
+													village.setNextTroupBuildBarracksPossible(new Date(System.currentTimeMillis() + time));
+													Logger.logMessage("Auftrag: \"" + village.getDorfname() + "\" baut bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextTroupBuildBarracks()) + " an " + speer + " Speertr\u00E4gern");
+												}
+											}
+										} else {
+											village.setNextTroupBuildBarracksPossible(new Date(System.currentTimeMillis() + (30 * 60 * 1000)));
+											village.addResearchOrder("spear");
+											Logger.logMessage("\"" + village.getDorfname() + "\" hat Speertr\u00E4ger noch nicht erforscht!");
+										}
+									} else if ((schwert >= speer) && (schwert >= bogen)) {
+										if (troupObject.getJSONObject("sword").getBoolean("requirements_met")) {
+											// baue schwert
+											if (schwert > BUILD_TROOP_PER_ORDER_BARRACKS) {
+												schwert = BUILD_TROOP_PER_ORDER_BARRACKS;
+											}
+											if (schwert <= troupObject.getJSONObject("sword").getInt("max")) {
+												if (schwert > 0) {
+													this.browser.post("http://dep5.die-staemme.de/game.php?village=" + village.getID() + "&ajaxaction=train&h=" + hWert + "&mode=train&screen=barracks&&client_time=" + (System.currentTimeMillis() + "").substring(0, 10), "units%5Bsword%5D=" + schwert);
+
+													village.setHolz(village.getHolz() - (schwert * troupObject.getJSONObject("sword").getInt("wood")));
+													village.setLehm(village.getLehm() - (schwert * troupObject.getJSONObject("sword").getInt("stone")));
+													village.setEisen(village.getEisen() - (schwert * troupObject.getJSONObject("sword").getInt("iron")));
+
+													long time = schwert * troupObject.getJSONObject("sword").getInt("build_time") * 1000;
+													village.setNextTroupBuildBarracksPossible(new Date(System.currentTimeMillis() + time));
+													Logger.logMessage("Auftrag: \"" + village.getDorfname() + "\" baut bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextTroupBuildBarracks()) + " an " + schwert + " Schwertk\u00E4mpfern");
+												}
+											}
+										} else {
+											village.setNextTroupBuildBarracksPossible(new Date(System.currentTimeMillis() + (30 * 60 * 1000)));
+											village.addResearchOrder("sword");
+											Logger.logMessage("\"" + village.getDorfname() + "\" hat Schwertk\u00E4mpfer noch nicht erforscht!");
+										}
+									} else if ((bogen >= speer) && (bogen >= schwert)) {
+										if (troupObject.getJSONObject("archer").getBoolean("requirements_met")) {
+											// baue bogen
+											if (bogen > BUILD_TROOP_PER_ORDER_BARRACKS) {
+												bogen = BUILD_TROOP_PER_ORDER_BARRACKS;
+											}
+											if (bogen <= troupObject.getJSONObject("archer").getInt("max")) {
+												if (bogen > 0) {
+													this.browser.post("http://dep5.die-staemme.de/game.php?village=" + village.getID() + "&ajaxaction=train&h=" + hWert + "&mode=train&screen=barracks&&client_time=" + (System.currentTimeMillis() + "").substring(0, 10), "units%5Barcher%5D=" + bogen);
+
+													village.setHolz(village.getHolz() - (bogen * troupObject.getJSONObject("archer").getInt("wood")));
+													village.setLehm(village.getLehm() - (bogen * troupObject.getJSONObject("archer").getInt("stone")));
+													village.setEisen(village.getEisen() - (bogen * troupObject.getJSONObject("archer").getInt("iron")));
+
+													long time = bogen * troupObject.getJSONObject("archer").getInt("build_time") * 1000;
+													village.setNextTroupBuildBarracksPossible(new Date(System.currentTimeMillis() + time));
+													Logger.logMessage("Auftrag: \"" + village.getDorfname() + "\" baut bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextTroupBuildBarracks()) + " an " + bogen + " Bogensch\u00FCtzen");
+												}
+											}
+										} else {
+											village.setNextTroupBuildBarracksPossible(new Date(System.currentTimeMillis() + (30 * 60 * 1000)));
+											village.addResearchOrder("archer");
+											Logger.logMessage("\"" + village.getDorfname() + "\" hat Bogensch\u00FCtze noch nicht erforscht!");
+										}
+									}
+								}
 							}
 							break;
 						}
 						case OFF: {
+							// 6k Axt
+							// 2500 Lkav
+							// 300 BBogen
+							// 300 Rammen
 							if (village.isNextTroupBuildBarracksPossible()) {
+								this.document = Jsoup.parse(this.browser.get("http://dep5.die-staemme.de/game.php?village=" + village.getID() + "&screen=barracks"));
+								long remainingBuildTime = getRemainingBuildtime();
+								if (remainingBuildTime > 0) {
+									village.setNextTroupBuildBarracksPossible(new Date(System.currentTimeMillis() + remainingBuildTime));
+									Logger.logMessage("\"" + village.getDorfname() + "\" baut noch bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextTroupBuildBarracks()) + " an Truppen in der Kaserne");
+								} else {
+									JSONObject axe = RegexUtils.getTroupJSON(this.document.html()).getJSONObject("axe");
+									if (axe.getBoolean("requirements_met")) {
+										if (axe.getInt("max") >= BUILD_TROOP_PER_ORDER_BARRACKS) {
+											int buildAxe = 6000 - axe.getInt("all_count");
+											if (buildAxe > BUILD_TROOP_PER_ORDER_BARRACKS) {
+												buildAxe = BUILD_TROOP_PER_ORDER_BARRACKS;
+											}
+											if (buildAxe > 0) {
+												String hWert = RegexUtils.getHWert(this.document.html());
+												this.browser.post("http://dep5.die-staemme.de/game.php?village=" + village.getID() + "&ajaxaction=train&h=" + hWert + "&mode=train&screen=barracks&&client_time=" + (System.currentTimeMillis() + "").substring(0, 10), "units%5Baxe%5D=" + buildAxe);
 
+												village.setHolz(village.getHolz() - (buildAxe * axe.getInt("wood")));
+												village.setLehm(village.getLehm() - (buildAxe * axe.getInt("stone")));
+												village.setEisen(village.getEisen() - (buildAxe * axe.getInt("iron")));
+
+												long time = buildAxe * axe.getInt("build_time") * 1000;
+												village.setNextTroupBuildBarracksPossible(new Date(System.currentTimeMillis() + time));
+												Logger.logMessage("Auftrag: \"" + village.getDorfname() + "\" baut bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextTroupBuildBarracks()) + " an " + buildAxe + " Axtk\u00E4mpfern");
+											}
+										}
+									} else {
+										village.setNextTroupBuildBarracksPossible(new Date(System.currentTimeMillis() + (30 * 60 * 1000)));
+										village.addResearchOrder("axe");
+										Logger.logMessage("\"" + village.getDorfname() + "\" hat Axtk\u00E4mpfer noch nicht erforscht!");
+									}
+								}
 							}
 							if (village.isNextTroupBuildStablePossible()) {
+								this.document = Jsoup.parse(this.browser.get("http://dep5.die-staemme.de/game.php?village=" + village.getID() + "&screen=stable"));
+								long remainingBuildTime = getRemainingBuildtime();
+								if (remainingBuildTime > 0) {
+									village.setNextTroupBuildStablePossible(new Date(System.currentTimeMillis() + remainingBuildTime));
+									Logger.logMessage("\"" + village.getDorfname() + "\" baut noch bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextTroupBuildStable()) + " an Truppen in dem Stall");
+								} else {
+									JSONObject object = RegexUtils.getTroupJSON(this.document.html());
+									int lkav = 2500 - object.getJSONObject("light").getInt("all_count");
+									int bbogen = 300 - object.getJSONObject("marcher").getInt("all_count");
+									if (lkav > BUILD_TROOP_PER_ORDER_STABLE) {
+										lkav = BUILD_TROOP_PER_ORDER_STABLE;
+									}
+									if (bbogen > BUILD_TROOP_PER_ORDER_STABLE) {
+										bbogen = BUILD_TROOP_PER_ORDER_STABLE;
+									}
+									if (bbogen > 0) {
+										if (object.getJSONObject("marcher").getBoolean("requirements_met")) {
+											if (bbogen <= object.getJSONObject("marcher").getInt("max")) {
+												if (bbogen > 0) {
+													String hWert = RegexUtils.getHWert(this.document.html());
+													this.browser.post("http://dep5.die-staemme.de/game.php?village=" + village.getID() + "&ajaxaction=train&h=" + hWert + "&mode=train&screen=stable&&client_time=" + (System.currentTimeMillis() + "").substring(0, 10), "units%5Bmarcher%5D=" + bbogen);
 
+													village.setHolz(village.getHolz() - (bbogen * object.getJSONObject("marcher").getInt("wood")));
+													village.setLehm(village.getLehm() - (bbogen * object.getJSONObject("marcher").getInt("stone")));
+													village.setEisen(village.getEisen() - (bbogen * object.getJSONObject("marcher").getInt("iron")));
+
+													long time = bbogen * object.getJSONObject("marcher").getInt("build_time") * 1000;
+													village.setNextTroupBuildStablePossible(new Date(System.currentTimeMillis() + time));
+													Logger.logMessage("Auftrag: \"" + village.getDorfname() + "\" baut bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextTroupBuildStable()) + " an " + bbogen + " Berittene Bogensch\u00fctzen");
+												}
+											}
+										} else {
+											village.setNextTroupBuildStablePossible(new Date(System.currentTimeMillis() + (30 * 60 * 1000)));
+											village.addResearchOrder("light");
+											Logger.logMessage("\"" + village.getDorfname() + "\" hat Berittener Bogensch\u00fctze noch nicht erforscht!");
+										}
+									} else {
+										if (object.getJSONObject("light").getBoolean("requirements_met")) {
+											if (lkav <= object.getJSONObject("light").getInt("max")) {
+												if (lkav > 0) {
+													String hWert = RegexUtils.getHWert(this.document.html());
+													this.browser.post("http://dep5.die-staemme.de/game.php?village=" + village.getID() + "&ajaxaction=train&h=" + hWert + "&mode=train&screen=stable&&client_time=" + (System.currentTimeMillis() + "").substring(0, 10), "units%5Blight%5D=" + lkav);
+
+													village.setHolz(village.getHolz() - (bbogen * object.getJSONObject("light").getInt("wood")));
+													village.setLehm(village.getLehm() - (bbogen * object.getJSONObject("light").getInt("stone")));
+													village.setEisen(village.getEisen() - (bbogen * object.getJSONObject("light").getInt("iron")));
+
+													long time = lkav * object.getJSONObject("light").getInt("build_time") * 1000;
+													village.setNextTroupBuildStablePossible(new Date(System.currentTimeMillis() + time));
+													Logger.logMessage("Auftrag: \"" + village.getDorfname() + "\" baut bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextTroupBuildStable()) + " an " + bbogen + " Leichter Kavallerie");
+												}
+											}
+										} else {
+											village.setNextTroupBuildStablePossible(new Date(System.currentTimeMillis() + (30 * 60 * 1000)));
+											village.addResearchOrder("light");
+											Logger.logMessage("\"" + village.getDorfname() + "\" hat Leichte Kavallerie noch nicht erforscht!");
+										}
+									}
+								}
 							}
 							if (village.isNextTroupBuildWorkshopPossible()) {
+								this.document = Jsoup.parse(this.browser.get("http://dep5.die-staemme.de/game.php?village=" + village.getID() + "&screen=garage"));
+								long remainingBuildTime = getRemainingBuildtime();
+								if (remainingBuildTime > 0) {
+									village.setNextTroupBuildWorkshopPossible(new Date(System.currentTimeMillis() + remainingBuildTime));
+									Logger.logMessage("\"" + village.getDorfname() + "\" baut noch bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextTroupBuildWorkshop()) + " an Truppen in der Werkstatt");
+								} else {
+									JSONObject object = RegexUtils.getTroupJSON(this.document.html());
+									if (object.getJSONObject("ram").getBoolean("requirements_met")) {
+										int buildRam = 300 - object.getJSONObject("ram").getInt("all_count");
+										if (buildRam > BUILD_TROOP_PER_ORDER_WORKSHOP) {
+											buildRam = BUILD_TROOP_PER_ORDER_WORKSHOP;
+										}
+										if (object.getJSONObject("ram").getInt("max") >= buildRam) {
+											if (buildRam > 0) {
+												String hWert = RegexUtils.getHWert(this.document.html());
+												this.browser.post("http://dep5.die-staemme.de/game.php?village=" + village.getID() + "&ajaxaction=train&h=" + hWert + "&mode=train&screen=garage&&client_time=" + (System.currentTimeMillis() + "").substring(0, 10), "units%5Bram%5D=" + buildRam);
 
+												village.setHolz(village.getHolz() - (buildRam * object.getJSONObject("ram").getInt("wood")));
+												village.setLehm(village.getLehm() - (buildRam * object.getJSONObject("ram").getInt("stone")));
+												village.setEisen(village.getEisen() - (buildRam * object.getJSONObject("ram").getInt("iron")));
+
+												long time = buildRam * object.getJSONObject("ram").getInt("build_time") * 1000;
+												village.setNextTroupBuildWorkshopPossible(new Date(System.currentTimeMillis() + time));
+												Logger.logMessage("Auftrag: \"" + village.getDorfname() + "\" baut bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextTroupBuildWorkshop()) + " an " + buildRam + " Rammb\u00F6cken");
+											}
+										}
+									} else {
+										village.setNextTroupBuildBarracksPossible(new Date(System.currentTimeMillis() + (30 * 60 * 1000)));
+										village.addResearchOrder("ram");
+										Logger.logMessage("\"" + village.getDorfname() + "\" hat Rammbock noch nicht erforscht!");
+									}
+								}
 							}
 							break;
 						}
@@ -144,6 +362,11 @@ public class Account implements Runnable {
 							break;
 						}
 					}
+
+					if (village.hasToResearch()) {
+						// TODO Forschen
+					}
+
 					if (VillagenameUtils.getVillageBuildBuildings(village.getDorfname())) {
 						if (village.isNextBuildingbuildPossible()) {
 							// Baue Gebäude	
@@ -170,7 +393,7 @@ public class Account implements Runnable {
 											this.browser.post(
 													"http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?village=" + village.getID() + "&ajaxaction=upgrade_building&h=" + hWert + "&type=main&screen=main&&client_time=" + (System.currentTimeMillis() + "").substring(0, 10),
 													"id=" + nextBuilding + "&force=1&destroy=0&source=" + village.getID(), additionalHeader);
-											Logger.logMessage("\"" + village.getDorfname() + "\" baut nun an " + BuildingUtils.getFullBuildingname(nextBuilding) + ".");
+											Logger.logMessage("Auftrag: \"" + village.getDorfname() + "\" baut nun an " + BuildingUtils.getFullBuildingname(nextBuilding) + ".");
 											village.setNextBuildingbuildPossible(new Date(System.currentTimeMillis() + time));
 										} else {
 											village.setNextBuildingbuildPossible(new Date(System.currentTimeMillis() + (5 * 60 * 1000)));
@@ -187,7 +410,7 @@ public class Account implements Runnable {
 
 					Thread.sleep((long) ((Math.random() * 800) + 400)); // Pause zwischen 400 und 1200 Millisekunden
 				}
-				Thread.sleep((long) ((Math.random() * (9 * 1000)) + 1000)); // Pause zwischen 1 und 10 Sekunden
+				Thread.sleep((long) ((Math.random() * (12 * 1000)) + 3000)); // Pause zwischen 3 und 15 Sekunden
 			}
 
 		} else {
@@ -228,6 +451,14 @@ public class Account implements Runnable {
 		ArrayList<Village> newVillages = new ArrayList<Village>();
 
 		this.document = Jsoup.parse(this.browser.get("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?screen=overview_villages"));
+
+		JSONObject object = RegexUtils.getVillageJSONFromHead(this.document.head().html());
+		JSONObject player = object.getJSONObject("player");
+		this.newReport = (player.getInt("new_report") > 0) ? true : false;
+		this.newMessage = (player.getInt("new_igm") > 0) ? true : false;
+		object = null;
+		player = null;
+
 		Elements villageRows = this.document.getElementById("production_table").getElementsByTag("tr");
 		villageRows.remove(0); // Header
 		Elements tableDatas;
@@ -239,11 +470,16 @@ public class Account implements Runnable {
 			int holz = Integer.parseInt(tableDatas.get(2).getElementsByClass("wood").get(0).html().replace("<span class=\"grey\">.</span>", ""));
 			int lehm = Integer.parseInt(tableDatas.get(2).getElementsByClass("stone").get(0).html().replace("<span class=\"grey\">.</span>", ""));
 			int eisen = Integer.parseInt(tableDatas.get(2).getElementsByClass("iron").get(0).html().replace("<span class=\"grey\">.</span>", ""));
+			int speicher = Integer.parseInt(tableDatas.get(3).html());
+			int[] population = RegexUtils.getPopulationFromOverview(tableDatas.get(4).html());
 
 			Village village = new Village(id, dorfname, coords[0], coords[1]);
 			village.setHolz(holz);
 			village.setLehm(lehm);
 			village.setEisen(eisen);
+			village.setSpeicher(speicher);
+			village.setPopulation(population[0]);
+			village.setMaximalPopulation(population[1]);
 
 			newVillages.add(village);
 		}
@@ -316,11 +552,10 @@ public class Account implements Runnable {
 				}
 				pager += 1;
 			}
-		}*/
+		}
 
-		// http://dep5.die-staemme.de/game.php?mode=attack&group_id=8382&screen=report
-
-		this.lastReadReportID = Database.getMaximalReportID();
+		// http://dep5.die-staemme.de/game.php?mode=attack&group_id=8382&screen=report*/
+		this.newReport = false;
 		return counter;
 	}
 
@@ -381,8 +616,13 @@ public class Account implements Runnable {
 		String head = Jsoup.parse(this.browser.get("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?village=" + dorfID + "&screen=overview")).head().html();
 		HashMap<String, Integer> building = new HashMap<String, Integer>();
 
-		JSONObject village = RegexUtils.getJsonFromHead(head).getJSONObject("village");
+		JSONObject object = RegexUtils.getVillageJSONFromHead(head);
+		JSONObject player = object.getJSONObject("player");
+		JSONObject village = object.getJSONObject("village");
 		JSONObject buildings = village.getJSONObject("buildings");
+
+		this.newReport = (player.getInt("new_report") > 0) ? true : false;
+		this.newMessage = (player.getInt("new_igm") > 0) ? true : false;
 
 		building.put("main", buildings.getInt("main"));
 		building.put("barracks", buildings.getInt("barracks"));
@@ -407,14 +647,31 @@ public class Account implements Runnable {
 		actualVillage.setLehm(village.getInt("stone"));
 		actualVillage.setEisen(village.getInt("iron"));
 		actualVillage.setSpeicher(village.getInt("storage_max"));
+		actualVillage.setPopulation(village.getInt("pop"));
+		actualVillage.setMaximalPopulation(village.getInt("pop_max"));
 
 		head = null;
 		village = null;
+		player = null;
 		buildings = null;
 
 		System.gc();
 
 		return building;
+	}
+
+	private long getRemainingBuildtime() {
+		try {
+			Elements table = this.document.getElementsByClass("trainqueue_wrap").get(0).getElementsByTag("tr");
+			if (table.size() > 0) {
+				table.remove(0);
+				return RegexUtils.convertTimestringToMilliseconds(table.get(0).getElementsByTag("td").get(1).html());
+			} else {
+				return -1;
+			}
+		} catch (Exception e) {
+			return -1;
+		}
 	}
 
 	public Village[] getMyVillages() {

@@ -1,5 +1,6 @@
 package datastore.memoryObjects;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Village {
@@ -12,6 +13,9 @@ public class Village {
 	private int lehm = 0;
 	private int eisen = 0;
 	private int speicher = 0;
+	private int population = 0;
+	private int maximalPopulation = 0;
+	private ArrayList<String> needResearch = new ArrayList<String>();
 	private Date nextBuildingbuildPossible = new Date();
 	private Date nextTroupBuildBarracksPossible = new Date();
 	private Date nextTroupBuildStablePossible = new Date();
@@ -111,12 +115,20 @@ public class Village {
 		this.nextTroupBuildBarracksPossible = nextTroupBuildBarracksPossible;
 	}
 
+	public Date getNextTroupBuildBarracks() {
+		return this.nextTroupBuildBarracksPossible;
+	}
+
 	public boolean isNextTroupBuildStablePossible() {
 		return new Date().after(this.nextTroupBuildStablePossible);
 	}
 
 	public void setNextTroupBuildStablePossible(Date nextTroupBuildStablePossible) {
 		this.nextTroupBuildStablePossible = nextTroupBuildStablePossible;
+	}
+
+	public Date getNextTroupBuildStable() {
+		return this.nextTroupBuildStablePossible;
 	}
 
 	public boolean isNextTroupBuildWorkshopPossible() {
@@ -127,12 +139,50 @@ public class Village {
 		this.nextTroupBuildWorkshopPossible = nextTroupBuildWorkshopPossible;
 	}
 
+	public Date getNextTroupBuildWorkshop() {
+		return this.nextTroupBuildWorkshopPossible;
+	}
+
 	public boolean isNextFarmattackPossible() {
 		return new Date().after(this.nextFarmattackPossible);
 	}
 
 	public void setNextFarmattackPossible(Date nextFarmattackPossible) {
 		this.nextFarmattackPossible = nextFarmattackPossible;
+	}
+
+	public int getPopulation() {
+		return population;
+	}
+
+	public void setPopulation(int population) {
+		this.population = population;
+	}
+
+	public int getMaximalPopulation() {
+		return maximalPopulation;
+	}
+
+	public void setMaximalPopulation(int maximalPopulation) {
+		this.maximalPopulation = maximalPopulation;
+	}
+
+	public void addResearchOrder(String unit) {
+		if (!this.needResearch.contains(unit)) {
+			this.needResearch.add(unit);
+		}
+	}
+
+	public String getNextResearchOrder() {
+		if (this.needResearch.size() > 0) {
+			return this.needResearch.remove(0);
+		} else {
+			return null;
+		}
+	}
+
+	public boolean hasToResearch() {
+		return this.needResearch.size() > 0;
 	}
 
 }

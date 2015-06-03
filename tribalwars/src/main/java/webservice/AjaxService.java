@@ -102,7 +102,7 @@ public class AjaxService extends HttpServlet {
 	}
 
 	private String generateDashboard() {
-		String dashboard = "<div class=\"container\"><h1>Dashboard</h1><table class=\"table table-striped table-bordered\"><thead><tr><th>Nr.</th><th>Name</th><th>Koodinaten</th><th><img src=\"images/holz.png\"></th><th><img src=\"images/lehm.png\"></th><th><img src=\"images/eisen.png\"></th><th><img src=\"images/speicher.png\"></th></tr></thead><tbody>";
+		String dashboard = "<div class=\"container\"><h1>Dashboard</h1><table class=\"table table-striped table-bordered\"><thead><tr><th>Nr.</th><th>Name</th><th>Koodinaten</th><th><img src=\"images/holz.png\"></th><th><img src=\"images/lehm.png\"></th><th><img src=\"images/eisen.png\"></th><th><img src=\"images/speicher.png\"></th><th><img src=\"images/population.png\"></th></tr></thead><tbody>";
 
 		Village[] villages = this.account.getMyVillages();
 		int counter = 1;
@@ -116,6 +116,7 @@ public class AjaxService extends HttpServlet {
 			dashboard += "<td>" + village.getLehm() + "</td>";
 			dashboard += "<td>" + village.getEisen() + "</td>";
 			dashboard += "<td>" + village.getSpeicher() + "</td>";
+			dashboard += "<td>" + village.getPopulation() + " / " + village.getMaximalPopulation() + "</td>";
 			dashboard += "</tr>";
 		}
 
