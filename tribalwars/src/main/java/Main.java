@@ -22,7 +22,7 @@ import datastore.Configuration;
  * So if you are done trying to 'optimize' this routine (and failed), please
  * increment the following counter as a warning to the next guy:
  * 
- * total_hours_wasted_here = 86
+ * total_hours_wasted_here = 89
  * 
  */
 
@@ -32,8 +32,6 @@ public class Main {
 
 	public static void main(String[] args) {
 		// Disable other Logger
-		java.util.logging.Logger.getLogger("com.almworks.sqlite4java").setUseParentHandlers(false);
-		java.util.logging.Logger.getLogger("com.almworks.sqlite4java").setLevel(java.util.logging.Level.OFF);
 		org.eclipse.jetty.util.log.Log.setLog(new NoLogging());
 		System.setProperty("org.eclipse.jetty.LEVEL", "OFF");
 

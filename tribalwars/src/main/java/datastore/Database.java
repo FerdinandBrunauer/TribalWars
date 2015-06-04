@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteJob;
@@ -22,12 +20,6 @@ import datastore.memoryObjects.VorlageItem;
 public class Database extends SQLiteQueue {
 
 	private static Database instance = null;
-
-	static {
-		if (!Configuration.isDebugmodeEnabled()) {
-			Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.OFF);
-		}
-	}
 
 	private Database(File databaseFile) {
 		super(databaseFile);
@@ -43,6 +35,8 @@ public class Database extends SQLiteQueue {
 
 	private synchronized static Database getInstance() {
 		if (instance == null) {
+			java.util.logging.Logger.getLogger("com.almworks.sqlite4java").setLevel(java.util.logging.Level.OFF);
+
 			File databaseFile = new File("database.db3");
 			boolean exists = databaseFile.exists();
 			instance = new Database(databaseFile);
