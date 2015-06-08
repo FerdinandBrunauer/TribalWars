@@ -12,6 +12,7 @@ Dies ist ein Programm, welches verschiedene Funktionen des Spieles Die Stämme (
 ### Was noch kommt
 - Automatisches Farmen ( Halb fertig )
 - Automatisches Truppenbauen ( Halb fertig )
+- Automatisches Forschen ( Funktioniert nur auf Welten mit einfachem Forschungssystem )
 
 ### Wissenswertes
 - Das Programm baut keine Gebäude oder Truppen, wenn der Accountmanager aktiv ist!
