@@ -7,7 +7,7 @@ public class Village {
 
 	private final String id;
 	private String dorfname;
-	private final int x;
+	public final int x;
 	private final int y;
 	private int holz = 0;
 	private int lehm = 0;

@@ -12,7 +12,6 @@
 <link href="../../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="../../bower_components/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
 <link href="../../dist/css/sb-admin-2.css" rel="stylesheet">
-<link href="../../bower_components/morrisjs/morris.css" rel="stylesheet">
 <link href="../../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -35,17 +34,23 @@
 					</li>
 					<li>
 						<a href="#">
-							<i class="fa fa-th fa-fw"></i> Vorlagen<span class="fa arrow"></span>
+							<i class="fa fa-th-list fa-fw"></i> Vorlagen<span class="fa arrow"></span>
 						</a>
 						<ul class="nav nav-second-level">
 							<li>
-								<a href="flot.html">Bauvorlagen</a>
+								<a href="flot.html">
+									<i class="fa fa-list-alt fa-fw"></i>Bauvorlagen
+								</a>
 							</li>
 							<li>
-								<a href="morris.html">Truppenvorlagen</a>
+								<a href="morris.html">
+									<i class="fa fa-list-alt fa-fw"></i>Truppenvorlagen
+								</a>
 							</li>
 							<li>
-								<a href="morris.html">Zuweisungen</a>
+								<a href="morris.html">
+									<i class="fa fa-list-alt fa-fw"></i>Zuweisungen
+								</a>
 							</li>
 						</ul>
 						<!-- /.nav-second-level -->

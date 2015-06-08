@@ -56,7 +56,7 @@ public class Account implements Runnable {
 		this.worldPrefix = world;
 		this.worldNumber = worldNumber;
 
-		new Thread(this, "GameLogic").start();
+		// new Thread(this, "GameLogic").start();
 		myInstance = this;
 	}
 

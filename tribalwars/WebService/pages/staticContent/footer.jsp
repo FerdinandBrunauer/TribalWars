@@ -2,7 +2,7 @@
 </div>
 
 <footer class="bs-docs-footer" role="contentinfo">
-	<div class="container">
+	<div class="container" style="padding-top: 10px">
 		<p>
 			Sourcecode einsehbar auf
 			<a href="https://github.com/FerdinandBrunauer/TribalWars">GitHub</a>
