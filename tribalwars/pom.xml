@@ -14,7 +14,7 @@
           <maven.compiler.target>1.8</maven.compiler.target>
           <maven.compiler.source>1.7</maven.compiler.source>
           <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-          <jettyVersion>9.3.0.M2</jettyVersion>
+          <tomcat.version>7.0.57</tomcat.version>
           <sqlite4java.version>1.0.392</sqlite4java.version>
      </properties>
 
@@ -23,11 +23,6 @@
                <groupId>org.jsoup</groupId>
                <artifactId>jsoup</artifactId>
                <version>1.7.3</version>
-          </dependency>
-          <dependency>
-               <groupId>org.eclipse.jetty</groupId>
-               <artifactId>jetty-servlet</artifactId>
-               <version>${jettyVersion}</version>
           </dependency>
           <dependency>
                <groupId>com.almworks.sqlite4java</groupId>
@@ -39,6 +34,36 @@
                <groupId>org.json</groupId>
                <artifactId>json</artifactId>
                <version>20141113</version>
+          </dependency>
+          <dependency>
+               <groupId>org.apache.tomcat.embed</groupId>
+               <artifactId>tomcat-embed-core</artifactId>
+               <version>${tomcat.version}</version>
+          </dependency>
+          <dependency>
+               <groupId>org.apache.tomcat.embed</groupId>
+               <artifactId>tomcat-embed-logging-juli</artifactId>
+               <version>${tomcat.version}</version>
+          </dependency>
+          <dependency>
+               <groupId>org.apache.tomcat.embed</groupId>
+               <artifactId>tomcat-embed-jasper</artifactId>
+               <version>${tomcat.version}</version>
+          </dependency>
+          <dependency>
+               <groupId>org.apache.tomcat</groupId>
+               <artifactId>tomcat-jasper</artifactId>
+               <version>${tomcat.version}</version>
+          </dependency>
+          <dependency>
+               <groupId>org.apache.tomcat</groupId>
+               <artifactId>tomcat-jasper-el</artifactId>
+               <version>${tomcat.version}</version>
+          </dependency>
+          <dependency>
+               <groupId>org.apache.tomcat</groupId>
+               <artifactId>tomcat-jsp-api</artifactId>
+               <version>${tomcat.version}</version>
           </dependency>
      </dependencies>
 </project>

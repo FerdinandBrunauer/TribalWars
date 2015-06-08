@@ -1,78 +1,13 @@
 <!DOCTYPE html>
-<html lang="de">
-	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="author" content="Ferdinand Brunauer">
-		<title>Die St&auml;mme Bot</title>
-		<!-- Favicon -->
-		<link rel="shortcut icon" href="favicon2.ico" type="image/x-icon" />
-		<!-- Bootstrap Core CSS -->
-		<link href="css/bootstrap.min.css" rel="stylesheet">
-		<!-- Custom CSS -->
-		<link href="css/simple-sidebar.css" rel="stylesheet">
-		<!-- jQuery -->
-		<script src="js/jquery.js"></script>
-		<!-- Bootstrap Core JavaScript -->
-		<script src="js/bootstrap.min.js"></script>
-		<!-- jQuery Sortable List -->
-		<!-- <script src="js/jquery.sortable.min.js"></script>	-->
-	</head>
-	<body>
-		<div class="page-header">
-			<div id="nachrichten"><img src="images/read_mail.png">&nbsp; Keine neuen Nachrichten</div>
-		</div>
-		<div id="wrapper">
-			<!-- Sidebar -->
-			<div id="sidebar-wrapper">
-				<ul class="sidebar-nav">
-					<li class="sidebar-brand" style="color: #FFFFFF;">
-						Die St&auml;mme Bot
-					</li>
-					<li class="active liitem" onclick="setLiActive(this);">
-						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=dashboard');">Dashboard</a> <!-- Meine Dörfer Übersicht + einstellbar welche Bau Vorlage -->
-					</li>
-					<li class="liitem" onclick="setLiActive(this);">
-						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=building_pattern');">Bauvorlagen</a>
-					</li>
-					<!-- <li>
-						<a href="#" onclick="$('#page-content-wrapper').load('ajax/ajax?method=#');">Einstellungen</a>
-					</li> -->
-				</ul>
-			</div>
-			<!-- /#sidebar-wrapper -->
-			
-			<!-- Page Content -->
-			<div id="page-content-wrapper">
-				
-			</div>
-			<!-- /#page-content-wrapper -->
-			
-		</div>
-		<!-- /#wrapper -->
-		
-		<script>
-			$("#page-content-wrapper").load("ajax/ajax?method=dashboard");
-			
-			function refreshHeader() {
-				$("#page-header").load("ajax/ajax?method=header");
-			}
-			var refreshId = setInterval(refreshHeader, 3000);
-			
-			function setLiActive(element) {
-				$(".liitem").removeClass("active");
-				$(element).addClass("active");
-			}
-			
-			function tryLogin(name, password) {
-				$("#page-content-wrapper").load("ajax/ajax?method=login&name=" + name + "&password=" + password);
-				window.location.href = "";
-			}
-			
-			function loadBuildingPatternList(id) {
-				$("#building_pattern_list").load("ajax/ajax?method=building_pattern_list&id=" + id);
-			}
-		</script>
-	</body>
+<html>
+<head>
+<meta http-equiv="refresh" content="0;url=pages/index.jsp">
+<script language="javascript">
+	window.location.href = "pages/index.jsp"
+</script>
+</head>
+<body>
+	Gehe zu
+	<a href="pages/index.jsp">/pages/index.jsp</a>
+</body>
 </html>

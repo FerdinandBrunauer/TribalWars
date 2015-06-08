@@ -1,29 +1,23 @@
-import java.util.HashMap;
 import java.util.Scanner;
 
 import logger.ConsoleLogger;
 import logger.FileLogger;
 import logger.Logger;
-import logger.NoLogging;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
 import tribalwars.Account;
 import webservice.WebService;
 import datastore.Configuration;
 
 /**
  * Dear maintainer:
- * 
+ *
  * When i wrote this code, only I and God knew what it was. Know, only God
  * knows!
- * 
+ *
  * So if you are done trying to 'optimize' this routine (and failed), please
  * increment the following counter as a warning to the next guy:
- * 
- * total_hours_wasted_here = 89
- * 
+ *
+ * total_hours_wasted_here = 91
+ *
  */
 
 public class Main {
@@ -31,10 +25,6 @@ public class Main {
 	private static Scanner scanner = new Scanner(System.in);
 
 	public static void main(String[] args) {
-		// Disable other Logger
-		org.eclipse.jetty.util.log.Log.setLog(new NoLogging());
-		System.setProperty("org.eclipse.jetty.LEVEL", "OFF");
-
 		// Instantiate Logger
 		new FileLogger();
 		Logger.logMessage("===============================================================================================================");
@@ -49,11 +39,11 @@ public class Main {
 		String worldNumber = getConfiguration(Configuration.configuration_worldnumber, "Bitte die Weltenzahl eingeben (z.B. \"115\", \"116\" ohne \"): ");
 		Logger.logMessage("Weltenzahl: \"" + worldNumber + "\"");
 
-		checkWorldspeed(worldPrefix, worldNumber);
-		check9kw();
+		//checkWorldspeed(worldPrefix, worldNumber);
+		//check9kw();
 
-		Account account = new Account(username, password, worldPrefix, worldNumber);
-		new WebService(account, Integer.parseInt(Configuration.getProperty(Configuration.configuration_webserviceport, "8080")));
+		new Account(username, password, worldPrefix, worldNumber);
+		new WebService(Integer.parseInt(Configuration.getProperty(Configuration.configuration_webserviceport, "8080")));
 	}
 
 	private static String getConfiguration(String configuration_prefix, String consoleQuestion) {
@@ -66,7 +56,7 @@ public class Main {
 		return configurationValue;
 	}
 
-	private static void check9kw() {
+	/*private static void check9kw() {
 		getConfiguration(Configuration.configuration_9kweu_javaapikey, "Bitte geben sie ihren API-Key f\u00FCr 9kw.eu ein: ");
 		try {
 			HashMap<String, String> parameter = new HashMap<String, String>();
@@ -84,9 +74,9 @@ public class Main {
 			Logger.logMessage("Konnte 9kw.eu Credits nicht lesen!", e);
 			System.exit(2);
 		}
-	}
+	} */
 
-	private static void checkWorldspeed(String worldPrefix, String worldNumber) {
+	/* private static void checkWorldspeed(String worldPrefix, String worldNumber) {
 		try {
 			Document worldSettings = Jsoup.connect("http://de.twstats.com/" + worldPrefix + worldNumber + "/index.php?page=settings").timeout(10 * 1000).get();
 			String worldSpeed = worldSettings.getElementsByClass("widget").get(0).getElementsByTag("tr").get(1).getElementsByTag("td").get(1).html();
@@ -96,5 +86,5 @@ public class Main {
 			Logger.logMessage("Konnte Weltgeschwindigkeit nicht lesen!", e);
 			System.exit(1);
 		}
-	}
+	} */
 }

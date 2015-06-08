@@ -13,6 +13,7 @@ import java.util.List;
 
 import com.sun.webkit.network.CookieManager;
 
+@SuppressWarnings("restriction")
 public class WebBrowser {
 
 	private String referrer;

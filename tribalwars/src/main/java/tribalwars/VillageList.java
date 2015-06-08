@@ -10,7 +10,7 @@ public class VillageList extends ArrayList<Village> {
 
 	/**
 	 * Liefert den Pointer(Resourcen schonen) des gesuchten Dorfes zurück
-	 * 
+	 *
 	 * @param dorfID Die eindeutige ID eines jeden Dorfes
 	 * @return Den Pointer des Dorf Objektes wenn vorhanden
 	 */
@@ -26,7 +26,7 @@ public class VillageList extends ArrayList<Village> {
 	/**
 	 * Gleicht die ausgelesene Dorfübersicht mit der vorhandenen ab und
 	 * aktualisiert die Werte
-	 * 
+	 *
 	 * @param newList Die ausgelesene Dorfübersicht
 	 */
 	public void compareToNewList(List<Village> newList) {

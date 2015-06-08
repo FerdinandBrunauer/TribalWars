@@ -152,7 +152,7 @@ public class Village {
 	}
 
 	public int getPopulation() {
-		return population;
+		return this.population;
 	}
 
 	public void setPopulation(int population) {
@@ -160,7 +160,7 @@ public class Village {
 	}
 
 	public int getMaximalPopulation() {
-		return maximalPopulation;
+		return this.maximalPopulation;
 	}
 
 	public void setMaximalPopulation(int maximalPopulation) {

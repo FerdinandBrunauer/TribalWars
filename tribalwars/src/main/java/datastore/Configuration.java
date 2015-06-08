@@ -15,6 +15,8 @@ public class Configuration {
 	public static final String configuration_worldnumber = "worldnumber";
 	public static final String configuration_9kweu_javaapikey = "9kwApiKey";
 	public static final String configuration_webserviceport = "webserviceport";
+	public static final String configuration_webserviceusername = "webserviceusername";
+	public static final String configuration_webservicepassword = "webservicepassword";
 	public static final String configuration_worldspeed = "worldspeed";
 
 	private static Properties defaultProperties = new Properties();
