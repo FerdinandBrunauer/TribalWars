@@ -5,6 +5,7 @@ Dies ist ein Programm, welches verschiedene Funktionen des Spieles Die Stämme (
 - Webinterface, um den Bot über das Internet zu steuern. (Ein/Ausschalten, Bauvorlagen, Truppenvorlagen)
 - Speziell auf die Hardware eines Raspberry Pi's optimiert
 - Unterstützt Premium und nicht Premium Accounts
+- Anzeige interessanter Werte in Graphen
 
 ### Funktioniert bereits
 - Automatisches Ausbauen von Gebäuden inklusive Auswahl einer von drei vordefinierten Ausbauvorlagen
