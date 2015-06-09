@@ -214,4 +214,37 @@ public class Database extends SQLiteQueue {
 			}
 		}).complete();
 	}
+
+	public static long getTotalChanges() {
+		return getInstance().execute(new SQLiteJob<Long>() {
+			@Override
+			protected Long job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("SELECT TOTAL_CHANGES();");
+				statement.step();
+				return statement.columnLong(0);
+			}
+		}).complete();
+	}
+
+	public static double getAvgSpyedResources() {
+		return getInstance().execute(new SQLiteJob<Double>() {
+			@Override
+			protected Double job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("SELECT IFNULL(AVG(`spyedResources`), 0) FROM `Report`;");
+				statement.step();
+				return statement.columnDouble(0);
+			}
+		}).complete();
+	}
+
+	public static double getAvgCountFarm() {
+		return getInstance().execute(new SQLiteJob<Double>() {
+			@Override
+			protected Double job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("SELECT IFNULL(AVG(`spyedResources`), 0) FROM `Report`;"); // TODO avgCountFarm
+				statement.step();
+				return statement.columnDouble(0);
+			}
+		}).complete();
+	}
 }

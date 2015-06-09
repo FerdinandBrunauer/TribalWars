@@ -102,7 +102,7 @@ public class Account implements Runnable {
 
 			// Neue berichte seit dem letzten mal einlesen
 			Logger.logMessage("Aktualisiere Berichte");
-			// TODO Logger.logMessage(analyzeReports() + " Berichte gelesen!");
+			Logger.logMessage(analyzeReports() + " Berichte gelesen!");
 
 			while (true) {
 				// Get farms for actual villages

@@ -1,3 +1,4 @@
+<%@page import="java.text.DecimalFormat"%>
 <%@page import="datastore.Database"%>
 
 <%@ include file="loginSystem/checkLogin.jsp"%>
@@ -18,6 +19,11 @@
 					<b><%=Database.getCountReports()%></b>
 				</p>
 				<p>
+					Durchschnittliche ersp&auml;hte Rohstoffe:
+					<b><%=new DecimalFormat("#.00").format(Database
+					.getAvgSpyedResources())%></b>
+				</p>
+				<p>
 					Maximal ersp&auml;hte Rohstoffe:
 					<b><%=Database.getMaximalRessourcesSpyed()%></b>
 				</p>
@@ -26,8 +32,17 @@
 					<b><%=Database.getCountFarms()%></b>
 				</p>
 				<p>
+					Durchschnittliche Farmen pro Dorf:
+					<b><%=new DecimalFormat("#.00").format(Database
+					.getAvgCountFarm())%></b>
+				</p>
+				<p>
 					Gespeicherte Farmangriffe:
 					<b><%=Database.getCountFarmAttack()%></b>
+				</p>
+				<p>
+					Anzahl ge&auml;nderter Eintr&auml;ge in der Datenbank seit dem Start:
+					<b><%=Database.getTotalChanges()%></b>
 				</p>
 			</div>
 		</div>
