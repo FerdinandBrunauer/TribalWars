@@ -18,6 +18,7 @@ public class Configuration {
 	public static final String configuration_webserviceusername = "webserviceusername";
 	public static final String configuration_webservicepassword = "webservicepassword";
 	public static final String configuration_worldspeed = "worldspeed";
+	public static final String configuration_minimum_spys = "minimum_spys";
 
 	private static Properties defaultProperties = new Properties();
 

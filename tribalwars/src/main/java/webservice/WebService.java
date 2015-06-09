@@ -1,6 +1,7 @@
 package webservice;
 
 import java.io.File;
+import java.util.logging.Level;
 
 import javax.servlet.ServletException;
 
@@ -16,6 +17,8 @@ public class WebService implements Runnable {
 		this.tomcat = new Tomcat();
 		this.tomcat.setPort(port);
 		this.tomcat.setSilent(true);
+		java.util.logging.Logger.getLogger("org.apache.catalina").setLevel(Level.OFF);
+		java.util.logging.Logger.getLogger("org.apache.jasper").setLevel(Level.OFF);
 
 		try {
 			this.tomcat.addWebapp("/", new File("WebService").getAbsolutePath());

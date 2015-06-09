@@ -5,11 +5,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.CookieHandler;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import com.sun.webkit.network.CookieManager;
 
@@ -30,7 +31,7 @@ public class WebBrowser {
 	public String post(String link, String post, List<SimpleEntry<String, String>> additionalHeader) throws IOException, CaptchaException {
 		String output = "";
 		URL url = new URL(link);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");
 		connection.setDoInput(true);
 		connection.setDoOutput(true);
@@ -72,7 +73,7 @@ public class WebBrowser {
 		String output = "";
 
 		URL url = new URL(link);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 		connection.setRequestProperty("Connection", "keep-alive");
 		connection.setInstanceFollowRedirects(false);
 		connection.setRequestProperty("Accept-Language", "de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4");

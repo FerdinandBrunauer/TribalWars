@@ -1,11 +1,16 @@
-package datastore.memoryObjects;
+package tribalwars;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+
+import browser.CaptchaException;
+import browser.SessionException;
 
 public class Village {
 
-	private final String id;
+	private final long id;
 	private String dorfname;
 	public final int x;
 	private final int y;
@@ -22,7 +27,7 @@ public class Village {
 	private Date nextTroupBuildWorkshopPossible = new Date();
 	private Date nextFarmattackPossible = new Date();
 
-	public Village(String id, String dorfname, int x, int y) {
+	public Village(long id, String dorfname, int x, int y) {
 		this.id = id;
 		this.dorfname = dorfname;
 		this.x = x;
@@ -33,7 +38,7 @@ public class Village {
 	public boolean equals(Object object) {
 		if (object instanceof Village) {
 			Village village = (Village) object;
-			if (village.getID().compareTo(getID()) == 0) {
+			if (village.getID() == getID()) {
 				return true;
 			} else {
 				return false;
@@ -43,7 +48,69 @@ public class Village {
 		}
 	};
 
-	public String getID() {
+	/**
+	 * Ruft die Dorfübersicht des Dorfes auf und gibt eine {@link HashMap} mit
+	 * den aktuell vorhandenen Gebäudestufen zurück
+	 *
+	 * @param dorfID die DorfId des Dorfes
+	 * @return {@link HashMap} mit den aktuellen Gebäudestufen
+	 * @throws SessionException Wenn die Session abgelaufen ist und ein ReLogin
+	 *             vorgenommen werden muss.
+	 * @throws IOException Wenn die Verbindung zum Internet unterbrochen wird.
+	 * @throws CaptchaException Wenn der Botschutz auftritt
+	 */
+	// TODO refactor village overview
+	/*private HashMap<String, Integer> villageOverview(String dorfID) throws IOException, SessionException, CaptchaException {
+		String head = Jsoup.parse(this.browser.get("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?village=" + dorfID + "&screen=overview")).head().html();
+		HashMap<String, Integer> building = new HashMap<String, Integer>();
+
+		JSONObject object = RegexUtils.getVillageJSONFromHead(head);
+		JSONObject player = object.getJSONObject("player");
+		JSONObject village = object.getJSONObject("village");
+		JSONObject buildings = village.getJSONObject("buildings");
+
+		this.newReport = (player.getInt("new_report") > 0) ? true : false;
+		this.newMessage = (player.getInt("new_igm") > 0) ? true : false;
+		this.premium = player.getBoolean("premium");
+		this.accountManager = player.getBoolean("account_manager");
+
+		building.put("main", buildings.getInt("main"));
+		building.put("barracks", buildings.getInt("barracks"));
+		building.put("stable", buildings.getInt("stable"));
+		building.put("garage", buildings.getInt("garage"));
+		building.put("snob", buildings.getInt("snob"));
+		building.put("smith", buildings.getInt("smith"));
+		building.put("place", buildings.getInt("place"));
+		building.put("market", buildings.getInt("market"));
+		building.put("wood", buildings.getInt("wood"));
+		building.put("stone", buildings.getInt("stone"));
+		building.put("iron", buildings.getInt("iron"));
+		building.put("farm", buildings.getInt("farm"));
+		building.put("storage", buildings.getInt("storage"));
+		building.put("hide", buildings.getInt("hide"));
+		building.put("wall", buildings.getInt("wall"));
+		building.put("statue", buildings.getInt("statue"));
+
+		Village actualVillage = this.villages.getVillage(buildings.getString("village"));
+		actualVillage.setDorfname(village.getString("name"));
+		actualVillage.setHolz(village.getInt("wood"));
+		actualVillage.setLehm(village.getInt("stone"));
+		actualVillage.setEisen(village.getInt("iron"));
+		actualVillage.setSpeicher(village.getInt("storage_max"));
+		actualVillage.setPopulation(village.getInt("pop"));
+		actualVillage.setMaximalPopulation(village.getInt("pop_max"));
+
+		head = null;
+		village = null;
+		player = null;
+		buildings = null;
+
+		System.gc();
+
+		return building;
+	}*/
+
+	public long getID() {
 		return this.id;
 	}
 

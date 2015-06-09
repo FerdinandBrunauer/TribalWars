@@ -1,8 +1,13 @@
+import java.util.HashMap;
 import java.util.Scanner;
 
 import logger.ConsoleLogger;
 import logger.FileLogger;
 import logger.Logger;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import tribalwars.Account;
 import webservice.WebService;
 import datastore.Configuration;
@@ -16,7 +21,7 @@ import datastore.Configuration;
  * So if you are done trying to 'optimize' this routine (and failed), please
  * increment the following counter as a warning to the next guy:
  *
- * total_hours_wasted_here = 91
+ * total_hours_wasted_here = 102
  *
  */
 
@@ -30,6 +35,8 @@ public class Main {
 		Logger.logMessage("===============================================================================================================");
 		new ConsoleLogger();
 
+		new WebService(Integer.parseInt(Configuration.getProperty(Configuration.configuration_webserviceport, "8080")));
+
 		String username = getConfiguration(Configuration.configuration_username, "Bitte Benutzername eingeben: ");
 		Logger.logMessage("Benutzername: \"" + username + "\"");
 		String password = getConfiguration(Configuration.configuration_password, "Bitte Passwort eingeben: ");
@@ -39,11 +46,10 @@ public class Main {
 		String worldNumber = getConfiguration(Configuration.configuration_worldnumber, "Bitte die Weltenzahl eingeben (z.B. \"115\", \"116\" ohne \"): ");
 		Logger.logMessage("Weltenzahl: \"" + worldNumber + "\"");
 
-		//checkWorldspeed(worldPrefix, worldNumber);
-		//check9kw();
+		checkWorldspeed(worldPrefix, worldNumber);
+		check9kw();
 
 		new Account(username, password, worldPrefix, worldNumber);
-		new WebService(Integer.parseInt(Configuration.getProperty(Configuration.configuration_webserviceport, "8080")));
 	}
 
 	private static String getConfiguration(String configuration_prefix, String consoleQuestion) {
@@ -56,7 +62,7 @@ public class Main {
 		return configurationValue;
 	}
 
-	/*private static void check9kw() {
+	private static void check9kw() {
 		getConfiguration(Configuration.configuration_9kweu_javaapikey, "Bitte geben sie ihren API-Key f\u00FCr 9kw.eu ein: ");
 		try {
 			HashMap<String, String> parameter = new HashMap<String, String>();
@@ -74,9 +80,9 @@ public class Main {
 			Logger.logMessage("Konnte 9kw.eu Credits nicht lesen!", e);
 			System.exit(2);
 		}
-	} */
+	}
 
-	/* private static void checkWorldspeed(String worldPrefix, String worldNumber) {
+	private static void checkWorldspeed(String worldPrefix, String worldNumber) {
 		try {
 			Document worldSettings = Jsoup.connect("http://de.twstats.com/" + worldPrefix + worldNumber + "/index.php?page=settings").timeout(10 * 1000).get();
 			String worldSpeed = worldSettings.getElementsByClass("widget").get(0).getElementsByTag("tr").get(1).getElementsByTag("td").get(1).html();
@@ -86,5 +92,5 @@ public class Main {
 			Logger.logMessage("Konnte Weltgeschwindigkeit nicht lesen!", e);
 			System.exit(1);
 		}
-	} */
+	}
 }

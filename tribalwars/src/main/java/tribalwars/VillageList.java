@@ -3,8 +3,6 @@ package tribalwars;
 import java.util.ArrayList;
 import java.util.List;
 
-import datastore.memoryObjects.Village;
-
 public class VillageList extends ArrayList<Village> {
 	private static final long serialVersionUID = -728676498937570851L;
 
@@ -14,9 +12,9 @@ public class VillageList extends ArrayList<Village> {
 	 * @param dorfID Die eindeutige ID eines jeden Dorfes
 	 * @return Den Pointer des Dorf Objektes wenn vorhanden
 	 */
-	public Village getVillage(String dorfID) {
+	public Village getVillage(long dorfID) {
 		for (int i = 0; i < size(); i++) {
-			if (get(i).getID().compareTo(dorfID) == 0) {
+			if (get(i).getID() == dorfID) {
 				return get(i);
 			}
 		}
@@ -30,7 +28,7 @@ public class VillageList extends ArrayList<Village> {
 	 * @param newList Die ausgelesene Dorfübersicht
 	 */
 	public void compareToNewList(List<Village> newList) {
-		ArrayList<String> idList = getIDs();
+		ArrayList<Long> idList = getIDs();
 
 		for (Village newVillage : newList) {
 			if (idList.remove(newVillage.getID())) {
@@ -46,14 +44,14 @@ public class VillageList extends ArrayList<Village> {
 
 		if (idList.size() > 0) {
 			// Dorf/Dörfer verloren
-			for (String id : idList) {
+			for (Long id : idList) {
 				this.remove(indexOf(new Village(id, "undefined", 0, 0)));
 			}
 		}
 	}
 
-	private ArrayList<String> getIDs() {
-		ArrayList<String> idList = new ArrayList<String>();
+	private ArrayList<Long> getIDs() {
+		ArrayList<Long> idList = new ArrayList<Long>();
 
 		for (Village village : this) {
 			idList.add(village.getID());

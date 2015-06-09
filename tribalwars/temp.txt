@@ -227,3 +227,17 @@
 							// Nichts machen
 							break;
 						}
+						
+							private long getRemainingBuildtime() {
+		try {
+			Elements table = this.document.getElementsByClass("trainqueue_wrap").get(0).getElementsByTag("tr");
+			if (table.size() > 0) {
+				table.remove(0);
+				return RegexUtils.convertTimestringToMilliseconds(table.get(0).getElementsByTag("td").get(1).html());
+			} else {
+				return -1;
+			}
+		} catch (Exception e) {
+			return -1;
+		}
+	}

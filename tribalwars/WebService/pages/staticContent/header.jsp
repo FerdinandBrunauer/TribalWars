@@ -13,6 +13,7 @@
 <link href="../../bower_components/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
 <link href="../../dist/css/sb-admin-2.css" rel="stylesheet">
 <link href="../../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+<script src="../../bower_components/jquery/dist/jquery.min.js" type="text/javascript"></script>
 <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
@@ -29,7 +30,12 @@
 				<ul class="nav" id="side-menu">
 					<li>
 						<a href="index.jsp" class="<%=(request.getParameter("active").compareTo("dashboard") == 0) ? "active" : ""%>">
-							<i class="fa fa-dashboard fa-fw"></i> Dashboard
+							<i class="fa fa-home fa-fw"></i> Dashboard
+						</a>
+					</li>
+					<li>
+						<a href="charts.jsp" class="<%=(request.getParameter("active").compareTo("charts") == 0) ? "active" : ""%>">
+							<i class="fa fa-bar-chart fa-fw"></i> Statistiken
 						</a>
 					</li>
 					<li>
@@ -56,7 +62,7 @@
 						<!-- /.nav-second-level -->
 					</li>
 					<li>
-						<a href="settings.jsp">
+						<a href="settings.jsp" class="<%=(request.getParameter("active").compareTo("settings") == 0) ? "active" : ""%>">
 							<i class="fa fa-sliders fa-fw"></i> Einstellungen
 						</a>
 					</li>
@@ -64,7 +70,7 @@
 			</div>
 		</div>
 		</nav>
-		<div id="page-wrapper" style="min-height: 273px;">
+		<div id="page-wrapper" style="min-height: 285px;">
 			<div class="row">
 				<div class="col-lg-12">
 					<h1 class="page-header"><%=(request.getParameterMap().containsKey("header")) ? request.getParameter("header") : "Die St&auml;mme Bot"%></h1>

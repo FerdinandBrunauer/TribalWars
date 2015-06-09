@@ -1,8 +1,10 @@
 package tribalwars.utils;
 
 import java.io.IOException;
-import java.util.Calendar;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -78,21 +80,13 @@ public class RegexUtils {
 		Pattern pattern = Pattern.compile("(\\d\\d)\\.(\\d\\d)\\.(15)\\s(\\d\\d):(\\d\\d):(\\d\\d)");
 		Matcher matcher = pattern.matcher(html);
 		if (matcher.find()) {
-			int date = Integer.parseInt(matcher.group(1));
-			int month = Integer.parseInt(matcher.group(2));
-			int year = Integer.parseInt("20" + matcher.group(3));
-			int hours = Integer.parseInt(matcher.group(4));
-			int minutes = Integer.parseInt(matcher.group(5));
-			int seconds = Integer.parseInt(matcher.group(6));
-
-			Calendar calendar = Calendar.getInstance();
-			calendar.set(Calendar.YEAR, year);
-			calendar.set(Calendar.MONTH, month);
-			calendar.set(Calendar.DAY_OF_MONTH, date);
-			calendar.set(Calendar.HOUR, hours);
-			calendar.set(Calendar.MINUTE, minutes);
-			calendar.set(Calendar.SECOND, seconds);
-			return calendar.getTime();
+			try {
+				DateFormat format = new SimpleDateFormat("dd.MM.yy HH:mm:ss", Locale.GERMAN);
+				Date date = format.parse(matcher.group(0));
+				return date;
+			} catch (Exception ignore) {
+				throw new IOException("Konnte Datum in Quelltext nicht parsen! Datum: \"" + matcher.group(0) + "\"");
+			}
 		} else {
 			throw new IOException("Konnte Datum nicht im Quelltext finden!");
 		}

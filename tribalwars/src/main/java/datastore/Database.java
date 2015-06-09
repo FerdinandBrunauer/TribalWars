@@ -4,18 +4,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteJob;
 import com.almworks.sqlite4java.SQLiteQueue;
 import com.almworks.sqlite4java.SQLiteStatement;
-
-import datastore.memoryObjects.BuildingPattern;
-import datastore.memoryObjects.VorlageItem;
 
 public class Database extends SQLiteQueue {
 
@@ -80,126 +74,90 @@ public class Database extends SQLiteQueue {
 		logger.Logger.logMessage("Erstellen der Datenbank abgeschlossen! Dauer: \"" + time + "\"");
 	}
 
-	public static HashMap<String, Integer> getMaximalBuildinglevelFromVorlage(final long vorlageID) {
-		return getInstance().execute(new SQLiteJob<HashMap<String, Integer>>() {
-			@Override
-			protected HashMap<String, Integer> job(SQLiteConnection connection) throws Throwable {
-				HashMap<String, Integer> buildings = new HashMap<String, Integer>();
-				SQLiteStatement statement = connection.prepare("SELECT `name` FROM `Building`;");
-				while (statement.step()) {
-					buildings.put(statement.columnString(0), 0);
-				}
-
-				statement = connection.prepare("SELECT Building.name AS 'building', MAX(VorlageItem.level) AS 'level' FROM VorlageItem JOIN Building ON VorlageItem.idBuilding=Building.idBuilding WHERE VorlageItem.idVorlage=? GROUP BY VorlageItem.idBuilding");
-				statement.bind(1, vorlageID);
-
-				while (statement.step()) {
-					buildings.put(statement.columnString(0), statement.columnInt(1));
-				}
-
-				return buildings;
-			}
-		}).complete();
-	}
-
-	public static List<BuildingPattern> getBuildingPattern() {
-		return getInstance().execute(new SQLiteJob<List<BuildingPattern>>() {
-			@Override
-			protected List<BuildingPattern> job(SQLiteConnection connection) throws Throwable {
-				List<BuildingPattern> pattern = new ArrayList<BuildingPattern>();
-
-				SQLiteStatement statement = connection.prepare("SELECT `idVorlage`, `name` FROM `Vorlage`;");
-				while (statement.step()) {
-					pattern.add(new BuildingPattern(statement.columnLong(0), statement.columnString(1)));
-				}
-
-				return pattern;
-			}
-		}).complete();
-	}
-
-	public static List<String> getBuildingPatternContentFormatted(final long id) {
-		return getInstance().execute(new SQLiteJob<List<String>>() {
-			@Override
-			protected List<String> job(SQLiteConnection connection) throws Throwable {
-				List<String> content = new ArrayList<>();
-
-				SQLiteStatement statement = connection.prepare("SELECT `Building`.`displayName`, `VorlageItem`.`level` FROM `VorlageItem` JOIN `Building` ON `VorlageItem`.`idBuilding`=`Building`.`idBuilding` WHERE `VorlageItem`.`idVorlage`=? ORDER BY `VorlageItem`.`position` ASC;");
-				statement.bind(1, id);
-				while (statement.step()) {
-					content.add("<table style=\"width: 100%;\"><tr><td style=\"text-align: left;\">" + statement.columnString(0) + "</td><td style=\"text-align: right;\">" + statement.columnInt(1) + "</td></tr></table>");
-				}
-
-				return content;
-			}
-		}).complete();
-	}
-
-	public static List<VorlageItem> getBuildingPatternContent(final long id) {
-		return getInstance().execute(new SQLiteJob<List<VorlageItem>>() {
-			@Override
-			protected List<VorlageItem> job(SQLiteConnection connection) throws Throwable {
-				List<VorlageItem> items = new ArrayList<VorlageItem>();
-
-				SQLiteStatement statement = connection.prepare("SELECT `Building`.`name`, `VorlageItem`.`level` FROM `VorlageItem` JOIN `Building` ON `VorlageItem`.`idBuilding`=`Building`.`idBuilding` WHERE `VorlageItem`.`idVorlage`=? ORDER BY `VorlageItem`.`position` ASC;");
-				statement.bind(1, id);
-				while (statement.step()) {
-					items.add(new VorlageItem(statement.columnString(0), statement.columnInt(1)));
-				}
-
-				return items;
-			}
-		}).complete();
-	}
-
-	public static void insertVillage(final long idVillage, final int x, final int y) {
+	public static void insertFarm(final long idFarm, final long idVillage, final int x, final int y) {
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
 			protected Void job(SQLiteConnection connection) throws Throwable {
-				SQLiteStatement statement = connection.prepare("INSERT OR IGNORE INTO `Village` (`idVillage`, `x`, `y`) VALUES (?, ?, ?);");
-				statement.bind(1, idVillage);
-				statement.bind(2, x);
-				statement.bind(3, y);
-				statement.stepThrough();
-				return null;
-			}
-		}).complete();
-	}
-
-	public static void insertReport(final long idReport, final long idVillage, final Date attackTime, final int spyedWood, final int spyedStone, final int spyedIron, final int wood, final int stone, final int iron, final int wall) {
-		getInstance().execute(new SQLiteJob<Void>() {
-			@Override
-			protected Void job(SQLiteConnection connection) throws Throwable {
-				SQLiteStatement statement = connection.prepare("INSERT INTO `Report`(`idReport`,`idVillage`,`attackTime`, `spyedWood`, `spyedStone`, `spyedIron`, `wood`, `stone`, `iron`, `wall`) VALUES (?,?,?,?,?,?,?,?,?,?);");
-				statement.bind(1, idReport);
+				SQLiteStatement statement = connection.prepare("INSERT INTO `Farm` (`idFarm`, `idVillage`, `x`, `y`) VALUES (?, ?, ?, ?);");
+				statement.bind(1, idFarm);
 				statement.bind(2, idVillage);
-				statement.bind(3, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(attackTime));
-				statement.bind(4, spyedWood);
-				statement.bind(5, spyedStone);
-				statement.bind(6, spyedIron);
-				statement.bind(7, wood);
-				statement.bind(8, stone);
-				statement.bind(9, iron);
-				statement.bind(10, wall);
-
+				statement.bind(3, x);
+				statement.bind(4, y);
 				statement.stepThrough();
 				return null;
 			}
 		}).complete();
 	}
 
-	public static long getMaximalReportID() {
-		return getInstance().execute(new SQLiteJob<Long>() {
+	public static void removeFarm(final long idFarm) {
+		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
-			protected Long job(SQLiteConnection connection) throws Throwable {
-				SQLiteStatement statement = connection.prepare("SELECT ifnull(MAX(`idReport`), 0) FROM `Report`;");
-				statement.step();
-				return statement.columnLong(0);
+			protected Void job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("DELETE FROM `Farm` WHERE `idFarm`=?;");
+				statement.bind(1, idFarm);
+				statement.stepThrough();
+				return null;
 			}
 		}).complete();
 	}
 
-	public static void insertFarmAttack(final long idVillage, final Date arrival, final int possibleLoot) {
+	public static int getFarmCount(final long idVillage) {
+		return getInstance().execute(new SQLiteJob<Integer>() {
+			@Override
+			protected Integer job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("SELECT COUNT(`idFarm`) FROM `Farm` WHERE `idVillage`=?;");
+				statement.bind(1, idVillage);
+				statement.step();
+				return statement.columnInt(0);
+			}
+		}).complete();
+	}
+
+	public static boolean containsReport(final long idReport) {
+		return getInstance().execute(new SQLiteJob<Boolean>() {
+			@Override
+			protected Boolean job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("SELECT IFNULL(MAX(`idReport`), 0) FROM `Report` WHERE `idReport`=?;");
+				statement.bind(1, idReport);
+				statement.step();
+				return statement.columnLong(0) > 0;
+			}
+		}).complete();
+	}
+
+	public static void insertReport(final long idReport) {
+		getInstance().execute(new SQLiteJob<Void>() {
+			@Override
+			protected Void job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("INSERT INTO `Report`(`idReport`) VALUES (?);");
+				statement.bind(1, idReport);
+				statement.stepThrough();
+				return null;
+			}
+		}).complete();
+	}
+
+	public static void insertReport(final long idReport, final long idFarm, final Date attackTime, final int spyedResources, final int wood, final int stone, final int iron, final int wall) {
+		getInstance().execute(new SQLiteJob<Void>() {
+			@Override
+			protected Void job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("INSERT INTO `Report`(`idReport`, `idFarm`, `attackTime`, `spyedResources`, `wood`, `stone`, `iron`, `wall`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+				statement.bind(1, idReport);
+				statement.bind(2, idFarm);
+				statement.bind(3, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(attackTime));
+				statement.bind(4, spyedResources);
+				statement.bind(5, wood);
+				statement.bind(6, stone);
+				statement.bind(7, iron);
+				statement.bind(8, wall);
+				statement.stepThrough();
+				return null;
+			}
+		}).complete();
+	}
+
+	// TODO insert Farm Attack
+	/* public static void insertFarmAttack(final long idVillage, final Date arrival, final int possibleLoot) {
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
 			protected Void job(SQLiteConnection connection) throws Throwable {
@@ -209,6 +167,50 @@ public class Database extends SQLiteQueue {
 				statement.bind(3, possibleLoot);
 				statement.stepThrough();
 				return null;
+			}
+		}).complete();
+	} */
+
+	public static long getCountReports() {
+		return getInstance().execute(new SQLiteJob<Long>() {
+			@Override
+			protected Long job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("SELECT COUNT(`idReport`) FROM `Report`;");
+				statement.step();
+				return statement.columnLong(0);
+			}
+		}).complete();
+	}
+
+	public static long getCountFarms() {
+		return getInstance().execute(new SQLiteJob<Long>() {
+			@Override
+			protected Long job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("SELECT COUNT(`idFarm`) FROM `Farm`;");
+				statement.step();
+				return statement.columnLong(0);
+			}
+		}).complete();
+	}
+
+	public static long getCountFarmAttack() {
+		return getInstance().execute(new SQLiteJob<Long>() {
+			@Override
+			protected Long job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("SELECT COUNT(`idFarmAttack`) FROM `FarmAttack`;");
+				statement.step();
+				return statement.columnLong(0);
+			}
+		}).complete();
+	}
+
+	public static long getMaximalRessourcesSpyed() {
+		return getInstance().execute(new SQLiteJob<Long>() {
+			@Override
+			protected Long job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("SELECT IFNULL(MAX(`spyedResources`), 0) AS countRessources FROM `Report` ORDER BY countRessources DESC LIMIT 1;");
+				statement.step();
+				return statement.columnLong(0);
 			}
 		}).complete();
 	}

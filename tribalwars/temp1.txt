@@ -1,0 +1,33 @@
+HashMap<String, Integer> building = villageOverview(village.getID());
+								String nextBuilding = BuildingUtils.calculateNextBuilding(2, building);
+								if (nextBuilding != null) {
+									Document mainOverview = Jsoup.parse(this.browser.get("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?village=" + village.getID() + "&screen=main"));
+									Element buildqueue = mainOverview.getElementById("buildqueue");
+									if (buildqueue != null) {
+										String timer = buildqueue.getElementsByClass("timer").get(0).html();
+										village.setNextBuildingbuildPossible(new Date(System.currentTimeMillis() + RegexUtils.convertTimestringToMilliseconds(timer)));
+
+										String actualBuildingBuilding = buildqueue.getElementsByClass("lit-item").get(0).getElementsByTag("img").get(0).attr("title");
+										Logger.logMessage("\"" + village.getDorfname() + "\" baut noch bis um " + new SimpleDateFormat("HH:mm:ss").format(village.getNextBuildingbuildPossible()) + " an " + actualBuildingBuilding);
+									} else {
+										Element buildrow = mainOverview.getElementById("main_buildrow_" + nextBuilding);
+										if (buildrow != null) {
+											if (buildrow.getElementsByTag("td").get(6).getElementsByClass("inactive").size() < 1) { // buildable
+												long time = RegexUtils.convertTimestringToMilliseconds(buildrow.getElementsByTag("td").get(4).html());
+												String hWert = RegexUtils.getHWert(mainOverview.head().html());
+
+												ArrayList<SimpleEntry<String, String>> additionalHeader = new ArrayList<SimpleEntry<String, String>>();
+												additionalHeader.add(new SimpleEntry<String, String>("TribalWars-Ajax", "1"));
+												this.browser.post("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?village=" + village.getID() + "&ajaxaction=upgrade_building&h=" + hWert + "&type=main&screen=main&&client_time=" + (System.currentTimeMillis() + "").substring(0, 10), "id=" + nextBuilding + "&force=1&destroy=0&source=" + village.getID(), additionalHeader);
+												Logger.logMessage("Auftrag: \"" + village.getDorfname() + "\" baut nun an " + BuildingUtils.getFullBuildingname(nextBuilding) + ".");
+												village.setNextBuildingbuildPossible(new Date(System.currentTimeMillis() + time));
+											} else {
+												village.setNextBuildingbuildPossible(new Date(System.currentTimeMillis() + (5 * 60 * 1000)));
+												// In 5 Minuten noch einmal schauen
+											}
+										}
+									}
+								} else {
+									Logger.logMessage("\"" + village.getDorfname() + "\" ist vollst\u00E4ndig Ausgebaut! Bitte \u00E4ndern sie den Namen des Dorfes!");
+									village.setNextBuildingbuildPossible(new Date(System.currentTimeMillis() + (30 * 60 * 1000)));
+								}
