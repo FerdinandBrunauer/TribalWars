@@ -1,6 +1,5 @@
 /target/
 /configuration.prop
-/database.sql
 /log/
 /database.db3
 /tomcat.8080/
