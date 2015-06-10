@@ -85,11 +85,16 @@ public class Main {
 	private static void checkWorldspeed(String worldPrefix, String worldNumber) {
 		try {
 			Document worldSettings = Jsoup.connect("http://de.twstats.com/" + worldPrefix + worldNumber + "/index.php?page=settings").timeout(10 * 1000).get();
+
 			String worldSpeed = worldSettings.getElementsByClass("widget").get(0).getElementsByTag("tr").get(1).getElementsByTag("td").get(1).html();
 			Configuration.setProperty(Configuration.configuration_worldspeed, worldSpeed);
 			Logger.logMessage("Weltgeschwindigkeit: \"" + worldSpeed + "\"");
+
+			String truoupSpeed = worldSettings.getElementsByClass("widget").get(0).getElementsByTag("tr").get(2).getElementsByTag("td").get(1).html();
+			Configuration.setProperty(Configuration.configuration_troupspeed, truoupSpeed);
+			Logger.logMessage("Truppengeschwindigkeit: \"" + truoupSpeed + "\"");
 		} catch (Exception e) {
-			Logger.logMessage("Konnte Weltgeschwindigkeit nicht lesen!", e);
+			Logger.logMessage("Konnte Weltgeschwindigkeit und Truppengeschwindigkeit nicht lesen!", e);
 			System.exit(1);
 		}
 	}

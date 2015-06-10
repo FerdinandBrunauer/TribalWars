@@ -3,13 +3,20 @@ package datastore;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+
+import tribalwars.Account;
+import tribalwars.Village;
 
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteJob;
 import com.almworks.sqlite4java.SQLiteQueue;
 import com.almworks.sqlite4java.SQLiteStatement;
+
+import datastore.memoryObject.Farm;
 
 public class Database extends SQLiteQueue {
 
@@ -74,17 +81,38 @@ public class Database extends SQLiteQueue {
 		logger.Logger.logMessage("Erstellen der Datenbank abgeschlossen! Dauer: \"" + time + "\"");
 	}
 
-	public static void insertFarm(final long idFarm, final long idVillage, final int x, final int y) {
+	public static void insertFarm(final long idFarm, final long idVillage, final int x, final int y, final double distance) {
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
 			protected Void job(SQLiteConnection connection) throws Throwable {
-				SQLiteStatement statement = connection.prepare("INSERT INTO `Farm` (`idFarm`, `idVillage`, `x`, `y`) VALUES (?, ?, ?, ?);");
+				SQLiteStatement statement = connection.prepare("INSERT INTO `Farm` (`idFarm`, `idVillage`, `x`, `y`, `distance`) VALUES (?, ?, ?, ?, ?);");
 				statement.bind(1, idFarm);
 				statement.bind(2, idVillage);
 				statement.bind(3, x);
 				statement.bind(4, y);
+				statement.bind(5, distance);
 				statement.stepThrough();
 				return null;
+			}
+		}).complete();
+	}
+
+	public static ArrayList<Farm> getFarms(final long idVillage) {
+		return getInstance().execute(new SQLiteJob<ArrayList<Farm>>() {
+			@Override
+			protected ArrayList<Farm> job(SQLiteConnection connection) throws Throwable {
+				ArrayList<Farm> farmen = new ArrayList<Farm>();
+
+				SQLiteStatement statement = connection
+						.prepare("SELECT `Farm`.`distance`, CASE WHEN ((wood.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) > storage.`storage` THEN storage.`storage` ELSE ((wood.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) END + CASE WHEN ((stone.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) > storage.`storage` THEN storage.`storage` ELSE ((stone.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) END + CASE WHEN ((iron.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) > storage.`storage` THEN storage.`storage` ELSE ((iron.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) END AS 'possibleResources', `Report`.`wall`FROM `Report`JOIN `Farm` ON `Farm`.`idFarm` = `Report`.`idFarm`JOIN `Production` AS wood ON wood.`level` = `Report`.`wood`JOIN `Production` AS stone ON stone.`level` = `Report`.`stone`JOIN `Production` AS iron ON iron.`level` = `Report`.`iron`JOIN `Storage` AS `storage` ON `storage`.`level` = `Report`.`storage`WHERE `Farm`.`idVillage` = ? GROUP BY `Report`.`idFarm`ORDER BY `Farm`.`distance` ASC;");
+				for (int i = 1; i <= 6; i++) {
+					statement.bind(i, Integer.parseInt(Configuration.getProperty(Configuration.configuration_worldspeed, "")));
+				}
+				statement.bind(7, idVillage);
+				while (statement.step()) {
+					farmen.add(new Farm(statement.columnDouble(0), statement.columnDouble(1), statement.columnInt(2)));
+				}
+				return farmen;
 			}
 		}).complete();
 	}
@@ -137,11 +165,11 @@ public class Database extends SQLiteQueue {
 		}).complete();
 	}
 
-	public static void insertReport(final long idReport, final long idFarm, final Date attackTime, final int spyedResources, final int wood, final int stone, final int iron, final int wall) {
+	public static void insertReport(final long idReport, final long idFarm, final Date attackTime, final int spyedResources, final int wood, final int stone, final int iron, final int storage, final int wall) {
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
 			protected Void job(SQLiteConnection connection) throws Throwable {
-				SQLiteStatement statement = connection.prepare("INSERT INTO `Report`(`idReport`, `idFarm`, `attackTime`, `spyedResources`, `wood`, `stone`, `iron`, `wall`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+				SQLiteStatement statement = connection.prepare("INSERT INTO `Report`(`idReport`, `idFarm`, `attackTime`, `spyedResources`, `wood`, `stone`, `iron`, `storage`, `wall`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);");
 				statement.bind(1, idReport);
 				statement.bind(2, idFarm);
 				statement.bind(3, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(attackTime));
@@ -149,7 +177,8 @@ public class Database extends SQLiteQueue {
 				statement.bind(5, wood);
 				statement.bind(6, stone);
 				statement.bind(7, iron);
-				statement.bind(8, wall);
+				statement.bind(8, storage);
+				statement.bind(9, wall);
 				statement.stepThrough();
 				return null;
 			}
@@ -238,10 +267,51 @@ public class Database extends SQLiteQueue {
 	}
 
 	public static double getAvgCountFarm() {
+		final Village[] villages;
+		try {
+			villages = Account.getInstance().getMyVillages();
+		} catch (IOException e) {
+			return 0.0d;
+		}
+		if (villages.length < 1) {
+			return 0.0d;
+		}
+
 		return getInstance().execute(new SQLiteJob<Double>() {
 			@Override
 			protected Double job(SQLiteConnection connection) throws Throwable {
-				SQLiteStatement statement = connection.prepare("SELECT IFNULL(AVG(`spyedResources`), 0) FROM `Report`;"); // TODO avgCountFarm
+				String questionMarks = "";
+				for (int i = 0; i < villages.length; i++) {
+					questionMarks += "?, ";
+				}
+				questionMarks = questionMarks.substring(0, questionMarks.length() - 2);
+				SQLiteStatement statement = connection.prepare("SELECT COUNT(`idFarm`)/? FROM `Farm` WHERE `idVillage` IN (" + questionMarks + ");");
+				statement.bind(1, villages.length);
+				for (int i = 0; i < villages.length; i++) {
+					statement.bind(i + 2, villages[i].getID());
+				}
+				statement.step();
+				return statement.columnDouble(0);
+			}
+		}).complete();
+	}
+
+	public static double getAvgDistanceFarm() {
+		return getInstance().execute(new SQLiteJob<Double>() {
+			@Override
+			protected Double job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("SELECT IFNULL(AVG(`distance`), 0) FROM `Farm`;");
+				statement.step();
+				return statement.columnDouble(0);
+			}
+		}).complete();
+	}
+
+	public static double getMaxDistanceFarm() {
+		return getInstance().execute(new SQLiteJob<Double>() {
+			@Override
+			protected Double job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("SELECT IFNULL(AVG(`distance`), 0) FROM `Farm`;");
 				statement.step();
 				return statement.columnDouble(0);
 			}

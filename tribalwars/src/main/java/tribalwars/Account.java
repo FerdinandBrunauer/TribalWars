@@ -32,8 +32,8 @@ public class Account implements Runnable {
 	private boolean premium = false;
 	private boolean accountManager = false;
 	private boolean newReport = false;
-	private WebBrowser browser;
-	private Document document;
+	public WebBrowser browser;
+	public Document document;
 
 	private static Account myInstance = null;
 
@@ -94,8 +94,8 @@ public class Account implements Runnable {
 		this.browser = new WebBrowser();
 		if (login()) {
 			Logger.logMessage("Erfolgreich eingeloggt!");
-			Logger.logMessage("Premium: \"" + this.hasPremium() + "\"");
-			Logger.logMessage("Account-Manager: \"" + this.hasAccountManager() + "\"");
+			Logger.logMessage("Premium: \"" + hasPremium() + "\"");
+			Logger.logMessage("Account-Manager: \"" + hasAccountManager() + "\"");
 
 			// Get villages
 			analyzeVillages();
@@ -117,7 +117,7 @@ public class Account implements Runnable {
 				analyzeVillages(); // Ressourcen aktualisieren und überprüfen, ob der Spieler ein Dorf verloren hat.
 
 				// Refresh reports
-				if (this.hasNewReport()) {
+				if (hasNewReport()) {
 					Logger.logMessage("Aktualisiere Berichte");
 					Logger.logMessage(analyzeReports() + " Berichte gelesen!");
 				}
@@ -126,24 +126,24 @@ public class Account implements Runnable {
 					if (VillagenameUtils.getVillageDoFarming(village.getDorfname())) {
 						if (village.isNextFarmattackPossible()) {
 							// Farm
-							// TODO Farm
+							village.sendFarmTroops();
 						}
 					}
 
 					if (VillagenameUtils.getVillageBuildTroops(village.getDorfname())) {
-						if (this.hasAccountManager()) { // Wenn der accountManager aktiv ist, wird nichts gebaut
+						if (hasAccountManager()) { // Wenn der accountManager aktiv ist, wird nichts gebaut
 							// TODO refactor troup building (temp.txt)
 						}
 					}
 
 					if (village.hasToResearch()) {
-						if (this.hasAccountManager()) { // Wenn der accountManager aktiv ist, wird nichts gebaut
+						if (hasAccountManager()) { // Wenn der accountManager aktiv ist, wird nichts geforscht
 							// TODO forschen
 						}
 					}
 
 					if (VillagenameUtils.getVillageBuildBuildings(village.getDorfname())) {
-						if (this.hasAccountManager()) { // Wenn der accountManager aktiv ist, wird nichts gebaut
+						if (hasAccountManager()) { // Wenn der accountManager aktiv ist, wird nichts gebaut
 							if (village.isNextBuildingbuildPossible()) {
 								// TODO refactor Baue Gebäude (temp1.txt)
 							}
@@ -178,9 +178,9 @@ public class Account implements Runnable {
 		this.browser.post("https://www.die-staemme.de/index.php?action=login&server_" + this.worldPrefix + this.worldNumber, "user=" + this.username + "&password=" + passwordHash);
 		this.document = Jsoup.parse(this.browser.get("https://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?screen=overview&intro"));
 		if (this.document.getElementById("menu_counter_profile") != null) {
-			JSONObject object = RegexUtils.getVillageJSONFromHead(this.document.head().html()).getJSONObject("player");
-			this.setPremium(object.getBoolean("premium"));
-			this.setAccountManager(object.getBoolean("account_manager"));
+			JSONObject object = RegexUtils.getJSONFromHead(this.document.head().html()).getJSONObject("player");
+			setPremium(object.getBoolean("premium"));
+			setAccountManager(object.getBoolean("account_manager"));
 			return true;
 		} else {
 			return false;
@@ -199,18 +199,18 @@ public class Account implements Runnable {
 	private void analyzeVillages() throws IOException, SessionException, CaptchaException {
 		ArrayList<Village> newVillages = new ArrayList<Village>();
 
-		this.document = Jsoup.parse(this.browser.get("https://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?screen=overview_villages" + (this.hasPremium() ? "&mode=prod" : "")));
+		this.document = Jsoup.parse(this.browser.get("https://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?screen=overview_villages" + (hasPremium() ? "&mode=prod" : "")));
 
-		JSONObject object = RegexUtils.getVillageJSONFromHead(this.document.head().html());
+		JSONObject object = RegexUtils.getJSONFromHead(this.document.head().html());
 		JSONObject player = object.getJSONObject("player");
-		this.setNewReport(((player.getInt("new_report") > 0) ? true : false));
-		this.setPremium(player.getBoolean("premium"));
-		this.setAccountManager(player.getBoolean("account_manager"));
+		setNewReport(((player.getInt("new_report") > 0) ? true : false));
+		setPremium(player.getBoolean("premium"));
+		setAccountManager(player.getBoolean("account_manager"));
 		object = null;
 		player = null;
 
 		Elements villageRows, tableDatas;
-		if (this.hasPremium()) {
+		if (hasPremium()) {
 			villageRows = this.document.getElementById("production_table").getElementsByTag("tr");
 			villageRows.remove(0); // Header
 			for (Element villageRow : villageRows) {
@@ -280,12 +280,11 @@ public class Account implements Runnable {
 	 *             Session abgelaufen ist.
 	 */
 	private int analyzeReports() throws IOException, SessionException, CaptchaException {
-		// TODO analyze Reports
 		int counter = 0;
 
 		Elements reportRows;
 
-		if (this.hasPremium()) {
+		if (hasPremium()) {
 			int from = 0;
 			outerloop: while (true) {
 				this.document = Jsoup.parse(this.browser.get("https://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?mode=all&from=" + from + "&screen=report"));
@@ -305,18 +304,19 @@ public class Account implements Runnable {
 				from += reportRows.size();
 			}
 		} else {
+			// TODO analyze Reports without premium
 			throw new IOException("Berichte ohne Premium-Account auslesen wurde noch nicht implementiert!");
 		}
 
 		reportRows = null;
 
-		this.setNewReport(false);
+		setNewReport(false);
 		return counter;
 	}
 
 	/**
 	 * Ruft den Bericht auf und speichert ihn in die Datenbank.
-	 * 
+	 *
 	 * @param idReport Die Bericht ID
 	 * @return true wenn er noch nicht in der Datenbank vorhanden war, false
 	 *         wenn er bereits vorhanden war
@@ -332,11 +332,11 @@ public class Account implements Runnable {
 			return false;
 		}
 
-		if (this.hasPremium()) {
+		if (hasPremium()) {
 			Element buildingSpyTable = this.document.getElementById("attack_spy_building_data");
 			Element resourceSpyTable = this.document.getElementById("attack_spy_resources");
 			if ((buildingSpyTable != null) && (resourceSpyTable != null)) {
-				int wood = 0, stone = 0, iron = 0, wall = 0, spyedResources = 0;
+				int wood = 0, stone = 0, iron = 0, storage = 0, wall = 0, spyedResources = 0;
 				Date attackTime = RegexUtils.getTime(this.document.html());
 				long idFarm = Long.parseLong(this.document.getElementsByClass("village_anchor").get(1).attr("data-id"));
 				long idDefender = Long.parseLong(this.document.getElementsByClass("village_anchor").get(1).attr("data-player"));
@@ -370,12 +370,16 @@ public class Account implements Runnable {
 						wall = temp.getInt("level");
 						break;
 					}
+					case "storage": {
+						storage = temp.getInt("level");
+						break;
+					}
 					default:
 						continue;
 					}
 				}
 
-				Database.insertReport(idReport, idFarm, attackTime, spyedResources, wood, stone, iron, wall);
+				Database.insertReport(idReport, idFarm, attackTime, spyedResources, wood, stone, iron, storage, wall);
 			} else {
 				Database.insertReport(idReport);
 			}
@@ -413,8 +417,9 @@ public class Account implements Runnable {
 				if (tableData.get(6).getElementsByTag("a").get(0).html().compareTo("") == 0) {
 					long farmID = RegexUtils.getIDFromTwStatsLink(tableData.get(5).getElementsByTag("a").get(0).attr("href"));
 					int[] farmCoords = RegexUtils.getCoordsFromVillagename(tableData.get(5).getElementsByTag("a").get(0).html());
+					double distance = Double.parseDouble(tableData.get(1).html().replace(",", "."));
 
-					Database.insertFarm(farmID, village.getID(), farmCoords[0], farmCoords[1]);
+					Database.insertFarm(farmID, village.getID(), farmCoords[0], farmCoords[1], distance);
 					counter += 1;
 				}
 			}
@@ -448,15 +453,23 @@ public class Account implements Runnable {
 	}
 
 	public boolean hasPremium() {
-		return premium;
+		return this.premium;
 	}
 
 	public boolean hasAccountManager() {
-		return accountManager;
+		return this.accountManager;
 	}
 
 	public boolean hasNewReport() {
-		return newReport;
+		return this.newReport;
+	}
+
+	public String getWorldPrefix() {
+		return this.worldPrefix;
+	}
+
+	public String getWorldNumber() {
+		return this.worldNumber;
 	}
 
 }

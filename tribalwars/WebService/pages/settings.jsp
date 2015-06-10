@@ -21,6 +21,10 @@
 						<b>Achtung!</b>
 						Aus Sicherheitsgr&uuml;nden kann das Passwort nur in der Einstellungsdatei ge&auml;ndert werden.
 					</p>
+					<p>
+						<b>Achtung</b>
+						Diese Einstellungen &auml;ndern sich erst nach einem Neustart!
+					</p>
 				</div>
 				<div class="form-group" style="max-width: 200px;">
 					<label for="username">Username:</label>

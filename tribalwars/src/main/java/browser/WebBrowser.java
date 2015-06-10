@@ -66,6 +66,8 @@ public class WebBrowser {
 			throw new CaptchaException();
 		}
 
+		sleepRandom();
+
 		return output;
 	}
 
@@ -96,6 +98,10 @@ public class WebBrowser {
 			throw new CaptchaException();
 		}
 
+		if (!link.contains("screen=report")) {
+			sleepRandom();
+		}
+
 		if (connection.getHeaderField("Location") != null) {
 			if (connection.getHeaderField("Location").endsWith("sid_wrong.php")) {
 				throw new SessionException();
@@ -114,4 +120,12 @@ public class WebBrowser {
 		return this.referrer;
 	}
 
+	private void sleepRandom() throws IOException {
+		long time = (long) (Math.random() * 1500) + 900;
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException ignore) {
+			throw new IOException("Pause des Browsers wurde unterbrochen!");
+		}
+	}
 }

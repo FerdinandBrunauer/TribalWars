@@ -32,7 +32,7 @@ public class RegexUtils {
 		}
 	}
 
-	public static JSONObject getVillageJSONFromHead(String head) throws IOException {
+	public static JSONObject getJSONFromHead(String head) throws IOException {
 		Pattern pattern = Pattern.compile("var\\sgame_data\\s=\\s(.*);");
 		Matcher matcher = pattern.matcher(head);
 		if (matcher.find()) {

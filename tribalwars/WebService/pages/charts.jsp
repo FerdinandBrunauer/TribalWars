@@ -1,3 +1,4 @@
+<%@page import="java.text.DecimalFormatSymbols"%>
 <%@page import="java.text.DecimalFormat"%>
 <%@page import="datastore.Database"%>
 
@@ -35,6 +36,16 @@
 					Durchschnittliche Farmen pro Dorf:
 					<b><%=new DecimalFormat("#.00").format(Database
 					.getAvgCountFarm())%></b>
+				</p>
+				<p>
+					Durchschnittliche Distanz zu einer Farm:
+					<b><%=new DecimalFormat("#.00").format(Database
+					.getAvgDistanceFarm())%></b>
+				</p>
+				<p>
+					Maximale Distanz zu einer Farm:
+					<b><%=new DecimalFormat("#.00").format(Database
+					.getMaxDistanceFarm())%></b>
 				</p>
 				<p>
 					Gespeicherte Farmangriffe:

@@ -2,11 +2,23 @@ package tribalwars;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import tribalwars.storage.Building;
+import tribalwars.storage.Unit;
+import tribalwars.utils.RegexUtils;
 import browser.CaptchaException;
 import browser.SessionException;
+import datastore.Database;
+import datastore.memoryObject.Farm;
 
 public class Village {
 
@@ -21,6 +33,8 @@ public class Village {
 	private int population = 0;
 	private int maximalPopulation = 0;
 	private ArrayList<String> needResearch = new ArrayList<String>();
+	private HashMap<Unit, Integer> units = new HashMap<Unit, Integer>();
+	private HashMap<Building, Integer> buildings = new HashMap<Building, Integer>();
 	private Date nextBuildingbuildPossible = new Date();
 	private Date nextTroupBuildBarracksPossible = new Date();
 	private Date nextTroupBuildStablePossible = new Date();
@@ -48,67 +62,86 @@ public class Village {
 		}
 	};
 
-	/**
-	 * Ruft die Dorfübersicht des Dorfes auf und gibt eine {@link HashMap} mit
-	 * den aktuell vorhandenen Gebäudestufen zurück
-	 *
-	 * @param dorfID die DorfId des Dorfes
-	 * @return {@link HashMap} mit den aktuellen Gebäudestufen
-	 * @throws SessionException Wenn die Session abgelaufen ist und ein ReLogin
-	 *             vorgenommen werden muss.
-	 * @throws IOException Wenn die Verbindung zum Internet unterbrochen wird.
-	 * @throws CaptchaException Wenn der Botschutz auftritt
-	 */
-	// TODO refactor village overview
-	/*private HashMap<String, Integer> villageOverview(String dorfID) throws IOException, SessionException, CaptchaException {
-		String head = Jsoup.parse(this.browser.get("http://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?village=" + dorfID + "&screen=overview")).head().html();
-		HashMap<String, Integer> building = new HashMap<String, Integer>();
+	private void villageOverview() throws IOException, SessionException, CaptchaException {
+		Account account = Account.getInstance();
 
-		JSONObject object = RegexUtils.getVillageJSONFromHead(head);
-		JSONObject player = object.getJSONObject("player");
-		JSONObject village = object.getJSONObject("village");
-		JSONObject buildings = village.getJSONObject("buildings");
+		account.document = Jsoup.parse(Account.getInstance().browser.get("https://" + account.getWorldPrefix() + account.getWorldNumber() + ".die-staemme.de/game.php?village=" + getID() + "&screen=overview"));
 
-		this.newReport = (player.getInt("new_report") > 0) ? true : false;
-		this.newMessage = (player.getInt("new_igm") > 0) ? true : false;
-		this.premium = player.getBoolean("premium");
-		this.accountManager = player.getBoolean("account_manager");
+		JSONObject headerJson = RegexUtils.getJSONFromHead(account.document.head().html());
+		JSONObject playerJson = headerJson.getJSONObject("player");
+		JSONObject villageJson = headerJson.getJSONObject("village");
+		JSONObject buildingsJson = villageJson.getJSONObject("buildings");
 
-		building.put("main", buildings.getInt("main"));
-		building.put("barracks", buildings.getInt("barracks"));
-		building.put("stable", buildings.getInt("stable"));
-		building.put("garage", buildings.getInt("garage"));
-		building.put("snob", buildings.getInt("snob"));
-		building.put("smith", buildings.getInt("smith"));
-		building.put("place", buildings.getInt("place"));
-		building.put("market", buildings.getInt("market"));
-		building.put("wood", buildings.getInt("wood"));
-		building.put("stone", buildings.getInt("stone"));
-		building.put("iron", buildings.getInt("iron"));
-		building.put("farm", buildings.getInt("farm"));
-		building.put("storage", buildings.getInt("storage"));
-		building.put("hide", buildings.getInt("hide"));
-		building.put("wall", buildings.getInt("wall"));
-		building.put("statue", buildings.getInt("statue"));
+		account.setNewReport((playerJson.getInt("new_report") > 0) ? true : false);
+		account.setPremium(playerJson.getBoolean("premium"));
+		account.setAccountManager(playerJson.getBoolean("account_manager"));
 
-		Village actualVillage = this.villages.getVillage(buildings.getString("village"));
-		actualVillage.setDorfname(village.getString("name"));
-		actualVillage.setHolz(village.getInt("wood"));
-		actualVillage.setLehm(village.getInt("stone"));
-		actualVillage.setEisen(village.getInt("iron"));
-		actualVillage.setSpeicher(village.getInt("storage_max"));
-		actualVillage.setPopulation(village.getInt("pop"));
-		actualVillage.setMaximalPopulation(village.getInt("pop_max"));
+		// Gebäude
+		this.buildings.put(Building.Hauptgebaeude, buildingsJson.getInt("main"));
+		this.buildings.put(Building.Kaserne, buildingsJson.getInt("barracks"));
+		this.buildings.put(Building.Stall, buildingsJson.getInt("stable"));
+		this.buildings.put(Building.Werkstatt, buildingsJson.getInt("garage"));
+		this.buildings.put(Building.Adelshof, buildingsJson.getInt("snob"));
+		this.buildings.put(Building.Schmiede, buildingsJson.getInt("smith"));
+		this.buildings.put(Building.Versammlungsplatz, buildingsJson.getInt("place"));
+		this.buildings.put(Building.Statue, buildingsJson.getInt("statue"));
+		this.buildings.put(Building.Marktplatz, buildingsJson.getInt("market"));
+		this.buildings.put(Building.Holzfaeller, buildingsJson.getInt("wood"));
+		this.buildings.put(Building.Lehmgrube, buildingsJson.getInt("stone"));
+		this.buildings.put(Building.Eisenmine, buildingsJson.getInt("iron"));
+		this.buildings.put(Building.Bauernhof, buildingsJson.getInt("farm"));
+		this.buildings.put(Building.Speicher, buildingsJson.getInt("storage"));
+		this.buildings.put(Building.Versteck, buildingsJson.getInt("hide"));
+		this.buildings.put(Building.Wall, buildingsJson.getInt("wall"));
 
-		head = null;
-		village = null;
-		player = null;
-		buildings = null;
+		// Truppen
+		if (account.hasPremium()) {
+			Elements troupRows = account.document.getElementById("show_units").getElementsByTag("tr");
+			troupRows.remove(troupRows.size() - 1); // rekruit Link
 
-		System.gc();
+			this.units.clear();
+			for (Element troupRow : troupRows) {
+				Unit unit = Unit.fromString(troupRow.getElementsByTag("a").get(0).attr("data-unit"));
+				int count = Integer.parseInt(troupRow.getElementsByTag("strong").get(0).html());
+				this.units.put(unit, count);
+			}
+			troupRows = null;
+		} else {
+			throw new IOException("Truppen auslesen ohne Premium noch nicht implementiert!");
+			// wahrscheinlich ist nur kein rekrutieren eintrag vorhanden, Kontrollieren bitte!
+		}
 
-		return building;
-	}*/
+		// Rohstoffe, Bauernhofplätze, Speicher
+		setDorfname(villageJson.getString("name"));
+		setHolz(villageJson.getInt("wood"));
+		setLehm(villageJson.getInt("stone"));
+		setEisen(villageJson.getInt("iron"));
+		setSpeicher(villageJson.getInt("storage_max"));
+		setPopulation(villageJson.getInt("pop"));
+		setMaximalPopulation(villageJson.getInt("pop_max"));
+
+		// TODO first return for next possible Attack
+
+		// save memory
+		headerJson = null;
+		playerJson = null;
+		villageJson = null;
+		buildingsJson = null;
+	}
+
+	public void sendFarmTroops() throws IOException, SessionException, CaptchaException {
+		villageOverview();
+
+		ArrayList<Farm> farms = Database.getFarms(getID());
+		Collections.sort(farms, new Comparator<Farm>() {
+			@Override
+			public int compare(Farm o1, Farm o2) {
+				return Double.compare(o1.getResourcesPerDistance(), o2.getResourcesPerDistance());
+			}
+		});
+
+		// TODO sendFarmTroops
+	}
 
 	public long getID() {
 		return this.id;

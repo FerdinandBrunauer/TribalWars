@@ -28,6 +28,8 @@ public class VillagenameUtils {
 		System.out.println(name);
 		name = generateVillagename(9, VillageTroupType.OFF, true, true, true);
 		System.out.println(name);
+		name = generateVillagename(10, VillageTroupType.OFF, true, true, true);
+		System.out.println(name);
 	}
 
 	public static VillageTroupType getVillageTroupType(String villagename) {
@@ -123,7 +125,9 @@ public class VillagenameUtils {
 	}
 
 	public enum VillageTroupType {
-		OFF, DEFF, UNDEFINED
+		OFF,
+		DEFF,
+		UNDEFINED
 	}
 
 }
