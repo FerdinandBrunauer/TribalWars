@@ -1,7 +1,7 @@
 -- TABLES
 CREATE TABLE `Farm` ( `idFarm` INTEGER, `idVillage` INTEGER NOT NULL, `x` INTEGER NOT NULL, `y` INTEGER NOT NULL, `distance` REAL NOT NULL, UNIQUE(`idFarm`, `idVillage`));
 CREATE TABLE `Report` ( `idReport` INTEGER NOT NULL, `idFarm` INTEGER, `attackTime` DATETIME, `spyedResources` INTEGER, `wood` INTEGER, `stone` INTEGER, `iron` INTEGER, `storage` INTEGER, `wall` INTEGER, PRIMARY KEY(`idReport`));
-CREATE TABLE `FarmAttack` ( `idFarmAttack` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `idVillage` INTEGER NOT NULL, `arrival` DATETIME NOT NULL, `possibleLoot` INTEGER NOT NULL);
+CREATE TABLE `FarmAttack` ( `idFarmAttack` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `idFarm` INTEGER NOT NULL, `attackTime` DATETIME NOT NULL, `possibleLoot` INTEGER NOT NULL, `ram` INTEGER NOT NULL);
 CREATE TABLE `Production` ( `level` INTEGER NOT NULL UNIQUE, `production` REAL NOT NULL, PRIMARY KEY(level));
 CREATE TABLE `Storage` ( `level` INTEGER NOT NULL UNIQUE, `storage` INTEGER NOT NULL);
 

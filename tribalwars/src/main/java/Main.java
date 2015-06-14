@@ -21,7 +21,7 @@ import datastore.Configuration;
  * So if you are done trying to 'optimize' this routine (and failed), please
  * increment the following counter as a warning to the next guy:
  *
- * total_hours_wasted_here = 102
+ * total_hours_wasted_here = 116
  *
  */
 

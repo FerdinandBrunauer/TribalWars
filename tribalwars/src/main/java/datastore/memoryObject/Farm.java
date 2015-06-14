@@ -5,15 +5,15 @@ public class Farm {
 	private final double distance;
 	private final double possibleResources;
 	private final int wall;
+	private final int x;
+	private final int y;
 
-	private final double resourcesPerDistance;
-
-	public Farm(double distance, double possibleResources, int wall) {
+	public Farm(int x, int y, double distance, double possibleResources, int wall) {
 		this.distance = distance;
 		this.possibleResources = possibleResources;
 		this.wall = wall;
-
-		this.resourcesPerDistance = this.possibleResources / this.distance;
+		this.x = x;
+		this.y = y;
 	}
 
 	public double getDistance() {
@@ -28,8 +28,12 @@ public class Farm {
 		return this.wall;
 	}
 
-	public double getResourcesPerDistance() {
-		return this.resourcesPerDistance;
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
 	}
 
 }

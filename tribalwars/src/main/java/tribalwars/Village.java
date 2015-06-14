@@ -6,6 +6,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
+
+import logger.Logger;
 
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -17,6 +21,7 @@ import tribalwars.storage.Unit;
 import tribalwars.utils.RegexUtils;
 import browser.CaptchaException;
 import browser.SessionException;
+import datastore.Configuration;
 import datastore.Database;
 import datastore.memoryObject.Farm;
 
@@ -40,6 +45,8 @@ public class Village {
 	private Date nextTroupBuildStablePossible = new Date();
 	private Date nextTroupBuildWorkshopPossible = new Date();
 	private Date nextFarmattackPossible = new Date();
+
+	private static int[] rammboeckeForWall = { 0, 5, 5, 8, 10, 15, 20, 25, 30, 40, 47, 55, 70, 80, 95, 110, 125, 145, 170, 195, 225 };
 
 	public Village(long id, String dorfname, int x, int y) {
 		this.id = id;
@@ -102,7 +109,12 @@ public class Village {
 			this.units.clear();
 			for (Element troupRow : troupRows) {
 				Unit unit = Unit.fromString(troupRow.getElementsByTag("a").get(0).attr("data-unit"));
-				int count = Integer.parseInt(troupRow.getElementsByTag("strong").get(0).html());
+				int count;
+				try {
+					count = Integer.parseInt(troupRow.getElementsByTag("strong").get(0).html());
+				} catch (Exception ignore) {
+					count = 1;
+				}
 				this.units.put(unit, count);
 			}
 			troupRows = null;
@@ -120,7 +132,29 @@ public class Village {
 		setPopulation(villageJson.getInt("pop"));
 		setMaximalPopulation(villageJson.getInt("pop_max"));
 
-		// TODO first return for next possible Attack
+		if (account.hasPremium()) {
+			Elements outgoingTroups = account.document.getElementById("show_outgoing_units").getElementsByTag("tr");
+			if (outgoingTroups.size() < 1) {
+				this.setNextFarmattackPossible(new Date());
+			} else {
+				outgoingTroups.remove(0);
+				boolean foundReturning = false;
+				for (Element outgoingTroup : outgoingTroups) {
+					if (outgoingTroup.getElementsByAttribute("data-command-type").get(0).attr("data-command-type").compareTo("return") == 0) {
+						foundReturning = true;
+						long endtime = Long.parseLong(outgoingTroup.getElementsByAttribute("data-endtime").get(0).attr("data-endtime"));
+						this.setNextFarmattackPossible(new Date(endtime));
+						break;
+					} // else attack
+				}
+				if (!foundReturning) {
+					long endtime = Long.parseLong(outgoingTroups.get(0).getElementsByAttribute("data-endtime").get(0).attr("data-endtime"));
+					this.setNextFarmattackPossible(new Date(endtime));
+				}
+			}
+		} else {
+			throw new IOException("Befehle auslesen ohne Premium noch nicht realisiert!");
+		}
 
 		// save memory
 		headerJson = null;
@@ -136,11 +170,91 @@ public class Village {
 		Collections.sort(farms, new Comparator<Farm>() {
 			@Override
 			public int compare(Farm o1, Farm o2) {
-				return Double.compare(o1.getResourcesPerDistance(), o2.getResourcesPerDistance());
+				return Double.compare(o1.getDistance(), o2.getDistance());
 			}
 		});
 
-		// TODO sendFarmTroops
+		for (Farm farm : farms) {
+			if (this.units.containsKey(Unit.Spaeher) && this.units.get(Unit.Spaeher) > Integer.parseInt(Configuration.getProperty(Configuration.configuration_minimum_spys, "4"))) {
+				if (this.units.containsKey(Unit.Axtkaempfer)) {
+					if (farm.getWall() > 2) {
+						if (Database.needRamAttack(Database.getIDFarm(farm.getX(), farm.getY()))) {
+							int maximalNeededTroups = (int) (farm.getPossibleResources() / Unit.Axtkaempfer.getCapacity());
+							if (maximalNeededTroups > this.units.get(Unit.Axtkaempfer)) {
+								maximalNeededTroups = this.units.get(Unit.Axtkaempfer);
+							}
+							if (maximalNeededTroups < 200) {
+								continue;
+							}
+
+							HashMap<Unit, Integer> troops = new HashMap<Unit, Integer>();
+							troops.put(Unit.Spaeher, Integer.parseInt(Configuration.getProperty(Configuration.configuration_minimum_spys, "4")));
+							troops.put(Unit.Axtkaempfer, maximalNeededTroups);
+							troops.put(Unit.Rammboecke, getRammsForWallLevel(farm.getWall()));
+
+							sendFarmTroop(troops, farm.getX(), farm.getY());
+						}
+					}
+				}
+			} else {
+				break;
+			}
+		}
+	}
+
+	private void sendFarmTroop(HashMap<Unit, Integer> sendTroops, int destinationX, int destinationY) throws IOException, SessionException, CaptchaException {
+		Account account = Account.getInstance();
+		account.document = Jsoup.parse(account.browser.get("https://" + account.getWorldPrefix() + account.getWorldNumber() + ".die-staemme.de/game.php?village=" + this.getID() + "&screen=place"));
+		Element element = account.document.getElementById("units_form").getElementsByTag("input").get(0);
+		String post = element.attr("name") + "=" + element.attr("value") + "&template_id=&spear=&sword=&axe=&archer=&spy=&light=&marcher=&heavy=&ram=&catapult=&knight=&snob=&x=&y=&target_type=coord&input=&attack=Angreifen";
+		Iterator<Entry<Unit, Integer>> it = sendTroops.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<Unit, Integer> pair = it.next();
+			post = post.replace("&" + pair.getKey().getShortName() + "=", "&" + pair.getKey().getShortName() + "=" + pair.getValue());
+		}
+		post = post.replace("&x=", "&x=" + destinationX);
+		post = post.replace("&y=", "&y=" + destinationY);
+		account.document = Jsoup.parse(account.browser.post("https://dep5.die-staemme.de/game.php?village=56872&try=confirm&screen=place", post));
+		Element submitForm = account.document.getElementById("command-confirm-form");
+		String ch = submitForm.getElementsByAttributeValue("name", "ch").get(0).attr("value");
+		String action_id = submitForm.getElementsByAttributeValue("name", "action_id").get(0).attr("value");
+		String h = RegexUtils.getHWert(account.document.html());
+
+		post = "attack=true&ch=" + ch + "&x=" + destinationX + "&y=" + destinationY + "&action_id=" + action_id + "&attack_name=&spear=0&sword=0&axe=0&archer=0&spy=0&light=0&marcher=0&heavy=0&ram=0&catapult=0&knight=0&snob=0";
+		it = sendTroops.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<Unit, Integer> pair = it.next();
+			post = post.replace("&" + pair.getKey().getShortName() + "=0", "&" + pair.getKey().getShortName() + "=" + pair.getValue());
+		}
+
+		account.browser.post("https://" + account.getWorldPrefix() + account.getWorldNumber() + ".die-staemme.de/game.php?village=" + this.getID() + "&action=command&h=" + h + "&screen=place", post);
+
+		int loot = 0;
+		String troopString = "";
+		it = sendTroops.entrySet().iterator();
+		while (it.hasNext()) {
+			Entry<Unit, Integer> pair = it.next();
+			this.units.put(pair.getKey(), this.units.get(pair.getKey()) - pair.getValue());
+
+			loot += pair.getKey().getCapacity() * pair.getValue();
+			troopString += pair.getKey().getLongName() + ": " + pair.getValue() + (it.hasNext() ? ", " : "");
+		}
+
+		Database.insertFarmAttack(Database.getIDFarm(destinationX, destinationY), loot, sendTroops.containsKey(Unit.Rammboecke));
+		Logger.logMessage("Farmangriff gestartet! Truppen: " + troopString);
+	}
+
+	private int getRammsForWallLevel(int wall) {
+		int needed = rammboeckeForWall[wall];
+		if (this.units.containsKey(Unit.Rammboecke)) {
+			if (needed > this.units.get(Unit.Rammboecke)) {
+				return (this.units.get(Unit.Rammboecke) > 5) ? this.units.get(Unit.Rammboecke) : 0;
+			} else {
+				return needed;
+			}
+		} else {
+			return 0;
+		}
 	}
 
 	public long getID() {

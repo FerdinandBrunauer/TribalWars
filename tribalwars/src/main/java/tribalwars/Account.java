@@ -199,7 +199,7 @@ public class Account implements Runnable {
 	private void analyzeVillages() throws IOException, SessionException, CaptchaException {
 		ArrayList<Village> newVillages = new ArrayList<Village>();
 
-		this.document = Jsoup.parse(this.browser.get("https://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?screen=overview_villages" + (hasPremium() ? "&mode=prod" : "")));
+		this.document = Jsoup.parse(this.browser.get("https://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?screen=overview_villages" + (hasPremium() ? "&mode=prod&group=0" : "")));
 
 		JSONObject object = RegexUtils.getJSONFromHead(this.document.head().html());
 		JSONObject player = object.getJSONObject("player");
@@ -287,7 +287,7 @@ public class Account implements Runnable {
 		if (hasPremium()) {
 			int from = 0;
 			outerloop: while (true) {
-				this.document = Jsoup.parse(this.browser.get("https://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?mode=all&from=" + from + "&screen=report"));
+				this.document = Jsoup.parse(this.browser.get("https://" + this.worldPrefix + this.worldNumber + ".die-staemme.de/game.php?mode=all&group_id=-1&from=" + from + "&screen=report"));
 				reportRows = this.document.getElementById("report_list").getElementsByTag("tr");
 				reportRows.remove(0); // Header
 				reportRows.remove(reportRows.size() - 1); // Select all
@@ -418,6 +418,9 @@ public class Account implements Runnable {
 					long farmID = RegexUtils.getIDFromTwStatsLink(tableData.get(5).getElementsByTag("a").get(0).attr("href"));
 					int[] farmCoords = RegexUtils.getCoordsFromVillagename(tableData.get(5).getElementsByTag("a").get(0).html());
 					double distance = Double.parseDouble(tableData.get(1).html().replace(",", "."));
+					if (distance > 12.2) { // Mehr als 2H mit Leichten 
+						continue;
+					}
 
 					Database.insertFarm(farmID, village.getID(), farmCoords[0], farmCoords[1], distance);
 					counter += 1;

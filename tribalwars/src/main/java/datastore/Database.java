@@ -104,13 +104,13 @@ public class Database extends SQLiteQueue {
 				ArrayList<Farm> farmen = new ArrayList<Farm>();
 
 				SQLiteStatement statement = connection
-						.prepare("SELECT `Farm`.`distance`, CASE WHEN ((wood.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) > storage.`storage` THEN storage.`storage` ELSE ((wood.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) END + CASE WHEN ((stone.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) > storage.`storage` THEN storage.`storage` ELSE ((stone.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) END + CASE WHEN ((iron.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) > storage.`storage` THEN storage.`storage` ELSE ((iron.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) END AS 'possibleResources', `Report`.`wall`FROM `Report`JOIN `Farm` ON `Farm`.`idFarm` = `Report`.`idFarm`JOIN `Production` AS wood ON wood.`level` = `Report`.`wood`JOIN `Production` AS stone ON stone.`level` = `Report`.`stone`JOIN `Production` AS iron ON iron.`level` = `Report`.`iron`JOIN `Storage` AS `storage` ON `storage`.`level` = `Report`.`storage`WHERE `Farm`.`idVillage` = ? GROUP BY `Report`.`idFarm`ORDER BY `Farm`.`distance` ASC;");
+						.prepare("SELECT `Farm`.`x`, `Farm`.`y`, `Farm`.`distance`, CASE WHEN ((wood.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) > storage.`storage` THEN storage.`storage` ELSE ((wood.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) END + CASE WHEN ((stone.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) > storage.`storage` THEN storage.`storage` ELSE ((stone.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) END + CASE WHEN ((iron.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) > storage.`storage` THEN storage.`storage` ELSE ((iron.`production` * ?) * (strftime(\"%s\", datetime('now', 'localtime')) - strftime(\"%s\", `Report`.`attackTime`))) END AS 'possibleResources', `Report`.`wall`FROM `Report`JOIN `Farm` ON `Farm`.`idFarm` = `Report`.`idFarm`JOIN `Production` AS wood ON wood.`level` = `Report`.`wood`JOIN `Production` AS stone ON stone.`level` = `Report`.`stone`JOIN `Production` AS iron ON iron.`level` = `Report`.`iron`JOIN `Storage` AS `storage` ON `storage`.`level` = `Report`.`storage`WHERE `Farm`.`idVillage` = ? GROUP BY `Report`.`idFarm`ORDER BY `Farm`.`distance` ASC;");
 				for (int i = 1; i <= 6; i++) {
 					statement.bind(i, Integer.parseInt(Configuration.getProperty(Configuration.configuration_worldspeed, "")));
 				}
 				statement.bind(7, idVillage);
 				while (statement.step()) {
-					farmen.add(new Farm(statement.columnDouble(0), statement.columnDouble(1), statement.columnInt(2)));
+					farmen.add(new Farm(statement.columnInt(0), statement.columnInt(1), statement.columnDouble(2), statement.columnDouble(3), statement.columnInt(4)));
 				}
 				return farmen;
 			}
@@ -185,20 +185,50 @@ public class Database extends SQLiteQueue {
 		}).complete();
 	}
 
-	// TODO insert Farm Attack
-	/* public static void insertFarmAttack(final long idVillage, final Date arrival, final int possibleLoot) {
+	public static void insertFarmAttack(final long idFarm, final int loot, final boolean containsRam) {
 		getInstance().execute(new SQLiteJob<Void>() {
 			@Override
 			protected Void job(SQLiteConnection connection) throws Throwable {
-				SQLiteStatement statement = connection.prepare("INSERT INTO `FarmAttack`(`idVillage`,`arrival`,`possibleLoot`) VALUES (?,?,?);");
-				statement.bind(1, idVillage);
-				statement.bind(2, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(arrival));
-				statement.bind(3, possibleLoot);
+				SQLiteStatement statement = connection.prepare("INSERT INTO `FarmAttack`(`idFarm`, `attackTime`, `possibleLoot`, `ram`) VALUES (?, ?, ?, ?);");
+				statement.bind(1, idFarm);
+				statement.bind(2, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+				statement.bind(3, loot);
+				statement.bind(4, (containsRam) ? 1 : 0);
 				statement.stepThrough();
+
 				return null;
 			}
 		}).complete();
-	} */
+	}
+
+	public static boolean needRamAttack(final long idFarm) {
+		return getInstance().execute(new SQLiteJob<Boolean>() {
+			@Override
+			protected Boolean job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("SELECT (COUNT(`FarmAttack`.`idFarmAttack`)) FROM `FarmAttack` JOIN `Report` ON `Report`.`idFarm`=`FarmAttack`.`idFarm` WHERE strftime(\"%s\", `FarmAttack`.`attackTime`) > strftime(\"%s\", `Report`.`attackTime`)");
+				statement.bind(1, idFarm);
+				statement.step();
+				if (statement.columnInt(0) > 0) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}).complete();
+	}
+
+	public static long getIDFarm(final int x, final int y) {
+		return getInstance().execute(new SQLiteJob<Long>() {
+			@Override
+			protected Long job(SQLiteConnection connection) throws Throwable {
+				SQLiteStatement statement = connection.prepare("SELECT `idFarm` FROM `Farm` WHERE `x`=? AND `y`=?;");
+				statement.bind(1, x);
+				statement.bind(2, y);
+				statement.step();
+				return statement.columnLong(0);
+			}
+		}).complete();
+	}
 
 	public static long getCountReports() {
 		return getInstance().execute(new SQLiteJob<Long>() {
@@ -311,7 +341,7 @@ public class Database extends SQLiteQueue {
 		return getInstance().execute(new SQLiteJob<Double>() {
 			@Override
 			protected Double job(SQLiteConnection connection) throws Throwable {
-				SQLiteStatement statement = connection.prepare("SELECT IFNULL(AVG(`distance`), 0) FROM `Farm`;");
+				SQLiteStatement statement = connection.prepare("SELECT IFNULL(MAX(`distance`), 0) FROM `Farm`;");
 				statement.step();
 				return statement.columnDouble(0);
 			}
