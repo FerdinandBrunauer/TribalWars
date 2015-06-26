@@ -1,5 +1,7 @@
 ## Die Stämme
 Dies ist ein Programm, welches verschiedene Funktionen des Spieles Die Stämme (www.die-staemme.de) automatisiert. 
+## Wichtig
+Die Entwicklung dieses Programmes wurde vorerst eingestellt, da der Account aufgrund von mangelnder Zeit nicht weitergeführt werden kann.
 
 ### Features
 - Webinterface, um den Bot über das Internet zu steuern. (Ein/Ausschalten, Bauvorlagen, Truppenvorlagen)
